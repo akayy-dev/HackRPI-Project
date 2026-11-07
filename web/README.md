@@ -2,6 +2,7 @@
 
 Next.js 15 (App Router) + Tailwind v4 UI for the reverse-proxy security handler.
 Design spec: [`../docs/DESIGN.md`](../docs/DESIGN.md).
+External services, setup & where they are used: [`../docs/SERVICES.md`](../docs/SERVICES.md).
 
 ## Run
 
@@ -9,6 +10,7 @@ Design spec: [`../docs/DESIGN.md`](../docs/DESIGN.md).
 cd web
 npm install
 cp .env.example .env.local   # optional
+npm run geoip:download       # country geo-IP database (see docs/SERVICES.md)
 npm run dev                  # http://localhost:3000
 ```
 
@@ -27,25 +29,50 @@ npm run dev                  # http://localhost:3000
 ## Data: mock → MongoDB
 
 - No `MONGODB_URI` → mock data (timestamps relative to now, so filters work).
-- Set `MONGODB_URI` → reads `connections` collection (last 24h, newest 500).
+- Set `MONGODB_URI` → reads `MONGODB_COLLECTION` (default `connections`; last 24h, newest 500).
 - Mongo errors fall back to mock (logged).
 
-### MongoDB schema — `connections`
+### MongoDB schema — one document per proxied request (written by the proxy)
 
 ```js
 {
-  timestamp: ISODate,          // indexed: { timestamp: -1 }
-  ip: "198.51.100.7",
-  method: "POST",
-  path: "/login",
-  verdict: "allowed" | "blocked",
-  mlScore: 0.97,               // 0..1 from the ML classifier
-  threat: "SQLi" | null,
-  location: { code: "RU-MOW", city: "Moscow", country: "RU", lat: 55.76, lon: 37.62 }
+  _id: ObjectId,
+  timestamp: ISODate,            // indexed: { timestamp: -1 }
+  risk: 0.199,                   // Double 0..1 from the ML classifier
+  method: "GET",
+  url: "/login?next=/",          // request URI incl. query
+  host: "localhost:8080",
+  remote_addr: "127.0.0.1:54344",// "ip:port" ("[::1]:port" for IPv6)
+  protocol: "HTTP/1.1",
+  headers: { "User-Agent": ["Mozilla/5.0 ..."], Accept: ["text/html"], ... } // name → [values]
 }
 ```
 
-Tip: resolve IP → `location` at ingest time (e.g. MaxMind GeoLite2) so the UI stays dumb.
+The dashboard derives the rest (`src/lib/requestLog.ts`):
+- `ip` ← parsed from `remote_addr`
+- `verdict` ← `risk >= 0.5` → `blocked`, else `allowed` (`THREAT_SCORE` in `src/lib/aggregate.ts`)
+- `location` ← country-level lookup in `src/lib/geo.ts` (see below)
+
+### Geo-IP (country level)
+
+```bash
+npm run geoip:download   # → data/dbip-country-lite.mmdb (~8.5 MB, gitignored); re-run monthly
+```
+
+Lookup order for each request's client IP:
+1. Loopback / private IP → "LAN" node beside our server
+2. `CF-IPCountry` header (only when `TRUST_PROXY_HEADERS=true`)
+3. DB-IP country database → dot at the country's center
+4. Mock-data demo IPs → fixed countries
+5. Otherwise unknown: listed in the log, not drawn on the map
+
+`TRUST_PROXY_HEADERS=true` also takes the client IP from `CF-Connecting-IP` / `X-Real-IP` /
+`X-Forwarded-For` instead of `remote_addr`. Enable it **only** when the proxy sits behind a CDN or load
+balancer you control. Clients can spoof those headers, though that's handy for demos:
+`curl -H "X-Forwarded-For: 8.8.8.8" http://localhost:8080/`.
+
+Data credits: [DB-IP](https://db-ip.com) IP to Country Lite (CC BY 4.0, attribution shown on the map) ·
+country centers from [mledoze/countries](https://github.com/mledoze/countries) (ODbL) in `src/lib/countryCentroids.json`.
 
 ## AI assistant
 

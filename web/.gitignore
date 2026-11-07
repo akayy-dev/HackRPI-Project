@@ -40,3 +40,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# geo-IP database (downloaded by npm run geoip:download)
+/data/*.mmdb

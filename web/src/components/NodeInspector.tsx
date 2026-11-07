@@ -3,6 +3,7 @@
 import { useState } from "react";
 import type { MapNode } from "@/lib/types";
 import { isThreatScore, severityLabel } from "@/lib/aggregate";
+import { getHeader } from "@/lib/requestLog";
 
 const subnet24 = (ip: string) => ip.split(".").slice(0, 3).join(".") + ".0/24";
 
@@ -10,19 +11,21 @@ export default function NodeInspector({ node, onClose }: { node: MapNode; onClos
   const [note, setNote] = useState<string | null>(null);
   const e = node.latest;
   const blocked = node.blocked > 0;
-  const threat = blocked || isThreatScore(node.maxScore);
+  const threat = blocked || isThreatScore(node.maxRisk);
+  const ua = getHeader(e, "User-Agent");
 
   const rows: [string, React.ReactNode][] = [
-    ["IP", <span key="ip" className="font-bold text-white">{e.ip}</span>],
-    ["Location", `${node.location.city}, ${node.location.country}`],
+    ["IP", <span key="ip" className="font-bold text-white">{e.ip}{node.ips > 1 && <span className="font-normal text-gray-400"> +{node.ips - 1}</span>}</span>],
+    ["Location", `${node.location.name} (${node.location.country})`],
     ["Requests", `${node.total} (${node.blocked} blocked)`],
     [
-      "Threat Score",
-      <span key="s" className={`whitespace-nowrap rounded border px-1.5 font-bold ${isThreatScore(node.maxScore) ? "border-threat/40 bg-threat/15 text-threat" : "border-tactical/30 bg-tactical/10 text-tactical"}`}>
-        {node.maxScore.toFixed(2)} {severityLabel(node.maxScore)}
+      "Max risk",
+      <span key="s" className={`whitespace-nowrap rounded border px-1.5 font-bold ${isThreatScore(node.maxRisk) ? "border-threat/40 bg-threat/15 text-threat" : "border-tactical/30 bg-tactical/10 text-tactical"}`}>
+        {node.maxRisk.toFixed(2)} {severityLabel(node.maxRisk)}
       </span>,
     ],
-    ["Threat", node.topThreat ? <span key="t" className="font-semibold text-threat">{node.topThreat}</span> : "—"],
+    ["Last request", <span key="r" className="break-all text-gray-200">{e.method} {e.url}</span>],
+    ["User-Agent", <span key="ua" className="line-clamp-2 break-all text-gray-300" title={ua ?? undefined}>{ua ?? "—"}</span>],
   ];
 
   return (
@@ -45,9 +48,9 @@ export default function NodeInspector({ node, onClose }: { node: MapNode; onClos
 
       <dl className="space-y-2">
         {rows.map(([k, v]) => (
-          <div key={k} className="flex items-center justify-between gap-3">
-            <dt className="text-gray-400">{k}</dt>
-            <dd className="text-right">{v}</dd>
+          <div key={k} className="flex items-start justify-between gap-3">
+            <dt className="shrink-0 text-gray-400">{k}</dt>
+            <dd className="min-w-0 text-right">{v}</dd>
           </div>
         ))}
         <div className="flex items-center justify-between border-t border-obsidian-800 pt-1.5">

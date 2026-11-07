@@ -13,11 +13,16 @@ export function filterConnections(
   );
 }
 
-/** Group events by origin location so the map draws one node per place. */
+/** Group events by origin location so the map draws one node per place. Unlocated events are skipped. */
 export function toMapNodes(events: ConnectionEvent[]): MapNode[] {
   const byKey = new Map<string, MapNode>();
+  const ipsByKey = new Map<string, Set<string>>();
   for (const e of events) {
+    if (!e.location) continue;
     const key = e.location.code;
+    const ips = ipsByKey.get(key) ?? new Set<string>();
+    ips.add(e.ip);
+    ipsByKey.set(key, ips);
     const node = byKey.get(key);
     if (!node) {
       byKey.set(key, {
@@ -26,8 +31,8 @@ export function toMapNodes(events: ConnectionEvent[]): MapNode[] {
         total: 1,
         blocked: e.verdict === "blocked" ? 1 : 0,
         allowed: e.verdict === "allowed" ? 1 : 0,
-        maxScore: e.mlScore,
-        topThreat: e.threat,
+        maxRisk: e.risk,
+        ips: 1,
         latest: e,
       });
       continue;
@@ -35,10 +40,8 @@ export function toMapNodes(events: ConnectionEvent[]): MapNode[] {
     node.total++;
     if (e.verdict === "blocked") node.blocked++;
     else node.allowed++;
-    if (e.mlScore > node.maxScore) {
-      node.maxScore = e.mlScore;
-      node.topThreat = e.threat ?? node.topThreat;
-    }
+    node.maxRisk = Math.max(node.maxRisk, e.risk);
+    node.ips = ips.size;
     if (e.timestamp > node.latest.timestamp) node.latest = e;
   }
   return [...byKey.values()];

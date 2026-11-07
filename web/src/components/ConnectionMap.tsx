@@ -78,7 +78,7 @@ const TIP_LINE_H = 12;
 function NodeTooltip({ node, view }: { node: MapNode & { xy: [number, number]; r: number }; view: { k: number; x: number; y: number } }) {
   const [x, y] = node.xy;
   const lines: { text: string; parts?: { text: string; fill: string }[] }[] = [
-    { text: `${node.location.city} (${node.location.code})` },
+    { text: `${node.location.name} (${node.location.code})` },
     {
       text: `${node.allowed} allowed · ${node.blocked} blocked`,
       parts: [
@@ -87,7 +87,7 @@ function NodeTooltip({ node, view }: { node: MapNode & { xy: [number, number]; r
         { text: `${node.blocked} blocked`, fill: node.blocked > 0 ? THREAT_HEX : "#9ca3af" },
       ],
     },
-    { text: `last: ${node.latest.ip} · ${node.latest.verdict}` },
+    { text: `${node.ips === 1 ? node.latest.ip : `${node.ips} IPs`} · last: ${node.latest.verdict}` },
   ];
   const w = Math.max(...lines.map((l) => l.text.length)) * TIP_CHAR_W + 16;
   const h = lines.length * TIP_LINE_H + 10;
@@ -258,7 +258,7 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
                   onSelect(isSel ? null : n.key);
                 }}
                 role="button"
-                aria-label={`${n.location.city}: ${n.allowed} allowed, ${n.blocked} blocked`}
+                aria-label={`${n.location.name}: ${n.allowed} allowed, ${n.blocked} blocked`}
               >
                 <circle r={14} fill="transparent" />
                 <SplitRing r={n.r} allowed={n.allowed} blocked={n.blocked} width={isSel ? 3.4 : 2.6} />

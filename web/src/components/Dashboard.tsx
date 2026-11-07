@@ -22,6 +22,7 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
     [data.connections, timeWindow, verdict],
   );
   const nodes = useMemo(() => toMapNodes(filtered), [filtered]);
+  const unlocated = useMemo(() => filtered.filter((e) => !e.location).length, [filtered]);
   const selected = nodes.find((n) => n.key === selectedKey) ?? null;
 
   return (
@@ -57,8 +58,17 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
             <div className="soc-grid-bg relative min-h-[240px] w-full grow overflow-hidden rounded-lg border border-obsidian-800 bg-obsidian-950 sm:min-h-[410px] md:min-h-[440px]">
               <ConnectionMap server={data.server} nodes={nodes} selectedKey={selectedKey} onSelect={setSelectedKey} />
               <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-gray-500">
-                {nodes.length} origins · {filtered.length} requests · source: {data.source}
+                {nodes.length} origins · {filtered.length} requests{unlocated > 0 && ` (${unlocated} unlocated)`} · source: {data.source}
               </div>
+              {/* Required by the DB-IP Lite licence (CC BY 4.0) */}
+              <a
+                href="https://db-ip.com"
+                target="_blank"
+                rel="noreferrer"
+                className="absolute bottom-2 right-3 text-[10px] text-gray-600 transition-colors hover:text-gray-400"
+              >
+                IP Geolocation by DB-IP
+              </a>
             </div>
             {selected && <NodeInspector node={selected} onClose={() => setSelectedKey(null)} />}
           </div>
@@ -91,7 +101,7 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
         <AiPanel summary={data.summary} />
       </main>
 
-      <ConnectionLog events={filtered} onInspect={(e) => setSelectedKey(e.location.code)} />
+      <ConnectionLog events={filtered} onInspect={(e) => e.location && setSelectedKey(e.location.code)} />
     </div>
   );
 }
