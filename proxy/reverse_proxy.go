@@ -1,29 +1,28 @@
 package proxy
 
 import (
+	"fmt"
 	"log/slog"
+	"net/http/httputil"
 	"net/url"
 )
 
-type ReverseProxy struct {
-	// The URLs that sit behind the reverse proxy
-	targetURLs []*url.URL
-	current    uint64
-}
-
-// NewReverseProxy creates a new ReverseProxy instance with the provided backend URLs.
-func NewReverseProxy(backendURLs []string) *ReverseProxy {
-	urls := make([]*url.URL, len(backendURLs))
-
-	for i, u := range backendURLs {
-		parsedURL, err := url.Parse(u)
-		if err != nil {
-			slog.Error("Error parsing backend URL", "index", i, "error", err)
-		}
-		urls[i] = parsedURL
+// NewReverseProxy creates a reverse proxy for an absolute HTTP or HTTPS backend URL.
+func NewReverseProxy(backendURL string) (*httputil.ReverseProxy, error) {
+	targetURL, err := url.Parse(backendURL)
+	if err != nil {
+		return nil, fmt.Errorf("parse backend URL: %w", err)
 	}
-	return &ReverseProxy{
-		targetURLs: urls,
-		current:    0,
+	if targetURL.Host == "" || (targetURL.Scheme != "http" && targetURL.Scheme != "https") {
+		return nil, fmt.Errorf("backend URL must be an absolute HTTP or HTTPS URL")
 	}
+
+	return &httputil.ReverseProxy{
+		Rewrite: func(r *httputil.ProxyRequest) {
+			r.SetURL(targetURL)
+
+			slog.Debug("Created reverse proxy request", "method", r.In.Method, "url", r.In.URL.String(), "host", r.In.Host)
+			r.SetXForwarded()
+		},
+	}, nil
 }

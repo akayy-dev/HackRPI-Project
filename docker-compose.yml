@@ -3,13 +3,31 @@ name: vivian-demo
 services:
   proxy:
     build: .
+    stop_grace_period: 20s
     ports:
       - "8080:8080"
     environment:
       REVERSE_PROXY_URL: http://target-web-app:80
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DATABASE: telemetry
+      MONGODB_COLLECTION: requests
+      RISK_THRESHOLD: ${RISK_THRESHOLD:-0.5}
     depends_on:
       target-web-app:
         condition: service_healthy
+      mongodb:
+        condition: service_healthy
+
+  mongodb:
+    image: mongo:8.0
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.adminCommand('ping').ok ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
 
   target-web-app:
     image: nginx:stable-alpine
@@ -18,4 +36,7 @@ services:
       interval: 5s
       timeout: 3s
       retries: 5
+
+volumes:
+  mongodb-data:
 
