@@ -1,0 +1,21 @@
+name: vivian-demo
+
+services:
+  proxy:
+    build: .
+    ports:
+      - "8080:8080"
+    environment:
+      REVERSE_PROXY_URL: http://target-web-app:80
+    depends_on:
+      target-web-app:
+        condition: service_healthy
+
+  target-web-app:
+    image: nginx:stable-alpine
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
