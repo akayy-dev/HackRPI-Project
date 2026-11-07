@@ -39,6 +39,24 @@ Adjust request rate (1–100/sec), malicious mix (0–100%), attack-category che
 and batch size (up to 100,000), or enable continuous generation. Pause/resume,
 stop, and reset controls manage the current session.
 
+**New samples** is the default generation mode. Each request gets newly generated
+content: paths, parameters, payload grammar, form values, methods, browser/header
+combinations, 2020 timestamps, ports, and source IPs. SQL injection generation
+varies boolean, UNION, timing, and comment-obfuscated forms across GET queries and
+POST bodies; traversal varies separators, depth and target files; OS command
+injection varies operators and command forms. Normal requests also vary paths,
+methods and benign form bodies. The training serializer and encoding conventions
+stay fixed. This is synthetic generalization testing, not a replay of known inputs.
+
+**Reference replay** is a separate format diagnostic that explicitly replays the
+supplied normal, SQL injection, traversal, and OS command examples. Categories
+without supplied fixtures are disabled in this mode; captured metadata is retained.
+Replay scores measure those known examples and must not be treated as evidence of
+unseen-sample performance. MongoDB records `generation_mode` as `generated` or
+`examples`. Generated samples differ from the supplied fixtures, but without the
+full training corpus we cannot guarantee that every generated pattern was absent
+from the original dataset.
+
 The live log shows only source IP, intended classification, and accepted/rejected
 decision. Totals cover the full session; the log retains the latest 500 responses.
 Acceptance/rejection percentages use completed model decisions, excluding pending
@@ -55,12 +73,19 @@ curl http://localhost:8081/submit \
 ```
 
 `method`, `url`, and `remote_addr` are required. Optional fields are `timestamp`,
-`host`, `protocol`, `headers` (arrays of strings), `body`, and
-`intended_classification`. Body is classifier input and is not saved. The intended
+`host`, `protocol`, `headers` (arrays of strings), `body`, `destination_addr`, and
+`intended_classification`, plus the optional `generation_mode` annotation
+(`generated` or `examples`). Body is classifier input and is not saved. The intended
 label is saved as a test annotation and is never passed to the model.
-Source addresses may be IPv4/IPv6 with an optional port. The panel generates
-public-format addresses that IP geolocation databases can look up; no physical
-location is guaranteed, and they do not identify real visitors.
+Source addresses may be IPv4/IPv6 with an optional port; `destination_addr` is
+an IP and port for the synthetic target. It is used as model input and saved in
+MongoDB. The control server's own address is excluded from synthetic model input.
+Public-format IPs are the default for geolocation testing. The optional private
+training-network profile varies source IPs in `172.26.0.*` instead; it does not
+replay one captured client. New samples vary destination metadata and ports as well.
+Public IPs are outside the captured private-network distribution and can affect
+predictions; no physical location is guaranteed. Exact replay always retains the
+fixture's captured addresses and disables the source-profile selector.
 Server-owned fields (`risk`, `attack_probabilities`, `blocked`, and similar
 outputs) are not accepted. The real classifier computes risk and all scores;
 blocking uses the same `THRESHOLD` as proxy traffic.
@@ -82,6 +107,47 @@ original request, obtains a 768-dimensional embedding, and runs
 `SigmoidClassifier.ClassifyAttack`. Riskiness is `1 - Normal`, the complement of
 the Normal-class score. The 14 sigmoid outputs are independent and are not summed.
 The request body is restored before forwarding.
+
+Both endpoints capture the request timestamp (the submitted timestamp for
+simulations, or the arrival time for proxy traffic). Telemetry-shaped JSON uses
+RFC3339; model input uses the captured Apache format, for example
+`18/Jul/2020:05:26:36 +0200`. The year is normalized to 2020. Month, day, clock time,
+and offset are preserved; subsecond digits are omitted from model text to match
+the training examples. February 29 remains valid. MongoDB retains the original
+timestamp; forwarded request headers and bodies are unchanged.
+
+The serializer now matches the supplied training archive's `REQUEST_FIELDS`:
+exactly 20 request fields in the original order, empty values skipped, and no
+response fields or extra headers. Its fingerprint `9059e530f7e4` and query prefix
+match the embedding-cache metadata in `classifier/weights.json`. The loader
+rejects weights with a conflicting declared serializer or prompt.
+`Authorization`, forwarding headers, `Content-Length`, and `Transfer-Encoding`
+are not serialized because they were absent from the training schema. A scenario
+that changes only these headers cannot be distinguished by this trained input
+contract; retain such cases as coverage tests rather than expected predictions.
+
+The generator bundles the six supplied JSON examples unchanged for explicit replay
+and regression checks. They do not supply the default generator's request content.
+REF badges appear only in Reference replay mode. In that mode, normal traffic uses
+`normal.json` and `normal_v2.json`, and supported attacks use their supplied fixtures.
+New-sample attack categories are dynamically generated approximations, not manually
+labeled held-out traffic. The training archive notes that CAPEC 248
+Command Injection has only one training row and no validation/test rows. Its
+`command_injection.json` is actually CAPEC 88 OS Command Injection. No trained
+year-range rejection appears in the supplied code; date formatting and data
+distribution can affect predictions, but the year alone does not prove a crash cause.
+
+`POST /submit` also accepts unchanged `examples_request/*.json` training documents,
+using `src_ip`, `dst_ip`, and `request_*` keys and their captured timestamp format:
+
+```sh
+curl http://localhost:8081/submit -H 'Content-Type: application/json' \
+  --data-binary @classifier/embeddings/testdata/training_examples/sql_injection.json
+```
+
+Bare targets such as `test.php` and `search.php?...` remain bare; URL and form
+payloads are never unescaped, cleaned, or re-encoded. Tests compare all six
+fixtures byte-for-byte with text generated by the supplied Python serializer.
 
 Scores at or above `proxy.THRESHOLD` (currently `0.5`, defined in
 `proxy/handler.go`) return HTTP 403. Both blocked and allowed requests are logged.

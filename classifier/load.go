@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"os"
 
+	"hackrpi-project/classifier/embeddings"
+
 	"gonum.org/v1/gonum/mat"
 )
 
@@ -20,6 +22,10 @@ func LoadSigmoidClassifier(path string) (*SigmoidClassifier, error) {
 			EmbeddingDim int      `json:"embedding_dim"`
 			Labels       []string `json:"labels"`
 			Hidden       any      `json:"hidden"`
+			CacheMeta    struct {
+				SerializationFingerprint string `json:"serialize_fp"`
+				Prompt                   string `json:"prompt"`
+			} `json:"cache_meta"`
 		} `json:"metadata"`
 		Weights struct {
 			Weight [][]float64 `json:"head.head.weight"`
@@ -28,6 +34,12 @@ func LoadSigmoidClassifier(path string) (*SigmoidClassifier, error) {
 	}
 	if err := json.Unmarshal(data, &export); err != nil {
 		return nil, fmt.Errorf("decode weights: %w", err)
+	}
+	if fingerprint := export.Metadata.CacheMeta.SerializationFingerprint; fingerprint != "" && fingerprint != embeddings.SerializationFingerprint {
+		return nil, fmt.Errorf("weights serializer fingerprint %q does not match %q", fingerprint, embeddings.SerializationFingerprint)
+	}
+	if prompt := export.Metadata.CacheMeta.Prompt; prompt != "" && prompt != embeddings.ClassificationPrompt {
+		return nil, fmt.Errorf("weights were trained with an incompatible embedding prompt")
 	}
 	rows, cols := len(export.Weights.Weight), export.Metadata.EmbeddingDim
 	if rows != 14 || cols != 768 || len(export.Metadata.Labels) != rows || export.Metadata.Labels[0] != "000 - Normal" || export.Metadata.Hidden != nil {

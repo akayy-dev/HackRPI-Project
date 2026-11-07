@@ -7,9 +7,12 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"reflect"
+	"strings"
 	"testing"
+	"time"
 
 	"hackrpi-project/classifier"
+	"hackrpi-project/classifier/embeddings"
 )
 
 type loggerFunc func(context.Context, *http.Request, *classifier.Result, error) error
@@ -42,16 +45,25 @@ func TestHandlerClassificationLoggingAndDecision(t *testing.T) {
 			var order []string
 			r := httptest.NewRequest(http.MethodGet, "http://example.test/original", nil)
 			result := &classifier.Result{Riskiness: tc.riskiness, AttackProbabilities: classifier.AttackProbabilities{SQLInjection: 0.7}}
+			var classifiedRequest *http.Request
 			requestClassifier := classifier.ClassifierFunc(func(ctx context.Context, req *http.Request) (*classifier.Result, error) {
 				order = append(order, "classify")
-				if req != r || ctx != r.Context() {
+				classifiedRequest = req
+				if req.URL != r.URL || ctx != req.Context() {
 					t.Fatal("classifier did not receive the incoming request context")
+				}
+				text, err := embeddings.ConvertRequestToEmbedFormat(req)
+				if err != nil || !strings.Contains(strings.Split(text, "\n")[0], "/2020:") {
+					t.Fatalf("real request model timestamp was not normalized: %s, %v", text, err)
+				}
+				if embeddings.RequestTimestamp(req).Year() != time.Now().UTC().Year() {
+					t.Fatal("original arrival time was not preserved")
 				}
 				return result, tc.classificationError
 			})
 			logger := loggerFunc(func(_ context.Context, req *http.Request, got *classifier.Result, classificationErr error) error {
 				order = append(order, "log")
-				if req != r {
+				if req != classifiedRequest {
 					t.Fatal("logger did not receive request and classification score")
 				}
 				if tc.status == 503 {

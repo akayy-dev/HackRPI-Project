@@ -6,8 +6,10 @@ import (
 	"log/slog"
 	"math"
 	"net/http"
+	"time"
 
 	"hackrpi-project/classifier"
+	"hackrpi-project/classifier/embeddings"
 )
 
 // THRESHOLD is the riskiness at or above which requests are blocked. It is a
@@ -48,6 +50,7 @@ func NewHandler(next http.Handler, classifier classifier.Classifier, logger Requ
 // ServeHTTP classifies the original incoming request, records its riskiness,
 // then either returns 403 or forwards it. A failed prediction returns 503.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	r = embeddings.WithRequestTimestamp(r, time.Now().UTC())
 	result, classificationErr := h.classifier.Classify(r.Context(), r)
 	if classificationErr == nil {
 		classificationErr = result.Validate()

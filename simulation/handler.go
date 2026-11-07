@@ -18,11 +18,12 @@ import (
 	"time"
 
 	"hackrpi-project/classifier"
+	"hackrpi-project/classifier/embeddings"
 	"hackrpi-project/proxy"
 	"hackrpi-project/telemetry"
 )
 
-//go:embed web/index.html web/style.css web/app.js web/generator.js
+//go:embed web/index.html web/style.css web/app.js web/generator.js web/training-examples.js
 var assets embed.FS
 
 // Logger persists simulated request metadata, predictions, and classification failures.
@@ -40,10 +41,12 @@ type Request struct {
 	URL                    string      `json:"url"`
 	Host                   string      `json:"host"`
 	RemoteAddr             string      `json:"remote_addr"`
+	DestinationAddr        string      `json:"destination_addr,omitempty"`
 	Protocol               string      `json:"protocol"`
 	Headers                http.Header `json:"headers"`
 	Body                   string      `json:"body,omitempty"`
 	IntendedClassification string      `json:"intended_classification,omitempty"`
+	GenerationMode         string      `json:"generation_mode,omitempty"`
 }
 
 // NewHandler serves the control panel at / and POST /submit. Submitted telemetry
@@ -70,14 +73,9 @@ func NewHandler(model classifier.Classifier, logger Logger) (http.Handler, error
 		}
 		r.Body = http.MaxBytesReader(w, r.Body, 128<<10)
 		decoder := json.NewDecoder(r.Body)
-		decoder.DisallowUnknownFields()
-		var input *Request
-		if err := decoder.Decode(&input); err != nil {
+		var raw json.RawMessage
+		if err := decoder.Decode(&raw); err != nil {
 			decodeError(w, err)
-			return
-		}
-		if input == nil {
-			writeError(w, 400, "request telemetry must be a JSON object")
 			return
 		}
 		var extra any
@@ -85,6 +83,11 @@ func NewHandler(model classifier.Classifier, logger Logger) (http.Handler, error
 			if err == nil {
 				err = errors.New("expected exactly one JSON object")
 			}
+			decodeError(w, err)
+			return
+		}
+		input, err := decodeRequest(raw)
+		if err != nil {
 			decodeError(w, err)
 			return
 		}
@@ -109,7 +112,7 @@ func NewHandler(model classifier.Classifier, logger Logger) (http.Handler, error
 		if classificationErr != nil {
 			result = nil
 		}
-		metadata := telemetry.SimulationMetadata{Threshold: proxy.THRESHOLD, Timestamp: input.Timestamp, IntendedClassification: input.IntendedClassification}
+		metadata := telemetry.SimulationMetadata{Threshold: proxy.THRESHOLD, Timestamp: embeddings.RequestTimestamp(request), IntendedClassification: input.IntendedClassification, GenerationMode: input.GenerationMode}
 		if err := logger.LogSimulation(context.WithoutCancel(r.Context()), request, result, classificationErr, metadata); err != nil {
 			slog.Error("Failed to persist simulated request", "error", err)
 			writeError(w, 503, "simulation could not be saved")
@@ -142,6 +145,9 @@ func (input *Request) HTTPRequest(ctx context.Context) (*http.Request, error) {
 	if len(input.IntendedClassification) > 80 {
 		return nil, errors.New("intended_classification must be at most 80 characters")
 	}
+	if input.GenerationMode != "" && input.GenerationMode != "generated" && input.GenerationMode != "examples" {
+		return nil, errors.New("generation_mode must be generated or examples")
+	}
 	ip := net.ParseIP(input.RemoteAddr)
 	port := "54321"
 	if ip == nil {
@@ -163,9 +169,6 @@ func (input *Request) HTTPRequest(ctx context.Context) (*http.Request, error) {
 	if request.URL.Scheme != "" && request.URL.Scheme != "http" && request.URL.Scheme != "https" {
 		return nil, errors.New("url must be an HTTP URL or request path")
 	}
-	if request.URL.Host == "" && !strings.HasPrefix(input.URL, "/") {
-		return nil, errors.New("url must be an absolute HTTP URL or start with /")
-	}
 	request.Host = input.Host
 	if request.Host == "" {
 		request.Host = request.URL.Host
@@ -183,6 +186,18 @@ func (input *Request) HTTPRequest(ctx context.Context) (*http.Request, error) {
 		}
 	}
 	request.RemoteAddr = net.JoinHostPort(ip.String(), port)
+	// A synthetic request's destination is not the control panel's listening port.
+	var destination *net.TCPAddr
+	if input.DestinationAddr != "" {
+		host, portText, err := net.SplitHostPort(input.DestinationAddr)
+		port, portErr := strconv.Atoi(portText)
+		ip := net.ParseIP(host)
+		if err != nil || portErr != nil || ip == nil || port < 1 || port > 65535 {
+			return nil, errors.New("destination_addr must contain an IP and a valid port")
+		}
+		destination = &net.TCPAddr{IP: ip, Port: port}
+	}
+	request = request.WithContext(context.WithValue(request.Context(), http.LocalAddrContextKey, destination))
 	if input.Protocol != "" {
 		major, minor, ok := http.ParseHTTPVersion(input.Protocol)
 		if !ok {
@@ -190,7 +205,7 @@ func (input *Request) HTTPRequest(ctx context.Context) (*http.Request, error) {
 		}
 		request.Proto, request.ProtoMajor, request.ProtoMinor = input.Protocol, major, minor
 	}
-	return request, nil
+	return embeddings.WithRequestTimestamp(request, input.Timestamp), nil
 }
 
 func decodeError(w http.ResponseWriter, err error) {

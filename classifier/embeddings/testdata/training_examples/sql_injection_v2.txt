@@ -1,0 +1,10 @@
+timestamp: 18/Jul/2020:05:31:12 +0200
+src-ip: 172.26.0.1
+src-port: 58104
+dst-ip: 172.26.0.4
+dst-port: 80
+method: GET
+path: search.php?q=abc%27%2f%2a%2a%2foR%2f%2a%2a%2f%271%27%3d%271
+protocol: HTTP/1.1
+user-agent: Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0
+host: test-site.com

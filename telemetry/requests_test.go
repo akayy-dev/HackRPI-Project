@@ -12,6 +12,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/v2/bson"
 	"hackrpi-project/classifier"
+	"hackrpi-project/classifier/embeddings"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -118,6 +119,19 @@ func TestLogRequestStoresClassificationFailureWithoutScores(t *testing.T) {
 		if _, ok := stored[field]; ok {
 			t.Errorf("failed classification contains %s", field)
 		}
+	}
+}
+
+func TestTelemetryRetainsOriginalTimestamp(t *testing.T) {
+	original := time.Date(2026, time.March, 15, 12, 34, 56, 123000000, time.FixedZone("test", -5*60*60))
+	r := embeddings.WithRequestTimestamp(httptest.NewRequest("GET", "/", nil), original)
+	collection := &fakeCollection{}
+	logger := &Logger{collection: collection}
+	if err := logger.LogRequest(r.Context(), r, &classifier.Result{Riskiness: 0.1}, nil); err != nil {
+		t.Fatal(err)
+	}
+	if !collection.record.Timestamp.Equal(original) || collection.record.Timestamp.Year() != 2026 {
+		t.Fatalf("telemetry received the model date: %s", collection.record.Timestamp)
 	}
 }
 

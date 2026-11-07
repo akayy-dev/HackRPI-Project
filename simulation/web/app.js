@@ -1,12 +1,12 @@
 import { ATTACKS, makeRequest } from './generator.js';
 
 const $ = id => document.getElementById(id);
-const selectedByDefault = new Set(['sql_injection', 'path_traversal', 'vulnerability_scanning']);
+const selectedByDefault = new Set(['sql_injection', 'path_traversal', 'os_command_injection']);
 for (const [index, attack] of ATTACKS.entries()) {
   const label = document.createElement('label'); label.className = 'attack-option';
   const input = document.createElement('input'); input.type = 'checkbox'; input.value = attack.key; input.checked = selectedByDefault.has(attack.key);
   const text = document.createElement('span'); text.textContent = attack.label;
-  const number = document.createElement('span'); number.className = 'attack-index'; number.textContent = String(index + 1).padStart(2, '0');
+  const number = document.createElement('span'); number.className = 'attack-index'; number.textContent = String(index + 1).padStart(2, '0'); number.dataset.index = number.textContent;
   label.append(input, text, number); $('attackTypes').append(label);
 }
 
@@ -17,7 +17,7 @@ const completions = [];
 const rows = [];
 
 function selectedAttacks() {
-  const keys = new Set([...document.querySelectorAll('#attackTypes input:checked')].map(input => input.value));
+  const keys = new Set([...document.querySelectorAll('#attackTypes input:checked:not(:disabled)')].map(input => input.value));
   return ATTACKS.filter(attack => keys.has(attack.key));
 }
 
@@ -70,7 +70,7 @@ function finishIfDrained() {
 }
 
 async function sendOne() {
-  const { request, ip, label } = makeRequest(Number($('malicious').value), selectedAttacks());
+  const { request, ip, label } = makeRequest(Number($('malicious').value), selectedAttacks(), $('sourceProfile').value, $('generationMode').value);
   stats.sent++; runSent++; stats.active++; completions.push(performance.now()); scheduleRender();
   try {
     const response = await fetch('/submit', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(request), signal: AbortSignal.timeout(60000) });
@@ -122,11 +122,21 @@ for (const [id, all] of [['selectAll', true], ['selectNone', false]]) $(id).addE
   validate();
 });
 function updateControls() {
+  const replay = $('generationMode').value === 'examples';
+  $('sourceProfile').disabled = replay;
+  $('generationHelp').textContent = replay ? 'Replays the supplied normal, SQL injection, traversal, and OS command fixtures with captured addresses. Not an unseen-sample test.' : 'New paths, payloads, bodies, timestamps, ports, and header combinations on each run.';
+  for (const input of document.querySelectorAll('#attackTypes input')) {
+    const attack = ATTACKS.find(attack => attack.key === input.value);
+    input.disabled = replay && !attack.fixtures?.length;
+    const badge = input.closest('label').querySelector('.attack-index');
+    badge.textContent = replay ? (attack.fixtures?.length ? 'REF' : '—') : badge.dataset.index;
+    badge.title = replay ? (attack.fixtures?.length ? 'Exact reference fixture' : 'No supplied reference fixture for this category') : 'Dynamically generated request variants';
+  }
   $('rateValue').textContent = $('rate').value + ' req/s'; $('maliciousValue').textContent = $('malicious').value + '%';
   $('benignMix').textContent = 100 - Number($('malicious').value); $('attackMix').textContent = $('malicious').value;
   validate(); scheduleRender();
 }
-for (const id of ['rate', 'malicious', 'attackTypes', 'continuous']) $(id).addEventListener('input', updateControls);
+for (const id of ['rate', 'malicious', 'attackTypes', 'continuous', 'generationMode']) $(id).addEventListener('input', updateControls);
 setInterval(tick, 10);
 setInterval(() => {
   const cutoff = performance.now() - 5000;

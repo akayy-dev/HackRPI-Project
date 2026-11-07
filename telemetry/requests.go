@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"net"
 	"net/http"
 	"strings"
 	"time"
 
 	"hackrpi-project/classifier"
+	"hackrpi-project/classifier/embeddings"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -25,10 +27,12 @@ type RequestTelemetry struct {
 	Threshold              *float64                        `bson:"threshold,omitempty"`
 	Blocked                *bool                           `bson:"blocked,omitempty"`
 	IntendedClassification string                          `bson:"intended_classification,omitempty"`
+	GenerationMode         string                          `bson:"generation_mode,omitempty"`
 	Method                 string                          `bson:"method"`
 	URL                    string                          `bson:"url"`
 	Host                   string                          `bson:"host"`
 	RemoteAddr             string                          `bson:"remote_addr"`
+	DestinationAddr        string                          `bson:"destination_addr,omitempty"`
 	Protocol               string                          `bson:"protocol"`
 	Headers                http.Header                     `bson:"headers"`
 }
@@ -48,6 +52,7 @@ type SimulationMetadata struct {
 	Threshold              float64
 	Timestamp              time.Time
 	IntendedClassification string
+	GenerationMode         string
 }
 
 // NewLogger connects to MongoDB and verifies that it is available.
@@ -115,8 +120,11 @@ func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *classi
 	}
 	headers.Set("Host", r.Host)
 	record := RequestTelemetry{
-		Timestamp: time.Now().UTC(), Method: r.Method, URL: r.URL.String(),
+		Timestamp: embeddings.RequestTimestamp(r).UTC(), Method: r.Method, URL: r.URL.String(),
 		Host: r.Host, RemoteAddr: r.RemoteAddr, Protocol: r.Proto, Headers: headers,
+	}
+	if destination, ok := r.Context().Value(http.LocalAddrContextKey).(*net.TCPAddr); ok && destination != nil {
+		record.DestinationAddr = destination.String()
 	}
 	if classificationErr != nil {
 		record.ClassificationError = classificationErr.Error()
@@ -128,6 +136,7 @@ func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *classi
 		record.Simulated = true
 		record.Threshold = &simulation.Threshold
 		record.IntendedClassification = simulation.IntendedClassification
+		record.GenerationMode = simulation.GenerationMode
 		if !simulation.Timestamp.IsZero() {
 			record.Timestamp = simulation.Timestamp.UTC()
 		}

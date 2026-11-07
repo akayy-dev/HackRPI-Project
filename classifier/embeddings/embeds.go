@@ -9,7 +9,6 @@ import (
 	"net"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/ollama/ollama/api"
 )
@@ -33,14 +32,6 @@ func ConvertRequestToEmbedFormat(r *http.Request) (string, error) {
 		return "", fmt.Errorf("request is nil")
 	}
 
-	var lines []string
-
-	add := func(key, value string) {
-		if value != "" {
-			lines = append(lines, key+": "+value)
-		}
-	}
-
 	// Extract source IP and port.
 	srcIP, srcPort, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {
@@ -52,44 +43,25 @@ func ConvertRequestToEmbedFormat(r *http.Request) (string, error) {
 	// Extract destination IP and port, if available.
 	var dstIP, dstPort string
 	if addr, ok := r.Context().Value(http.LocalAddrContextKey).(net.Addr); ok {
-		if tcpAddr, ok := addr.(*net.TCPAddr); ok {
+		if tcpAddr, ok := addr.(*net.TCPAddr); ok && tcpAddr != nil {
 			dstIP = tcpAddr.IP.String()
 			dstPort = strconv.Itoa(tcpAddr.Port)
 		}
 	}
 
-	// Request metadata.
-	// Timestamp is omitted because http.Request does not
-	// contain the original request timestamp.
-	add("src-ip", srcIP)
-	add("src-port", srcPort)
-	add("dst-ip", dstIP)
-	add("dst-port", dstPort)
-
-	// HTTP request fields.
-	add("method", r.Method)
-
-	if r.URL != nil {
-		add("path", r.URL.RequestURI())
+	fields := RequestFields{
+		Timestamp: NormalizeTimestamp(RequestTimestamp(r)).Format(TimestampLayout),
+		SourceIP:  srcIP, SourcePort: srcPort, DestinationIP: dstIP, DestinationPort: dstPort,
+		Method: r.Method, Protocol: r.Proto, UserAgent: r.UserAgent(),
+		Referer: r.Referer(), Host: r.Host, Origin: r.Header.Get("Origin"),
+		Cookie: r.Header.Get("Cookie"), ContentType: r.Header.Get("Content-Type"),
+		Accept: r.Header.Get("Accept"), AcceptLanguage: r.Header.Get("Accept-Language"),
+		AcceptEncoding: r.Header.Get("Accept-Encoding"), DoNotTrack: r.Header.Get("DNT"),
+		Connection: r.Header.Get("Connection"),
 	}
-
-	add("protocol", r.Proto)
-	add("user-agent", r.UserAgent())
-	add("referer", r.Referer())
-	add("host", r.Host)
-	add("origin", r.Header.Get("Origin"))
-	add("cookie", r.Header.Get("Cookie"))
-	add("content-type", r.Header.Get("Content-Type"))
-	add("accept", r.Header.Get("Accept"))
-	add("accept-language", r.Header.Get("Accept-Language"))
-	add("accept-encoding", r.Header.Get("Accept-Encoding"))
-	add("do-not-track", r.Header.Get("DNT"))
-	add("connection", r.Header.Get("Connection"))
-	add("content-length", r.Header.Get("Content-Length"))
-	add("transfer-encoding", r.Header.Get("Transfer-Encoding"))
-	add("x-forwarded-for", r.Header.Get("X-Forwarded-For"))
-	add("x-real-ip", r.Header.Get("X-Real-IP"))
-	add("authorization", r.Header.Get("Authorization"))
+	if r.URL != nil {
+		fields.Target = r.URL.RequestURI()
+	}
 
 	// Read and restore the request body.
 	if r.Body != nil && r.Body != http.NoBody {
@@ -110,10 +82,10 @@ func ConvertRequestToEmbedFormat(r *http.Request) (string, error) {
 			)
 		}
 
-		add("body", string(body))
+		fields.Body = string(body)
 	}
 
-	return strings.Join(lines, "\n"), nil
+	return SerializeRequest(fields), nil
 }
 
 type OllamaEmbedder struct {
@@ -137,7 +109,7 @@ func NewOllamaEmbedder(model string) (*OllamaEmbedder, error) {
 
 // Embed a text string and return the embeddings.
 func (o *OllamaEmbedder) Embed(ctx context.Context, text string) (*EmbeddingResponse, error) {
-	prompt := "task: classification | query: " + text
+	prompt := ClassificationPrompt + text
 	req := &api.EmbedRequest{
 		Model: o.Model,
 		Input: prompt,

@@ -4,3 +4,4 @@
 .aws
 .env
 .env.*
+*.zip

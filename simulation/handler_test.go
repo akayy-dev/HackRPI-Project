@@ -11,6 +11,7 @@ import (
 	"testing"
 
 	"hackrpi-project/classifier"
+	"hackrpi-project/classifier/embeddings"
 	"hackrpi-project/proxy"
 	"hackrpi-project/telemetry"
 )
@@ -30,7 +31,7 @@ func (l *fakeLogger) LogSimulation(_ context.Context, request *http.Request, res
 	return l.err
 }
 
-const validInput = `{"timestamp":"2026-11-07T12:00:00Z","method":"POST","url":"/login","host":"app.example.test","remote_addr":"45.79.23.14:51000","protocol":"HTTP/1.1","headers":{"Content-Type":["application/x-www-form-urlencoded"]},"body":"username=admin&password=guess","intended_classification":"dictionary_password_attack"}`
+const validInput = `{"timestamp":"2026-11-07T12:00:00Z","method":"POST","url":"/login","host":"app.example.test","remote_addr":"45.79.23.14:51000","protocol":"HTTP/1.1","headers":{"Content-Type":["application/x-www-form-urlencoded"]},"body":"username=admin&password=guess","intended_classification":"dictionary_password_attack","generation_mode":"generated"}`
 
 func TestSubmitClassifiesTelemetryAndPersists(t *testing.T) {
 	for _, risk := range []float64{0.1, 0.5, 0.9} {
@@ -38,6 +39,13 @@ func TestSubmitClassifiesTelemetryAndPersists(t *testing.T) {
 		model := classifier.ClassifierFunc(func(_ context.Context, r *http.Request) (*classifier.Result, error) {
 			if r.URL.String() != "/login" || r.Method != "POST" || r.RemoteAddr != "45.79.23.14:51000" || r.Host != "app.example.test" {
 				t.Fatalf("classifier received submission envelope instead of simulated request: %+v", r)
+			}
+			text, err := embeddings.ConvertRequestToEmbedFormat(r)
+			if err != nil || !strings.HasPrefix(text, "timestamp: 07/Nov/2020:12:00:00 +0000\n") {
+				t.Fatalf("simulation model timestamp was not normalized: %s, %v", text, err)
+			}
+			if strings.Contains(text, "dictionary_password_attack") || strings.Contains(text, "generated") {
+				t.Fatal("test labels or generation mode leaked into model input")
 			}
 			body, err := io.ReadAll(r.Body)
 			if err != nil || string(body) != "username=admin&password=guess" {
@@ -71,7 +79,7 @@ func TestSubmitClassifiesTelemetryAndPersists(t *testing.T) {
 		if response.Riskiness != risk || response.Blocked != (risk >= proxy.THRESHOLD) || response.Accepted == response.Blocked || !response.Simulated {
 			t.Fatalf("incorrect evaluation: %+v", response)
 		}
-		if logger.result.Riskiness != risk || logger.metadata.Threshold != proxy.THRESHOLD || logger.metadata.IntendedClassification != "dictionary_password_attack" || logger.metadata.Timestamp.IsZero() {
+		if logger.result.Riskiness != risk || logger.metadata.Threshold != proxy.THRESHOLD || logger.metadata.IntendedClassification != "dictionary_password_attack" || logger.metadata.Timestamp.Year() != 2026 || logger.metadata.GenerationMode != "generated" {
 			t.Fatal("classification or submitted metadata was not saved")
 		}
 	}
@@ -92,6 +100,7 @@ func TestSubmitRejectsInvalidInputsWithoutClassification(t *testing.T) {
 		{"invalid IP", "POST", strings.Replace(validInput, "45.79.23.14:51000", "not-an-ip", 1), "application/json", 400},
 		{"invalid port", "POST", strings.Replace(validInput, "45.79.23.14:51000", "45.79.23.14:99999", 1), "application/json", 400},
 		{"invalid URL", "POST", strings.Replace(validInput, "/login", "file:///etc/passwd", 1), "application/json", 400},
+		{"invalid generation mode", "POST", strings.Replace(validInput, `"generation_mode":"generated"`, `"generation_mode":"unknown"`, 1), "application/json", 400},
 		{"multiple objects", "POST", validInput + ` {}`, "application/json", 400},
 		{"oversized", "POST", validInput + strings.Repeat(" ", 129<<10), "application/json", 413},
 	} {
@@ -161,7 +170,7 @@ func TestControlPanelAssets(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/", "/app.js", "/generator.js", "/style.css"} {
+	for _, path := range []string{"/", "/app.js", "/generator.js", "/style.css", "/training-examples.js"} {
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, httptest.NewRequest("GET", path, nil))
 		if w.Code != 200 || w.Body.Len() == 0 {
