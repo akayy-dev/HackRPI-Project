@@ -9,13 +9,13 @@ import (
 	"reflect"
 	"testing"
 
-	"hackrpi-project/security"
+	"hackrpi-project/classifier"
 )
 
-type loggerFunc func(context.Context, *http.Request, float64) error
+type loggerFunc func(context.Context, *http.Request, *classifier.Result, error) error
 
-func (f loggerFunc) LogRequest(ctx context.Context, r *http.Request, riskiness float64) error {
-	return f(ctx, r, riskiness)
+func (f loggerFunc) LogRequest(ctx context.Context, r *http.Request, result *classifier.Result, classificationErr error) error {
+	return f(ctx, r, result, classificationErr)
 }
 
 func TestHandlerClassificationLoggingAndDecision(t *testing.T) {
@@ -32,26 +32,34 @@ func TestHandlerClassificationLoggingAndDecision(t *testing.T) {
 		{name: "threshold boundary", riskiness: 0.5, status: 403, order: []string{"classify", "log"}},
 		{name: "logging fails for allowed request", riskiness: 0.1, loggingError: errors.New("database unavailable"), status: 204, order: []string{"classify", "log", "forward"}},
 		{name: "logging fails for blocked request", riskiness: 0.9, loggingError: errors.New("database unavailable"), status: 403, order: []string{"classify", "log"}},
-		{name: "classifier unavailable", classificationError: security.ErrClassifierUnavailable, status: 503, order: []string{"classify"}},
-		{name: "negative probability", riskiness: -0.1, status: 503, order: []string{"classify"}},
-		{name: "probability above one", riskiness: 1.1, status: 503, order: []string{"classify"}},
-		{name: "NaN", riskiness: math.NaN(), status: 503, order: []string{"classify"}},
-		{name: "infinite probability", riskiness: math.Inf(1), status: 503, order: []string{"classify"}},
+		{name: "classifier unavailable", classificationError: errors.New("classifier unavailable"), status: 503, order: []string{"classify", "log"}},
+		{name: "negative probability", riskiness: -0.1, status: 503, order: []string{"classify", "log"}},
+		{name: "probability above one", riskiness: 1.1, status: 503, order: []string{"classify", "log"}},
+		{name: "NaN", riskiness: math.NaN(), status: 503, order: []string{"classify", "log"}},
+		{name: "infinite probability", riskiness: math.Inf(1), status: 503, order: []string{"classify", "log"}},
 	} {
 		t.Run(tc.name, func(t *testing.T) {
 			var order []string
 			r := httptest.NewRequest(http.MethodGet, "http://example.test/original", nil)
-			classifier := security.ClassifierFunc(func(ctx context.Context, req *http.Request) (float64, error) {
+			result := &classifier.Result{Riskiness: tc.riskiness, AttackProbabilities: classifier.AttackProbabilities{SQLInjection: 0.7}}
+			requestClassifier := classifier.ClassifierFunc(func(ctx context.Context, req *http.Request) (*classifier.Result, error) {
 				order = append(order, "classify")
 				if req != r || ctx != r.Context() {
 					t.Fatal("classifier did not receive the incoming request context")
 				}
-				return tc.riskiness, tc.classificationError
+				return result, tc.classificationError
 			})
-			logger := loggerFunc(func(_ context.Context, req *http.Request, riskiness float64) error {
+			logger := loggerFunc(func(_ context.Context, req *http.Request, got *classifier.Result, classificationErr error) error {
 				order = append(order, "log")
-				if req != r || riskiness != tc.riskiness {
+				if req != r {
 					t.Fatal("logger did not receive request and classification score")
+				}
+				if tc.status == 503 {
+					if got != nil || classificationErr == nil {
+						t.Fatal("failed classification was not logged correctly")
+					}
+				} else if got != result || classificationErr != nil {
+					t.Fatal("classification result was not passed intact to telemetry")
 				}
 				return tc.loggingError
 			})
@@ -59,7 +67,7 @@ func TestHandlerClassificationLoggingAndDecision(t *testing.T) {
 				order = append(order, "forward")
 				w.WriteHeader(http.StatusNoContent)
 			})
-			h, err := NewHandler(next, classifier, logger, 0.5)
+			h, err := NewHandler(next, requestClassifier, logger, THRESHOLD)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -74,20 +82,20 @@ func TestHandlerClassificationLoggingAndDecision(t *testing.T) {
 
 func TestNewHandlerRejectsInvalidConfiguration(t *testing.T) {
 	next := http.HandlerFunc(func(http.ResponseWriter, *http.Request) {})
-	classifier := security.ClassifierFunc(func(context.Context, *http.Request) (float64, error) { return 0, nil })
-	logger := loggerFunc(func(context.Context, *http.Request, float64) error { return nil })
+	requestClassifier := classifier.ClassifierFunc(func(context.Context, *http.Request) (*classifier.Result, error) { return nil, nil })
+	logger := loggerFunc(func(context.Context, *http.Request, *classifier.Result, error) error { return nil })
 	for _, threshold := range []float64{-0.1, 1.1, math.NaN(), math.Inf(1)} {
-		if _, err := NewHandler(next, classifier, logger, threshold); err == nil {
+		if _, err := NewHandler(next, requestClassifier, logger, threshold); err == nil {
 			t.Errorf("accepted threshold %v", threshold)
 		}
 	}
-	if _, err := NewHandler(nil, classifier, logger, 0.5); err == nil {
+	if _, err := NewHandler(nil, requestClassifier, logger, THRESHOLD); err == nil {
 		t.Error("accepted nil proxy")
 	}
-	if _, err := NewHandler(next, nil, logger, 0.5); err == nil {
+	if _, err := NewHandler(next, nil, logger, THRESHOLD); err == nil {
 		t.Error("accepted nil classifier")
 	}
-	if _, err := NewHandler(next, classifier, nil, 0.5); err == nil {
+	if _, err := NewHandler(next, requestClassifier, nil, THRESHOLD); err == nil {
 		t.Error("accepted nil logger")
 	}
 }

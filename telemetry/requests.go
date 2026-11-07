@@ -8,6 +8,8 @@ import (
 	"strings"
 	"time"
 
+	"hackrpi-project/classifier"
+
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 	"go.mongodb.org/mongo-driver/v2/mongo/readpref"
@@ -15,14 +17,19 @@ import (
 
 // RequestTelemetry describes an incoming request before the proxy rewrites it.
 type RequestTelemetry struct {
-	Timestamp  time.Time   `bson:"timestamp"`
-	Riskiness  float64     `bson:"risk"` // Predicted probability that the request is malicious, in [0, 1].
-	Method     string      `bson:"method"`
-	URL        string      `bson:"url"`
-	Host       string      `bson:"host"`
-	RemoteAddr string      `bson:"remote_addr"`
-	Protocol   string      `bson:"protocol"`
-	Headers    http.Header `bson:"headers"`
+	Timestamp           time.Time                       `bson:"timestamp"`
+	Riskiness           *float64                        `bson:"risk,omitempty"` // Absent when classification fails.
+	AttackProbabilities *classifier.AttackProbabilities `bson:"attack_probabilities,omitempty"`
+	ClassificationError string                          `bson:"classification_error,omitempty"`
+	Simulated           bool                            `bson:"simulated"`
+	Threshold           *float64                        `bson:"threshold,omitempty"`
+	Blocked             *bool                           `bson:"blocked,omitempty"`
+	Method              string                          `bson:"method"`
+	URL                 string                          `bson:"url"`
+	Host                string                          `bson:"host"`
+	RemoteAddr          string                          `bson:"remote_addr"`
+	Protocol            string                          `bson:"protocol"`
+	Headers             http.Header                     `bson:"headers"`
 }
 
 type requestCollection interface {
@@ -60,12 +67,28 @@ func (l *Logger) Close(ctx context.Context) error {
 	return l.client.Disconnect(ctx)
 }
 
-// LogRequest stores request metadata and the classifier's probability of the
-// request being malicious. Riskiness must be finite and in [0, 1]. It does not
-// read or modify the request body, and database writes time out after two seconds.
-func (l *Logger) LogRequest(ctx context.Context, r *http.Request, riskiness float64) error {
-	if math.IsNaN(riskiness) || math.IsInf(riskiness, 0) || riskiness < 0 || riskiness > 1 {
-		return fmt.Errorf("riskiness must be a finite probability between 0 and 1")
+// LogRequest stores metadata and the complete classification result. Failed
+// classifications store classification_error and omit probability fields. It
+// preserves the request body and applies a two-second database write timeout.
+func (l *Logger) LogRequest(ctx context.Context, r *http.Request, result *classifier.Result, classificationErr error) error {
+	return l.logRequest(ctx, r, result, classificationErr, nil)
+}
+
+// LogSimulation stores the provided probabilities and blocking decision in the
+// same collection as real requests, marked simulated=true. A nil error confirms
+// the MongoDB write completed. The request body is not persisted.
+func (l *Logger) LogSimulation(ctx context.Context, r *http.Request, result *classifier.Result, threshold float64) error {
+	if math.IsNaN(threshold) || threshold < 0 || threshold > 1 {
+		return fmt.Errorf("simulation threshold must be between 0 and 1")
+	}
+	return l.logRequest(ctx, r, result, nil, &threshold)
+}
+
+func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *classifier.Result, classificationErr error, simulationThreshold *float64) error {
+	if classificationErr == nil {
+		if err := result.Validate(); err != nil {
+			return err
+		}
 	}
 	headers := r.Header.Clone()
 	if headers == nil {
@@ -83,9 +106,20 @@ func (l *Logger) LogRequest(ctx context.Context, r *http.Request, riskiness floa
 	}
 	headers.Set("Host", r.Host)
 	record := RequestTelemetry{
-		Riskiness: riskiness,
 		Timestamp: time.Now().UTC(), Method: r.Method, URL: r.URL.String(),
 		Host: r.Host, RemoteAddr: r.RemoteAddr, Protocol: r.Proto, Headers: headers,
+	}
+	if classificationErr != nil {
+		record.ClassificationError = classificationErr.Error()
+	} else {
+		record.Riskiness = &result.Riskiness
+		record.AttackProbabilities = &result.AttackProbabilities
+	}
+	if simulationThreshold != nil {
+		blocked := result.Riskiness >= *simulationThreshold
+		record.Simulated = true
+		record.Threshold = simulationThreshold
+		record.Blocked = &blocked
 	}
 	writeCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()

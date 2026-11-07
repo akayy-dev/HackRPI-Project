@@ -10,6 +10,9 @@ import (
 	"testing"
 	"time"
 
+	"go.mongodb.org/mongo-driver/v2/bson"
+	"hackrpi-project/classifier"
+
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
 )
@@ -41,7 +44,8 @@ func TestLogRequestStoresRiskinessAndPreservesRequest(t *testing.T) {
 			r.Header.Set("X-Api-Key", "secret")
 			r.Header.Add("X-Example", "one")
 			r.Header.Add("X-Example", "two")
-			err := logger.LogRequest(r.Context(), r, 0.75)
+			prediction := &classifier.Result{Riskiness: 0.75, AttackProbabilities: classifier.AttackProbabilities{Normal: 0.25, SQLInjection: 0.85}}
+			err := logger.LogRequest(r.Context(), r, prediction, nil)
 			if !errors.Is(err, collection.err) {
 				t.Fatalf("unexpected logging error: %v", err)
 			}
@@ -53,8 +57,25 @@ func TestLogRequestStoresRiskinessAndPreservesRequest(t *testing.T) {
 				t.Fatal("incoming credentials changed")
 			}
 			record := collection.record
-			if record.Riskiness != 0.75 {
+			if record.Riskiness == nil || *record.Riskiness != 0.75 {
 				t.Fatalf("riskiness was not stored: %v", record.Riskiness)
+			}
+			if record.AttackProbabilities == nil || *record.AttackProbabilities != prediction.AttackProbabilities {
+				t.Fatal("attack probabilities were not stored")
+			}
+			encoded, err := bson.Marshal(record)
+			if err != nil {
+				t.Fatal(err)
+			}
+			var stored struct {
+				Attacks map[string]float64 `bson:"attack_probabilities"`
+			}
+			if err := bson.Unmarshal(encoded, &stored); err != nil {
+				t.Fatal(err)
+			}
+			attacks := stored.Attacks
+			if len(attacks) != 14 || attacks["sql_injection"] != 0.85 {
+				t.Fatalf("unexpected stored attack probabilities: %v", attacks)
 			}
 			if record.Method != r.Method || record.URL != r.URL.String() || record.Host != r.Host || record.RemoteAddr != r.RemoteAddr || record.Protocol != r.Proto || record.Timestamp.IsZero() {
 				t.Fatalf("incorrect request metadata: %+v", record)
@@ -72,5 +93,30 @@ func TestLogRequestStoresRiskinessAndPreservesRequest(t *testing.T) {
 				t.Fatalf("invalid write timeout: %v", remaining)
 			}
 		})
+	}
+}
+
+func TestLogRequestStoresClassificationFailureWithoutScores(t *testing.T) {
+	collection := &fakeCollection{}
+	logger := &Logger{collection: collection}
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	if err := logger.LogRequest(r.Context(), r, nil, errors.New("embedding service unavailable")); err != nil {
+		t.Fatal(err)
+	}
+	encoded, err := bson.Marshal(collection.record)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var stored bson.M
+	if err := bson.Unmarshal(encoded, &stored); err != nil {
+		t.Fatal(err)
+	}
+	if stored["classification_error"] != "embedding service unavailable" {
+		t.Fatal("classification failure was not saved")
+	}
+	for _, field := range []string{"risk", "attack_probabilities"} {
+		if _, ok := stored[field]; ok {
+			t.Errorf("failed classification contains %s", field)
+		}
 	}
 }

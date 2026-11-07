@@ -6,16 +6,43 @@ services:
     stop_grace_period: 20s
     ports:
       - "8080:8080"
+      - "8081:8081"
     environment:
       REVERSE_PROXY_URL: http://target-web-app:80
       MONGODB_URI: mongodb://mongodb:27017
       MONGODB_DATABASE: telemetry
       MONGODB_COLLECTION: requests
-      RISK_THRESHOLD: ${RISK_THRESHOLD:-0.5}
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-embeddinggemma:300m}
     depends_on:
       target-web-app:
         condition: service_healthy
       mongodb:
+        condition: service_healthy
+      ollama-pull:
+        condition: service_completed_successfully
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11435}:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["ollama"]
+    command: ["pull", "${OLLAMA_MODEL:-embeddinggemma:300m}"]
+    depends_on:
+      ollama:
         condition: service_healthy
 
   mongodb:
@@ -39,4 +66,5 @@ services:
 
 volumes:
   mongodb-data:
+  ollama-data:
 

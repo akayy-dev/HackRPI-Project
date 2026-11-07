@@ -2,7 +2,11 @@ module hackrpi-project
 
 go 1.26.10
 
-require go.mongodb.org/mongo-driver/v2 v2.10.0
+require (
+	github.com/ollama/ollama v0.40.15
+	go.mongodb.org/mongo-driver/v2 v2.10.0
+	gonum.org/v1/gonum v0.17.0
+)
 
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
@@ -10,7 +14,6 @@ require (
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/klauspost/compress v1.20.3 // indirect
 	github.com/mailru/easyjson v0.7.7 // indirect
-	github.com/ollama/ollama v0.40.15 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	github.com/xdg-go/scram v1.4.0 // indirect
 	github.com/xdg-go/stringprep v1.0.4 // indirect

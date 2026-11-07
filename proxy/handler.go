@@ -7,31 +7,35 @@ import (
 	"math"
 	"net/http"
 
-	"hackrpi-project/security"
+	"hackrpi-project/classifier"
 )
+
+// THRESHOLD is the riskiness at or above which requests are blocked. It is a
+// temporary fixed policy until threshold configuration is exposed in the frontend.
+const THRESHOLD = 0.5
 
 // RequestLogger persists an incoming request and its predicted probability of
 // being malicious. Implementations must support concurrent calls and preserve
 // the request for forwarding.
 type RequestLogger interface {
-	LogRequest(context.Context, *http.Request, float64) error
+	LogRequest(context.Context, *http.Request, *classifier.Result, error) error
 }
 
 // Handler coordinates classification, telemetry, and forwarding in that order.
 // A score at or above the threshold is blocked after being logged. Logging
 // failures do not alter the classification decision. Classifier failures and
-// invalid scores return 503 without forwarding or recording a successful score;
-// these failures are reported through slog instead.
+// invalid scores are recorded as classification failures and return 503 without
+// forwarding. Failure records omit prediction scores.
 type Handler struct {
 	next       http.Handler
-	classifier security.Classifier
+	classifier classifier.Classifier
 	logger     RequestLogger
 	threshold  float64
 }
 
 // NewHandler creates a handler with a blocking threshold in [0, 1]. All
 // dependencies must be non-nil. The next handler is normally a reverse proxy.
-func NewHandler(next http.Handler, classifier security.Classifier, logger RequestLogger, threshold float64) (*Handler, error) {
+func NewHandler(next http.Handler, classifier classifier.Classifier, logger RequestLogger, threshold float64) (*Handler, error) {
 	if next == nil || classifier == nil || logger == nil {
 		return nil, fmt.Errorf("proxy, classifier, and request logger are required")
 	}
@@ -44,16 +48,24 @@ func NewHandler(next http.Handler, classifier security.Classifier, logger Reques
 // ServeHTTP classifies the original incoming request, records its riskiness,
 // then either returns 403 or forwards it. A failed prediction returns 503.
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	riskiness, err := h.classifier.Classify(r.Context(), r)
-	if err != nil || !validRiskiness(riskiness) {
-		slog.Error("Request classification failed", "error", err, "riskiness", riskiness)
+	result, classificationErr := h.classifier.Classify(r.Context(), r)
+	if classificationErr == nil {
+		classificationErr = result.Validate()
+	}
+	if classificationErr != nil {
+		result = nil
+	}
+	// A client disconnect must not cancel telemetry after classification finishes.
+	// The logger applies its own bounded write timeout.
+	if err := h.logger.LogRequest(context.WithoutCancel(r.Context()), r, result, classificationErr); err != nil {
+		slog.Error("Failed to log request telemetry", "error", err)
+	}
+	if classificationErr != nil {
+		slog.Error("Request classification failed", "error", classificationErr)
 		http.Error(w, "Request classification unavailable", http.StatusServiceUnavailable)
 		return
 	}
-	if err := h.logger.LogRequest(r.Context(), r, riskiness); err != nil {
-		slog.Error("Failed to log request telemetry", "error", err)
-	}
-	if riskiness >= h.threshold {
+	if result.Riskiness >= h.threshold {
 		http.Error(w, "Request blocked", http.StatusForbidden)
 		return
 	}
