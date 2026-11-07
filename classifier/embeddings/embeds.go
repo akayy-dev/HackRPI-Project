@@ -85,6 +85,11 @@ func ConvertRequestToEmbedFormat(r *http.Request) (string, error) {
 	add("accept-encoding", r.Header.Get("Accept-Encoding"))
 	add("do-not-track", r.Header.Get("DNT"))
 	add("connection", r.Header.Get("Connection"))
+	add("content-length", r.Header.Get("Content-Length"))
+	add("transfer-encoding", r.Header.Get("Transfer-Encoding"))
+	add("x-forwarded-for", r.Header.Get("X-Forwarded-For"))
+	add("x-real-ip", r.Header.Get("X-Real-IP"))
+	add("authorization", r.Header.Get("Authorization"))
 
 	// Read and restore the request body.
 	if r.Body != nil && r.Body != http.NoBody {

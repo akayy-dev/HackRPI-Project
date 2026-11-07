@@ -81,7 +81,7 @@ func run() error {
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
-	simulationHandler, err := simulation.NewHandler(requestLogger)
+	simulationHandler, err := simulation.NewHandler(requestClassifier, requestLogger)
 	if err != nil {
 		return fmt.Errorf("create simulation handler: %w", err)
 	}

@@ -120,3 +120,21 @@ func TestLogRequestStoresClassificationFailureWithoutScores(t *testing.T) {
 		}
 	}
 }
+
+func TestSimulationFailureRetainsMetadataWithoutDecision(t *testing.T) {
+	collection := &fakeCollection{}
+	logger := &Logger{collection: collection}
+	r := httptest.NewRequest(http.MethodGet, "/products", nil)
+	r.RemoteAddr = "45.79.23.14:51000"
+	metadata := SimulationMetadata{Threshold: 0.5, Timestamp: time.Date(2026, 11, 7, 12, 0, 0, 0, time.UTC), IntendedClassification: "sql_injection"}
+	if err := logger.LogSimulation(r.Context(), r, &classifier.Result{Riskiness: 0.9}, errors.New("model unavailable"), metadata); err != nil {
+		t.Fatal(err)
+	}
+	record := collection.record
+	if !record.Simulated || record.Timestamp != metadata.Timestamp || record.IntendedClassification != metadata.IntendedClassification || record.RemoteAddr != r.RemoteAddr {
+		t.Fatalf("simulation metadata was lost: %+v", record)
+	}
+	if record.Riskiness != nil || record.AttackProbabilities != nil || record.Blocked != nil || record.ClassificationError == "" {
+		t.Fatal("failed simulation contains a fabricated model decision")
+	}
+}

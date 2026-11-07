@@ -32,25 +32,48 @@ reachable at `http://target-web-app:80` inside Compose. Compose waits for the
 backend and MongoDB health checks and the Ollama model download before starting Go.
 
 The separate simulation server starts with the same Go process on port 8081.
-Submit an `AttackProbabilities` JSON object to evaluate a case without invoking
-Ollama or forwarding to the backend:
+Open http://localhost:8081/ for the Traffic Lab control panel. It generates normal
+and attack-shaped telemetry and sends it through the real Ollama embedding and
+sigmoid classifier. Nothing is forwarded to the backend or the simulated IPs.
+Adjust request rate (1–100/sec), malicious mix (0–100%), attack-category checkboxes,
+and batch size (up to 100,000), or enable continuous generation. Pause/resume,
+stop, and reset controls manage the current session.
+
+The live log shows only source IP, intended classification, and accepted/rejected
+decision. Totals cover the full session; the log retains the latest 500 responses.
+Acceptance/rejection percentages use completed model decisions, excluding pending
+requests and errors. A separate error counter and message report classifier or
+database failures. Up to eight evaluations run concurrently, so the actual rate
+can be lower than the dispatch target when the model is busy.
+
+Submit a JSON object containing the request fields of `RequestTelemetry`:
 
 ```sh
 curl http://localhost:8081/submit \
   -H 'Content-Type: application/json' \
-  -d '{"normal":0.2,"sql_injection":0.85,"path_traversal":0.1}'
+  -d '{"method":"GET","url":"/products?id=1%27%20OR%201%3D1","host":"app.example.test","remote_addr":"45.79.23.14:51000","protocol":"HTTP/1.1","headers":{"User-Agent":["Traffic Lab"]},"intended_classification":"sql_injection"}'
 ```
 
-`normal` is required; omitted attack scores default to zero. Unknown fields,
-null values, malformed JSON, and probabilities outside [0, 1] are rejected.
-Riskiness is `1 - normal`; blocking uses the same `THRESHOLD` as real requests.
+`method`, `url`, and `remote_addr` are required. Optional fields are `timestamp`,
+`host`, `protocol`, `headers` (arrays of strings), `body`, and
+`intended_classification`. Body is classifier input and is not saved. The intended
+label is saved as a test annotation and is never passed to the model.
+Source addresses may be IPv4/IPv6 with an optional port. The panel generates
+public-format addresses that IP geolocation databases can look up; no physical
+location is guaranteed, and they do not identify real visitors.
+Server-owned fields (`risk`, `attack_probabilities`, `blocked`, and similar
+outputs) are not accepted. The real classifier computes risk and all scores;
+blocking uses the same `THRESHOLD` as proxy traffic.
 The response is HTTP 201 after a successful MongoDB insert, including
 `riskiness`, `attack_probabilities`, `threshold`, `blocked`, and `simulated`.
 A blocked simulation also returns 201 because the evaluation was saved.
-Persistence failures return 503. Inputs are limited to 16 KiB.
+Classification failures are also saved and return 503 without an acceptance
+decision. Persistence failures return 503. Inputs are limited to 128 KiB; the
+server returns 429 when all eight simulation slots are occupied.
 
 Simulations go to the same MongoDB collection with `simulated: true`, `threshold`,
-and `blocked`. Proxy records have `simulated: false`. For example, query
+and `blocked` for completed predictions, plus `intended_classification` and the
+submitted source metadata. Proxy records have `simulated: false`. For example, query
 `db.requests.find({simulated: true})` to inspect only simulations.
 
 The request handler runs classification, logs the request with its `Riskiness`,
@@ -99,9 +122,11 @@ flowchart TD
     Block --> Client
     Unavailable --> Client
 
-    Tester[Simulation client] --> Submit[HTTP server :8081 POST /submit]
-    Submit --> Evaluate[Validate scores and evaluate THRESHOLD]
-    Evaluate --> SaveSimulation[Persist simulated evaluation]
+    Tester[Traffic Lab control panel] --> Submit[HTTP server :8081 POST /submit]
+    Submit --> Reconstruct[Reconstruct synthetic HTTP request]
+    Reconstruct --> SimClassifier[Real embedding and sigmoid classification]
+    SimClassifier --> Evaluate[Evaluate THRESHOLD]
+    Evaluate --> SaveSimulation[Persist input metadata and computed evaluation]
     SaveSimulation --> Mongo
     SaveSimulation -->|Saved| Created[HTTP 201 with evaluation]
     Created --> Tester
@@ -179,3 +204,5 @@ MONGODB_TEST_URI=mongodb://127.0.0.1:27017 go test ./telemetry -run TestMongoReq
 ```
 
 The test creates and removes a unique collection in `telemetry_integration_test`.
+
+Validate the generator templates with `node --test simulation/web/generator.test.mjs`.

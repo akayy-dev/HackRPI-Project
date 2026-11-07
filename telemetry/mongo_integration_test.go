@@ -93,11 +93,14 @@ func TestMongoRequestPersistence(t *testing.T) {
 		})
 	}
 	t.Run("simulation", func(t *testing.T) {
-		handler, err := simulation.NewHandler(logger)
+		model := classifier.ClassifierFunc(func(context.Context, *http.Request) (*classifier.Result, error) {
+			return &classifier.Result{Riskiness: 0.8, AttackProbabilities: classifier.AttackProbabilities{Normal: 0.2, SQLInjection: 0.8}}, nil
+		})
+		handler, err := simulation.NewHandler(model, logger)
 		if err != nil {
 			t.Fatal(err)
 		}
-		r := httptest.NewRequest(http.MethodPost, "/submit", strings.NewReader(`{"normal":0.2,"sql_injection":0.8}`))
+		r := httptest.NewRequest(http.MethodPost, "/submit", strings.NewReader(`{"method":"GET","url":"/products?id=1%27%20OR%201%3D1","host":"app.example.test","remote_addr":"45.79.23.14","protocol":"HTTP/1.1","intended_classification":"sql_injection"}`))
 		r.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		handler.ServeHTTP(w, r)
@@ -110,12 +113,17 @@ func TestMongoRequestPersistence(t *testing.T) {
 			Blocked   *bool              `bson:"blocked"`
 			Threshold float64            `bson:"threshold"`
 			Attacks   map[string]float64 `bson:"attack_probabilities"`
+			Source    string             `bson:"remote_addr"`
+			Intended  string             `bson:"intended_classification"`
 		}
-		if err := collection.FindOne(ctx, bson.M{"url": "/submit", "simulated": true}).Decode(&stored); err != nil {
+		if err := collection.FindOne(ctx, bson.M{"simulated": true}).Decode(&stored); err != nil {
 			t.Fatal(err)
 		}
 		if !stored.Simulated || stored.Risk != 0.8 || stored.Blocked == nil || !*stored.Blocked || stored.Threshold != proxy.THRESHOLD || len(stored.Attacks) != 14 || stored.Attacks["sql_injection"] != 0.8 {
 			t.Fatalf("incorrect simulation document: %+v", stored)
+		}
+		if stored.Source != "45.79.23.14:54321" || stored.Intended != "sql_injection" {
+			t.Fatalf("submitted request metadata was not stored: %+v", stored)
 		}
 	})
 }

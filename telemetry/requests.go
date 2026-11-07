@@ -17,19 +17,20 @@ import (
 
 // RequestTelemetry describes an incoming request before the proxy rewrites it.
 type RequestTelemetry struct {
-	Timestamp           time.Time                       `bson:"timestamp"`
-	Riskiness           *float64                        `bson:"risk,omitempty"` // Absent when classification fails.
-	AttackProbabilities *classifier.AttackProbabilities `bson:"attack_probabilities,omitempty"`
-	ClassificationError string                          `bson:"classification_error,omitempty"`
-	Simulated           bool                            `bson:"simulated"`
-	Threshold           *float64                        `bson:"threshold,omitempty"`
-	Blocked             *bool                           `bson:"blocked,omitempty"`
-	Method              string                          `bson:"method"`
-	URL                 string                          `bson:"url"`
-	Host                string                          `bson:"host"`
-	RemoteAddr          string                          `bson:"remote_addr"`
-	Protocol            string                          `bson:"protocol"`
-	Headers             http.Header                     `bson:"headers"`
+	Timestamp              time.Time                       `bson:"timestamp"`
+	Riskiness              *float64                        `bson:"risk,omitempty"` // Absent when classification fails.
+	AttackProbabilities    *classifier.AttackProbabilities `bson:"attack_probabilities,omitempty"`
+	ClassificationError    string                          `bson:"classification_error,omitempty"`
+	Simulated              bool                            `bson:"simulated"`
+	Threshold              *float64                        `bson:"threshold,omitempty"`
+	Blocked                *bool                           `bson:"blocked,omitempty"`
+	IntendedClassification string                          `bson:"intended_classification,omitempty"`
+	Method                 string                          `bson:"method"`
+	URL                    string                          `bson:"url"`
+	Host                   string                          `bson:"host"`
+	RemoteAddr             string                          `bson:"remote_addr"`
+	Protocol               string                          `bson:"protocol"`
+	Headers                http.Header                     `bson:"headers"`
 }
 
 type requestCollection interface {
@@ -40,6 +41,13 @@ type requestCollection interface {
 type Logger struct {
 	client     *mongo.Client
 	collection requestCollection
+}
+
+// SimulationMetadata annotates synthetic traffic independently of model inputs.
+type SimulationMetadata struct {
+	Threshold              float64
+	Timestamp              time.Time
+	IntendedClassification string
 }
 
 // NewLogger connects to MongoDB and verifies that it is available.
@@ -74,17 +82,18 @@ func (l *Logger) LogRequest(ctx context.Context, r *http.Request, result *classi
 	return l.logRequest(ctx, r, result, classificationErr, nil)
 }
 
-// LogSimulation stores the provided probabilities and blocking decision in the
-// same collection as real requests, marked simulated=true. A nil error confirms
-// the MongoDB write completed. The request body is not persisted.
-func (l *Logger) LogSimulation(ctx context.Context, r *http.Request, result *classifier.Result, threshold float64) error {
-	if math.IsNaN(threshold) || threshold < 0 || threshold > 1 {
+// LogSimulation stores reconstructed request metadata and model-computed scores
+// in the same collection as real requests, marked simulated=true. Failures omit
+// scores and decisions. A nil error confirms the MongoDB write completed. The
+// intended class is an annotation; the request body is not persisted.
+func (l *Logger) LogSimulation(ctx context.Context, r *http.Request, result *classifier.Result, classificationErr error, metadata SimulationMetadata) error {
+	if math.IsNaN(metadata.Threshold) || metadata.Threshold < 0 || metadata.Threshold > 1 {
 		return fmt.Errorf("simulation threshold must be between 0 and 1")
 	}
-	return l.logRequest(ctx, r, result, nil, &threshold)
+	return l.logRequest(ctx, r, result, classificationErr, &metadata)
 }
 
-func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *classifier.Result, classificationErr error, simulationThreshold *float64) error {
+func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *classifier.Result, classificationErr error, simulation *SimulationMetadata) error {
 	if classificationErr == nil {
 		if err := result.Validate(); err != nil {
 			return err
@@ -115,11 +124,17 @@ func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *classi
 		record.Riskiness = &result.Riskiness
 		record.AttackProbabilities = &result.AttackProbabilities
 	}
-	if simulationThreshold != nil {
-		blocked := result.Riskiness >= *simulationThreshold
+	if simulation != nil {
 		record.Simulated = true
-		record.Threshold = simulationThreshold
-		record.Blocked = &blocked
+		record.Threshold = &simulation.Threshold
+		record.IntendedClassification = simulation.IntendedClassification
+		if !simulation.Timestamp.IsZero() {
+			record.Timestamp = simulation.Timestamp.UTC()
+		}
+		if classificationErr == nil && result != nil {
+			blocked := result.Riskiness >= simulation.Threshold
+			record.Blocked = &blocked
+		}
 	}
 	writeCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()

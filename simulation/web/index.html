@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="color-scheme" content="dark"><title>Vivian · Traffic Lab</title>
+  <link rel="stylesheet" href="/style.css"><script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="/" aria-label="Vivian Traffic Lab"><span class="brand-icon">v</span> vivian <span class="slash">/</span><span class="brand-sub">traffic lab</span></a><div class="local-tag"><span class="dot"></span> Simulation environment <span class="port">:8081</span></div></header>
+  <main>
+    <section class="intro"><div><div class="eyebrow">TEST THE SIGNAL. WATCH THE DECISION.</div><h1>Your traffic. Your scenarios.</h1><p>Generate synthetic requests and watch your classifier make the call.</p></div><div class="run-state" id="runState" role="status"><span class="dot"></span><span id="stateText">Ready to simulate</span></div></section>
+    <section class="metrics" aria-label="Session statistics">
+      <article class="metric"><div class="metric-label">Packets sent <span>↗</span></div><div class="metric-value" id="sent">0</div><div class="metric-foot"><span id="inFlight">0</span> in flight · <span id="actualRate">0.0</span> / sec actual</div></article>
+      <article class="metric"><div class="metric-label">Accepted <span class="green">↗</span></div><div class="metric-value green"><span id="acceptedPercent">0.0</span><small>%</small></div><div class="metric-foot"><span id="acceptedCount">0</span> accepted evaluations</div></article>
+      <article class="metric"><div class="metric-label">Rejected <span class="red">↘</span></div><div class="metric-value red"><span id="rejectedPercent">0.0</span><small>%</small></div><div class="metric-foot"><span id="rejectedCount">0</span> rejected evaluations</div></article>
+      <article class="metric"><div class="metric-label">Session progress <span>◷</span></div><div class="metric-value" id="progressText">0<small>%</small></div><div class="progress-track"><div id="progressFill"></div></div><div class="metric-foot"><span id="errorCount">0</span> evaluation errors</div></article>
+    </section>
+    <div class="workspace">
+      <aside class="panel controls">
+        <div class="panel-heading"><div><div class="eyebrow">01 / CONFIGURE</div><h2>Traffic controls</h2></div><span class="tiny-label">LIVE</span></div>
+        <div class="actions"><button class="button primary" id="start" type="button">▶ Start simulation</button><button class="button secondary" id="stop" type="button" disabled>Stop</button></div>
+        <div id="validationMessage" class="validation" role="status"></div>
+        <div class="control-block"><div class="control-label"><label for="rate">Dispatch rate</label><output id="rateValue" for="rate">10 <small>req/s</small></output></div><input id="rate" type="range" min="1" max="100" value="10"><div class="range-labels"><span>1 req/s</span><span>100 req/s</span></div></div>
+        <div class="control-block"><div class="control-label"><label for="malicious">Malicious traffic</label><output id="maliciousValue" for="malicious">35 <small>%</small></output></div><input class="danger-range" id="malicious" type="range" min="0" max="100" value="35"><div class="mix-label"><span><i class="legend-dot benign"></i><span id="benignMix">65</span>% normal</span><span><i class="legend-dot hostile"></i><span id="attackMix">35</span>% attack</span></div></div>
+        <div class="batch-row"><div><label for="batchSize">Packets per run</label><input type="number" id="batchSize" min="1" max="100000" value="250" step="1"></div><label class="continuous"><input type="checkbox" id="continuous"> Run continuously</label></div>
+        <div class="attack-heading"><h3>Attack scenarios</h3><div><button class="text-button" id="selectAll" type="button">All</button><span> / </span><button class="text-button" id="selectNone" type="button">None</button></div></div>
+        <div id="attackTypes" class="attack-list"></div>
+        <p class="help">The malicious ratio sets the intended mix. Decisions come from the real model.</p>
+        <p class="help bottom-help">Up to 8 requests are evaluated at once. Dispatch slows when the classifier is busy.</p>
+      </aside>
+      <section class="panel activity">
+        <div class="panel-heading"><div><div class="eyebrow">02 / OBSERVE</div><h2>Live activity</h2></div><div class="activity-actions"><span class="live-indicator"><span class="dot"></span> Real classifier</span><button class="text-button" id="reset" type="button">Reset session</button></div></div>
+        <div class="outcome-bar" aria-hidden="true"><div id="acceptedBar"></div><div id="rejectedBar"></div></div>
+        <div class="table-scroll"><table><thead><tr><th>Source IP</th><th>Intended classification</th><th>Decision</th></tr></thead><tbody id="activityRows"></tbody></table><div id="emptyState" class="empty-state"><div class="empty-symbol">↗</div><h3>Traffic starts here.</h3><p>Choose your scenarios and start a run.<br>Every evaluation is saved to MongoDB.</p><span>IP ADDRESS <b>→</b> CLASSIFIER <b>→</b> DECISION</span></div></div>
+        <footer class="activity-footer"><span id="logCount">0 recent evaluations</span><span>Latest 500 · totals include the full session</span></footer>
+        <div id="lastError" class="error-message" role="status" hidden></div>
+        <div class="context-note"><span>ⓘ</span><p>Public-format IPs are synthetic source metadata; geolocation depends on your IP database. Generated requests are classified and saved, with no backend forwarding. Acceptance rates exclude pending and failed evaluations.</p></div>
+      </section>
+    </div>
+    <footer class="page-footer"><span>VIVIAN / TRAFFIC LAB</span><span>Synthetic traffic. Real model decisions.</span></footer>
+  </main>
+</body>
+</html>
