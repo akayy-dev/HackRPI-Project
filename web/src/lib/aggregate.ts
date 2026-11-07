@@ -44,6 +44,13 @@ export function toMapNodes(events: ConnectionEvent[]): MapNode[] {
   return [...byKey.values()];
 }
 
+/** ML scores at or above this ("Medium" and up) are shown as threats (red). */
+export const THREAT_SCORE = 0.5;
+export const isThreatScore = (score: number) => score >= THREAT_SCORE;
+
+/** Hex for SVG attributes, which can't use Tailwind classes. Mirrors --color-threat. */
+export const THREAT_HEX = "#ff3b4f";
+
 export function severityLabel(score: number): string {
   if (score >= 0.9) return "Critical";
   if (score >= 0.7) return "High";

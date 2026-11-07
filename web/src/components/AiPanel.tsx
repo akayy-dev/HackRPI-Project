@@ -9,7 +9,6 @@ interface Msg {
   content: string;
 }
 
-const EQ_DELAYS = [0, 0.2, 0.4, 0.1, 0.3, 0.5, 0.15, 0.35];
 
 export default function AiPanel({ summary }: { summary: AiSummary }) {
   const [messages, setMessages] = useState<Msg[]>([]);
@@ -47,13 +46,8 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
 
   return (
     <aside className="flex flex-col gap-4 rounded-xl border border-obsidian-700 bg-obsidian-900 p-4 shadow-2xl sm:p-5 lg:col-span-4" data-purpose="ai-summary-helper">
-      <div className="flex items-center justify-between border-b border-obsidian-800 pb-3">
+      <div className="border-b border-obsidian-800 pb-3">
         <SectionTitle>AI summary &amp; helper</SectionTitle>
-        <div className="flex h-4 items-end gap-0.5 rounded border border-tactical/30 bg-obsidian-950 px-1.5 py-0.5" aria-hidden>
-          {EQ_DELAYS.map((d, i) => (
-            <div key={i} className="eq-bar w-1 rounded-t-sm bg-tactical" style={{ animationDelay: `${d}s`, animationDuration: `${0.8 + (i % 4) * 0.2}s` }} />
-          ))}
-        </div>
       </div>
 
       {/* Summary */}
@@ -62,12 +56,13 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
           <div className="rounded border border-obsidian-800 bg-obsidian-900 p-2">
             <div className="text-[10px] text-gray-400">TRAFFIC</div>
             <div className="font-bold text-white">
-              {(summary.trafficPerMin / 1000).toFixed(1)}k/min <span className="text-[10px] text-tactical">{summary.trafficStatus}</span>
+              {(summary.trafficPerMin / 1000).toFixed(1)}k/min{" "}
+              <span className={`text-[10px] ${summary.trafficStatus === "NORMAL" ? "text-tactical" : "text-threat"}`}>{summary.trafficStatus}</span>
             </div>
           </div>
-          <div className="rounded border border-obsidian-800 bg-obsidian-900 p-2">
+          <div className={`rounded border p-2 ${summary.activeAnomaly ? "border-threat/40 bg-threat/10" : "border-obsidian-800 bg-obsidian-900"}`}>
             <div className="text-[10px] text-gray-400">ANOMALIES</div>
-            <div className="font-bold text-tactical">
+            <div className={`font-bold ${summary.activeAnomaly ? "text-threat" : "text-tactical"}`}>
               {summary.activeAnomaly ?? "None"} {summary.activeAnomaly && <span className="text-[10px]">ACTIVE</span>}
             </div>
           </div>
@@ -85,9 +80,11 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
             <button
               type="button"
               className={
-                a.variant === "primary"
-                  ? "shrink-0 whitespace-nowrap rounded bg-tactical px-3 py-1 text-xs font-bold text-obsidian-950 shadow-[0_0_8px_rgba(0,255,136,0.3)] transition-all hover:bg-tactical-dim"
-                  : "shrink-0 whitespace-nowrap rounded border border-tactical/60 px-3 py-1 text-xs font-semibold text-tactical transition-all hover:bg-tactical/15"
+                /\b(block|ban)\b/i.test(a.label)
+                  ? "shrink-0 whitespace-nowrap rounded bg-threat px-3 py-1 text-xs font-bold text-white transition-all hover:bg-threat-dim"
+                  : a.variant === "primary"
+                    ? "shrink-0 whitespace-nowrap rounded bg-tactical px-3 py-1 text-xs font-bold text-obsidian-950 transition-all hover:bg-tactical-dim"
+                    : "shrink-0 whitespace-nowrap rounded border border-tactical/60 px-3 py-1 text-xs font-semibold text-tactical transition-all hover:bg-tactical/15"
               }
             >
               {a.actionLabel}
@@ -146,7 +143,7 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
           <button
             type="submit"
             disabled={pending || !input.trim()}
-            className="shrink-0 rounded-lg bg-tactical px-4 py-2 text-xs font-bold text-obsidian-950 shadow-[0_0_10px_rgba(0,255,136,0.3)] transition-all hover:bg-tactical-dim disabled:opacity-50"
+            className="shrink-0 rounded-lg bg-tactical px-4 py-2 text-xs font-bold text-obsidian-950 transition-all hover:bg-tactical-dim disabled:opacity-50"
           >
             Send
           </button>

@@ -1,5 +1,6 @@
 "use client";
 
+import { THREAT_HEX } from "@/lib/aggregate";
 import { useMemo, useRef, useState } from "react";
 import { geoNaturalEarth1, geoPath, geoGraticule10 } from "d3-geo";
 import { feature } from "topojson-client";
@@ -45,6 +46,71 @@ function arcPath([x1, y1]: [number, number], [x2, y2]: [number, number]): string
   return `M${x1},${y1} Q${mx},${my - dist * 0.35} ${x2},${y2}`;
 }
 
+const ALLOWED_HEX = "#00ff88";
+
+/**
+ * Donut marker for one location: green arc = share of allowed requests, red arc = share blocked.
+ * A location with only one kind is a solid ring. Small shares get a minimum arc so 1 attack in 50 still shows.
+ */
+function SplitRing({ r, allowed, blocked, width }: { r: number; allowed: number; blocked: number; width: number }) {
+  const C = 2 * Math.PI * r;
+  const mixed = allowed > 0 && blocked > 0;
+  const minArc = Math.min(3, C / 4);
+  const gap = mixed ? 1.2 : 0;
+  let a = (allowed / (allowed + blocked)) * C;
+  if (mixed) a = Math.min(C - minArc, Math.max(minArc, a));
+  return (
+    <>
+      <circle r={r} fill="#07080a" />
+      {/* rotate so arcs start at 12 o'clock */}
+      <g transform="rotate(-90)" fill="none" strokeWidth={width} filter="url(#nodeGlow)">
+        {allowed > 0 && <circle r={r} stroke={ALLOWED_HEX} strokeDasharray={`${a - gap} ${C}`} />}
+        {blocked > 0 && <circle r={r} stroke={THREAT_HEX} strokeDasharray={`${C - a - gap} ${C}`} strokeDashoffset={-a} />}
+      </g>
+    </>
+  );
+}
+
+const TIP_CHAR_W = 5.5; // ~0.6em of the 9px mono font
+const TIP_LINE_H = 12;
+
+/** Hover card drawn inside the SVG, kept at constant size and inside the map bounds. */
+function NodeTooltip({ node, view }: { node: MapNode & { xy: [number, number]; r: number }; view: { k: number; x: number; y: number } }) {
+  const [x, y] = node.xy;
+  const lines: { text: string; parts?: { text: string; fill: string }[] }[] = [
+    { text: `${node.location.city} (${node.location.code})` },
+    {
+      text: `${node.allowed} allowed · ${node.blocked} blocked`,
+      parts: [
+        { text: `${node.allowed} allowed`, fill: ALLOWED_HEX },
+        { text: " · ", fill: "#6b7280" },
+        { text: `${node.blocked} blocked`, fill: node.blocked > 0 ? THREAT_HEX : "#9ca3af" },
+      ],
+    },
+    { text: `last: ${node.latest.ip} · ${node.latest.verdict}` },
+  ];
+  const w = Math.max(...lines.map((l) => l.text.length)) * TIP_CHAR_W + 16;
+  const h = lines.length * TIP_LINE_H + 10;
+
+  // Screen-space position of the node, then keep the card on the canvas.
+  const sx = x * view.k + view.x;
+  const sy = y * view.k + view.y;
+  const above = sy - node.r - 10 - h >= 4;
+  const top = above ? -node.r - 10 - h : node.r + 10;
+  const left = Math.min(W - 4 - sx - w / 2, Math.max(4 - sx + w / 2, 0)) - w / 2;
+
+  return (
+    <g transform={`translate(${x},${y}) scale(${1 / view.k})`} pointerEvents="none" fontFamily="var(--font-mono)" fontSize={9}>
+      <rect x={left} y={top} width={w} height={h} rx={4} fill="#0d0e12" fillOpacity={0.96} stroke="#2d323e" />
+      {lines.map((l, i) => (
+        <text key={i} x={left + 8} y={top + 5 + TIP_LINE_H * (i + 1) - 3} fill={i === 0 ? "#ffffff" : "#9ca3af"} fontWeight={i === 0 ? 700 : 400}>
+          {l.parts ? l.parts.map((p, j) => <tspan key={j} fill={p.fill}>{p.text}</tspan>) : l.text}
+        </text>
+      ))}
+    </g>
+  );
+}
+
 interface Props {
   server: ServerNode;
   nodes: MapNode[];
@@ -54,6 +120,7 @@ interface Props {
 
 export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: Props) {
   const [view, setView] = useState({ k: 1, x: 0, y: 0 });
+  const [hoverKey, setHoverKey] = useState<string | null>(null);
   const drag = useRef<{ px: number; py: number; x: number; y: number; moved: boolean } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
 
@@ -64,7 +131,7 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
       nodes.map((n) => ({
         ...n,
         xy: project(n.location.lon, n.location.lat),
-        r: 3.5 + Math.min(4, Math.log2(n.total + 1)),
+        r: 5 + Math.min(4, Math.log2(n.total + 1)),
       })),
     [nodes],
   );
@@ -138,23 +205,12 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
             <feGaussianBlur stdDeviation="2.5" result="blur" />
             <feComposite in="SourceGraphic" in2="blur" operator="over" />
           </filter>
-          <radialGradient id="serverBeacon" cx="50%" cy="50%" r="50%">
-            <stop offset="0%" stopColor="#00ff88" stopOpacity="0.28" />
-            <stop offset="60%" stopColor="#00ff88" stopOpacity="0.06" />
-            <stop offset="100%" stopColor="#00ff88" stopOpacity="0" />
-          </radialGradient>
         </defs>
 
         <g transform={`translate(${view.x},${view.y}) scale(${view.k})`}>
           {/* Globe outline + graticule */}
           <path d={SPHERE} fill="#090b0d" stroke="#00ff88" strokeOpacity={0.12} strokeWidth={0.8 / view.k} />
           <path d={GRATICULE} fill="none" stroke="#00ff88" strokeOpacity={0.06} strokeWidth={0.6 / view.k} strokeDasharray="2 4" />
-
-          {/* Range rings + beacon around our server */}
-          <circle cx={serverXY[0]} cy={serverXY[1]} r={360} fill="url(#serverBeacon)" />
-          {[80, 170, 270].map((r, i) => (
-            <circle key={r} cx={serverXY[0]} cy={serverXY[1]} r={r} fill="none" stroke="#00ff88" strokeOpacity={0.1 - i * 0.025} strokeWidth={1 / view.k} strokeDasharray={i === 1 ? "3 5" : undefined} />
-          ))}
 
           {/* Countries */}
           <g fill="#0c1014" stroke="#00ff88" strokeOpacity={0.22} strokeWidth={0.6 / view.k} strokeLinejoin="round">
@@ -163,42 +219,30 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
             ))}
           </g>
 
-          {/* Radar sweep */}
-          <line
-            className="radar-sweep"
-            style={{ transformOrigin: `${serverXY[0]}px ${serverXY[1]}px` }}
-            x1={serverXY[0]}
-            y1={serverXY[1]}
-            x2={serverXY[0] + 320}
-            y2={serverXY[1] + 70}
-            stroke="#00ff88"
-            strokeOpacity={0.16}
-            strokeWidth={2 / view.k}
-          />
-
-          {/* Arcs: origin → our server */}
+          {/* Arcs: origin → our server — only for traffic that got through; blocked requests never reach it */}
           <g fill="none" pointerEvents="none">
-            {placed.map((n) => {
-              const blockedOnly = n.allowed === 0;
-              const isSel = n.key === selectedKey;
-              return (
-                <path
-                  key={`arc-${n.key}`}
-                  d={arcPath(n.xy, serverXY)}
-                  className="travel-line"
-                  stroke="#00ff88"
-                  strokeOpacity={isSel ? 0.9 : blockedOnly ? 0.25 : 0.55}
-                  strokeWidth={(isSel ? 1.8 : 1.1) / view.k}
-                />
-              );
-            })}
+            {placed
+              .filter((n) => n.allowed > 0)
+              .map((n) => {
+                const isSel = n.key === selectedKey;
+                return (
+                  <path
+                    key={`arc-${n.key}`}
+                    d={arcPath(n.xy, serverXY)}
+                    className="travel-line"
+                    stroke={ALLOWED_HEX}
+                    strokeOpacity={isSel ? 0.9 : 0.55}
+                    strokeWidth={(isSel ? 1.8 : 1.1) / view.k}
+                  />
+                );
+              })}
           </g>
 
-          {/* Origin nodes */}
+          {/* Origin nodes: split ring — green arc = allowed share, red arc = blocked share; centre dot = latest verdict */}
           {placed.map((n) => {
             const [x, y] = n.xy;
             const isSel = n.key === selectedKey;
-            const isBlocked = n.blocked > 0;
+            const latestColor = n.latest.verdict === "blocked" ? THREAT_HEX : ALLOWED_HEX;
             const s = 1 / view.k; // keep markers same visual size when zoomed
             return (
               <g
@@ -207,27 +251,20 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
                 className="cursor-pointer"
                 onPointerDown={(e) => e.stopPropagation()}
                 onPointerUp={(e) => e.stopPropagation()}
+                onPointerEnter={() => setHoverKey(n.key)}
+                onPointerLeave={() => setHoverKey((k) => (k === n.key ? null : k))}
                 onClick={(e) => {
                   e.stopPropagation();
                   onSelect(isSel ? null : n.key);
                 }}
                 role="button"
-                aria-label={`${n.location.city}: ${n.total} requests, ${n.blocked} blocked`}
+                aria-label={`${n.location.city}: ${n.allowed} allowed, ${n.blocked} blocked`}
               >
                 <circle r={14} fill="transparent" />
-                {isBlocked ? (
-                  <>
-                    <circle r={n.r + 0.5} fill="#07080a" stroke="#00ff88" strokeWidth={isSel ? 2.5 : 1.8} />
-                    <circle r={1.6} fill="#00ff88" />
-                  </>
-                ) : (
-                  <>
-                    <circle r={n.r} fill="#00ff88" filter="url(#nodeGlow)" />
-                    <circle r={n.r} fill="none" stroke="#00ff88" className="pulse-ring" />
-                  </>
-                )}
+                <SplitRing r={n.r} allowed={n.allowed} blocked={n.blocked} width={isSel ? 3.4 : 2.6} />
+                <circle r={1.8} fill={latestColor} />
                 {isSel && (
-                  <g stroke="#00ff88" strokeWidth={1.5}>
+                  <g stroke={latestColor} strokeWidth={1.5}>
                     <line x1={-n.r - 6} x2={-n.r - 2} y1={0} y2={0} />
                     <line x1={n.r + 2} x2={n.r + 6} y1={0} y2={0} />
                     <line x1={0} x2={0} y1={-n.r - 6} y2={-n.r - 2} />
@@ -245,7 +282,6 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
 
           {/* Our server (diamond bastion) */}
           <g transform={`translate(${serverXY[0]},${serverXY[1]}) scale(${1 / view.k})`} pointerEvents="none">
-            <circle r={9} fill="none" stroke="#00ff88" className="pulse-ring" />
             <rect x={-8} y={-8} width={16} height={16} transform="rotate(45)" fill="#07080a" stroke="#00ff88" strokeWidth={2} filter="url(#nodeGlow)" />
             <rect x={-2.8} y={-2.8} width={5.6} height={5.6} transform="rotate(45)" fill="#00ff88" />
             <g transform="translate(0,22)">
@@ -255,6 +291,12 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
               </text>
             </g>
           </g>
+
+          {/* Hover card — last so it sits above everything */}
+          {(() => {
+            const hovered = placed.find((n) => n.key === hoverKey);
+            return hovered ? <NodeTooltip node={hovered} view={view} /> : null;
+          })()}
         </g>
       </svg>
     </div>

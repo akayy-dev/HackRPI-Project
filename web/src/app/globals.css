@@ -21,6 +21,10 @@
   --color-tactical-muted: #008746;
   --color-tactical-dark: #00381c;
 
+  /* Threat / blocked / proxy-down / high latency */
+  --color-threat: #ff3b4f;
+  --color-threat-dim: #d92a3d;
+
   --animate-cursor: blink 1s step-end infinite;
 
   @keyframes blink {
@@ -69,23 +73,8 @@ body {
   animation: pingWave 2.8s cubic-bezier(0, 0.2, 0.8, 1) infinite 1.4s;
 }
 
-/* Radar sweep around our server (origin set inline) */
-@keyframes radarSweep {
-  to { transform: rotate(360deg); }
-}
-.radar-sweep {
-  animation: radarSweep 10s linear infinite;
-}
-
-/* Equalizer bars in the AI panel header */
-@keyframes eqBar {
-  0%, 100% { height: 18%; }
-  50% { height: 95%; }
-}
-.eq-bar { animation: eqBar 1.2s ease-in-out infinite; }
-
 @media (prefers-reduced-motion: reduce) {
-  .travel-line, .pulse-ring, .pulse-ring-delayed, .radar-sweep, .eq-bar, .animate-cursor {
+  .travel-line, .pulse-ring, .pulse-ring-delayed, .animate-cursor {
     animation: none !important;
   }
 }

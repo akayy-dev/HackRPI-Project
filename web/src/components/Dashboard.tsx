@@ -34,16 +34,20 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
             <SectionTitle>Live connection map</SectionTitle>
             <div className="flex items-center gap-3.5 text-xs">
               <span className="flex items-center gap-1.5 text-gray-300">
-                <span className="h-2.5 w-2.5 rounded-full bg-tactical shadow-[0_0_6px_#00ff88]" />Allowed
+                <span className="h-2.5 w-2.5 rounded-full border-2 border-tactical bg-obsidian-950" />Allowed
               </span>
-              <span className="flex items-center gap-1.5 text-gray-400">
-                <span className="flex h-2.5 w-2.5 items-center justify-center rounded-full border border-tactical bg-obsidian-950">
-                  <span className="h-1 w-1 rounded-full bg-tactical/50" />
-                </span>
-                Blocked
+              <span className="flex items-center gap-1.5 text-gray-300">
+                <span className="h-2.5 w-2.5 rounded-full border-2 border-threat bg-obsidian-950" />Blocked
+              </span>
+              <span className="flex items-center gap-1.5 text-gray-300" title="Ring split = share of allowed vs blocked requests">
+                <svg viewBox="-6 -6 12 12" className="h-3 w-3" aria-hidden>
+                  <path d="M0,-4.5 A4.5,4.5 0 0 1 0,4.5" fill="none" stroke="#00ff88" strokeWidth={2} />
+                  <path d="M0,4.5 A4.5,4.5 0 0 1 0,-4.5" fill="none" stroke="#ff3b4f" strokeWidth={2} />
+                </svg>
+                Mixed
               </span>
               <span className="flex items-center gap-1.5 whitespace-nowrap text-gray-300">
-                <span className="inline-block h-2.5 w-2.5 rotate-45 border border-tactical bg-obsidian-950 shadow-[0_0_6px_rgba(0,255,136,0.5)]" />Our server
+                <span className="inline-block h-2.5 w-2.5 rotate-45 border border-tactical bg-obsidian-950" />Our server
               </span>
             </div>
           </div>
