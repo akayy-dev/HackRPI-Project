@@ -1,7 +1,7 @@
 /**
  * Turns raw connection events into the compact, deterministic view the AI analyst
  * reasons over. Every number the dashboard shows comes from here, never from the model.
- * Pure: no server-only imports, so it is unit-testable and reusable by the watcher.
+ * Pure: no server-only imports, so it is unit-testable.
  */
 import type { AttackLabel, ConnectionEvent } from "@/lib/types";
 
@@ -39,7 +39,7 @@ export interface SocContext {
   blocked: number;
   /** Requests in the last 5 min / 5 */
   perMin: number;
-  /** Last-5-minute counters: what severityFloor and the watcher use */
+  /** Last-5-minute counters: what severityFloor uses */
   blocked5m: number;
   maxIpBlocked5m: number;
   errors5m: number;

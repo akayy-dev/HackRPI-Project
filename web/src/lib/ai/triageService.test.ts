@@ -43,25 +43,6 @@ describe("triageService", () => {
     expect(triage).toHaveBeenCalledTimes(2);
   });
 
-  it("force bypasses the refresh throttle (watcher must not get a pre-attack analysis)", async () => {
-    const { svc, triage, advance } = setup();
-    await svc.get(events, { refresh: true });
-    advance(5_000);
-    await svc.get(events, { force: true });
-    expect(triage).toHaveBeenCalledTimes(2);
-  });
-
-  it("force waits out an in-flight call and still runs a fresh one", async () => {
-    let release!: (r: TriageResult) => void;
-    const triage = vi.fn().mockImplementationOnce(() => new Promise<TriageResult>((r) => (release = r))).mockResolvedValue(MODEL);
-    const { svc } = setup(triage);
-    const first = svc.get(events);
-    const forced = svc.get(events, { force: true });
-    release(MODEL);
-    await Promise.all([first, forced]);
-    expect(triage).toHaveBeenCalledTimes(2);
-  });
-
   it("concurrent gets share one call", async () => {
     const { svc, triage } = setup();
     await Promise.all([svc.get(events), svc.get(events), svc.get(events)]);

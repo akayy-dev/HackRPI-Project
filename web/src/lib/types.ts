@@ -108,8 +108,14 @@ export interface ProxyStatus {
   dbLatencyMs: number | null;
 }
 
+/** The only actions AI Sentinel may suggest; each one is wired to a dashboard focus filter. */
+export type ActionKind = "watch_ip" | "inspect_path";
+
 export interface SuggestedAction {
   id: string;
+  kind: ActionKind;
+  /** IP for watch_ip, path (no query) for inspect_path */
+  target: string;
   label: string;
   actionLabel: string;
   variant: "primary" | "secondary";

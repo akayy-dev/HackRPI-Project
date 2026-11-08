@@ -1,7 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import type { DashboardData, TimeWindow, VerdictFilter } from "@/lib/types";
+import type { DashboardData, SuggestedAction, TimeWindow, VerdictFilter } from "@/lib/types";
+import { pathOf } from "@/lib/ai/socContext";
 import { filterConnections, toMapNodes } from "@/lib/aggregate";
 import { useDashboardData } from "@/hooks/useDashboardData";
 import StatusChips from "./StatusChips";
@@ -16,11 +17,22 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
   const [timeWindow, setTimeWindow] = useState<TimeWindow>("5m");
   const [verdict, setVerdict] = useState<VerdictFilter>("all");
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
+  // Set by an AI Sentinel action button: narrows the map and log to one IP or path
+  const [focus, setFocus] = useState<SuggestedAction | null>(null);
 
-  const filtered = useMemo(
-    () => filterConnections(data.connections, timeWindow, verdict),
-    [data.connections, timeWindow, verdict],
-  );
+  const filtered = useMemo(() => {
+    const base = filterConnections(data.connections, timeWindow, verdict);
+    if (!focus) return base;
+    return base.filter((e) => (focus.kind === "watch_ip" ? e.ip === focus.target : pathOf(e.url) === focus.target));
+  }, [data.connections, timeWindow, verdict, focus]);
+
+  function applyAction(a: SuggestedAction) {
+    if (focus?.id === a.id) return setFocus(null); // second click clears
+    setFocus(a);
+    setTimeWindow("24h"); // suggestions cite history, not just the last 5 min
+    setVerdict("all");
+    setSelectedKey(null);
+  }
   const nodes = useMemo(() => toMapNodes(filtered), [filtered]);
   const unlocated = useMemo(() => filtered.filter((e) => !e.location).length, [filtered]);
   const selected = nodes.find((n) => n.key === selectedKey) ?? null;
@@ -33,6 +45,16 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
             <div className="flex flex-wrap items-center gap-3">
               <SectionTitle>Live connection map</SectionTitle>
               <StatusChips status={data.status} />
+              {focus && (
+                <button
+                  type="button"
+                  onClick={() => setFocus(null)}
+                  className="rounded-full border border-tactical/60 bg-tactical/10 px-2.5 py-0.5 text-[11px] font-semibold text-tactical transition-colors hover:bg-tactical/20"
+                  title="Clear focus"
+                >
+                  Focus: {focus.target} ✕
+                </button>
+              )}
             </div>
             <div className="flex items-center gap-3.5 text-xs">
               <span className="flex items-center gap-1.5 text-gray-300">
@@ -96,7 +118,7 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
           </div>
         </section>
 
-        <AiPanel summary={data.summary} />
+        <AiPanel summary={data.summary} activeActionId={focus?.id ?? null} onAction={applyAction} />
       </main>
 
       <ConnectionLog events={filtered} onInspect={(e) => e.location && setSelectedKey(e.location.code)} />

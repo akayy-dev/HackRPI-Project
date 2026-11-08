@@ -45,8 +45,8 @@ describe("parseTriage", () => {
     const r = parseTriage(
       reply({
         suggestedActions: [
-          { kind: "block_ip", target: ATTACKER, label: `Block ${ATTACKER}` },
-          { kind: "block_ip", target: "203.0.113.99", label: "Block 203.0.113.99" },
+          { kind: "watch_ip", target: ATTACKER, label: `Watch ${ATTACKER}` },
+          { kind: "watch_ip", target: "203.0.113.99", label: "Watch 203.0.113.99" },
           { kind: "inspect_path", target: "/admin", label: "Inspect /admin" },
           { kind: "inspect_path", target: "/login", label: "Inspect /login" },
         ],
@@ -54,8 +54,8 @@ describe("parseTriage", () => {
       attack(6),
     );
     expect(r?.suggestedActions).toEqual([
-      { id: `block_ip-${ATTACKER}`, label: `Block ${ATTACKER}`, actionLabel: "Block", variant: "primary" },
-      { id: "inspect_path-/login", label: "Inspect /login requests", actionLabel: "View", variant: "secondary" },
+      { id: `watch_ip-${ATTACKER}`, kind: "watch_ip", target: ATTACKER, label: `Watch ${ATTACKER}`, actionLabel: "Watch", variant: "primary" },
+      { id: "inspect_path-/login", kind: "inspect_path", target: "/login", label: "Inspect /login requests", actionLabel: "View", variant: "secondary" },
     ]);
   });
 
@@ -67,7 +67,7 @@ describe("parseTriage", () => {
     ];
     const r = parseTriage(reply({ suggestedActions: acts }), ctx);
     expect(r?.suggestedActions).toHaveLength(3);
-    expect(r?.suggestedActions[0]).toMatchObject({ actionLabel: "Watch", variant: "secondary" });
+    expect(r?.suggestedActions[0]).toMatchObject({ actionLabel: "Watch", kind: "watch_ip" });
   });
 
   it("dedupes identical actions (ids are React keys)", () => {
@@ -80,7 +80,7 @@ describe("parseTriage", () => {
       reply({ suggestedActions: [{ kind: "block_ip", target: ATTACKER, label: "sql_injection" }, { kind: "watch_ip", target: ATTACKER }] }),
       attack(6),
     );
-    expect(r?.suggestedActions.map((a) => a.label)).toEqual([`Block ${ATTACKER}`, `Watch ${ATTACKER}`]);
+    expect(r?.suggestedActions.map((a) => a.label)).toEqual([`Watch ${ATTACKER}`]); // block_ip is not on the menu
   });
 
   it("triage instruction scopes status to the last 5 minutes", () => {
@@ -120,7 +120,7 @@ describe("heuristicTriage", () => {
     expect(r.trafficStatus).toBe("ELEVATED");
     expect(r.activeAnomaly).toBe("SQLi");
     expect(r.summary).toBe(`7 requests, 6 blocked. Top source ${ATTACKER} (US) with 6 blocked.`);
-    expect(r.suggestedActions.map((a) => a.id)).toEqual([`block_ip-${ATTACKER}`, "inspect_path-/login"]);
+    expect(r.suggestedActions.map((a) => a.id)).toEqual([`watch_ip-${ATTACKER}`, "inspect_path-/login"]);
   });
 });
 
@@ -133,8 +133,8 @@ describe("heuristicSummary", () => {
       activeAnomaly: "SQLi",
       summary: `10 requests, 6 blocked. Top source ${ATTACKER} (US) with 6 blocked.`,
       suggestedActions: [
-        { id: `block_ip-${ATTACKER}`, label: `Block ${ATTACKER}`, actionLabel: "Block", variant: "primary" },
-        { id: "inspect_path-/", label: "Inspect / requests", actionLabel: "View", variant: "secondary" },
+        { id: `watch_ip-${ATTACKER}`, kind: "watch_ip", target: ATTACKER, label: `Watch ${ATTACKER}`, actionLabel: "Watch", variant: "primary" },
+        { id: "inspect_path-/", kind: "inspect_path", target: "/", label: "Inspect / requests", actionLabel: "View", variant: "secondary" },
       ],
     });
   });
@@ -149,6 +149,7 @@ describe("prompts", () => {
     expect(SOC_SYSTEM_PROMPT).toMatch(/untrusted/i);
     expect(SOC_SYSTEM_PROMPT).toContain("<traffic_data>");
     expect(TRIAGE_INSTRUCTION).toMatch(/JSON/);
+    expect(TRIAGE_INSTRUCTION).not.toContain("block_ip");
     expect(TRIAGE_INSTRUCTION).toMatch(/never use the data field names/);
   });
 });

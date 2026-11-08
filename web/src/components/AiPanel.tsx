@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import type { AiSummary } from "@/lib/types";
+import type { AiSummary, SuggestedAction } from "@/lib/types";
 import type { TriageResponse } from "@/lib/ai/triageService";
 import { SectionTitle } from "./ui";
 
@@ -15,8 +15,6 @@ const TRIAGE_POLL_MS = 60_000;
 const QUICK_PROMPTS = [
   "Explain the top threat",
   "Which IPs should I block and why?",
-  "What happened in the last 5 minutes?",
-  "Map current attacks to MITRE ATT&CK",
 ];
 
 const perMinLabel = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${Math.round(n)}`);
@@ -26,7 +24,15 @@ function ago(iso: string, now: number): string {
   return s < 60 ? `${s}s ago` : `${Math.round(s / 60)}m ago`;
 }
 
-export default function AiPanel({ summary: initialSummary }: { summary: AiSummary }) {
+export default function AiPanel({
+  summary: initialSummary,
+  activeActionId = null,
+  onAction,
+}: {
+  summary: AiSummary;
+  activeActionId?: string | null;
+  onAction?: (a: SuggestedAction) => void;
+}) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
@@ -91,7 +97,7 @@ export default function AiPanel({ summary: initialSummary }: { summary: AiSummar
   }
 
   return (
-    <aside className="flex flex-col gap-4 rounded-xl border border-obsidian-700 bg-obsidian-900 p-4 shadow-2xl sm:p-5 lg:col-span-4" data-purpose="ai-summary-helper">
+    <aside className="flex flex-col gap-4 rounded-xl border border-obsidian-700 bg-obsidian-900 p-4 shadow-2xl sm:p-5 lg:col-span-4 lg:h-0 lg:min-h-full lg:overflow-hidden" data-purpose="ai-summary-helper">
       <div className="flex items-center justify-between gap-2 border-b border-obsidian-800 pb-3">
         <SectionTitle>AI summary &amp; helper</SectionTitle>
         <div className="flex shrink-0 items-center gap-2">
@@ -143,12 +149,14 @@ export default function AiPanel({ summary: initialSummary }: { summary: AiSummar
         {summary.suggestedActions.map((a) => (
           <div key={a.id} className="flex items-center justify-between gap-2 rounded-lg border border-obsidian-800 bg-obsidian-850 p-2 transition-colors hover:border-tactical/40">
             <span className="truncate text-xs text-gray-200">{a.label}</span>
-            {/* TODO: wire to proxy control API */}
             <button
               type="button"
+              onClick={() => onAction?.(a)}
+              aria-pressed={activeActionId === a.id}
+              title={activeActionId === a.id ? "Clear focus" : `Focus the map and log on ${a.target}`}
               className={
-                /\b(block|ban)\b/i.test(a.label)
-                  ? "shrink-0 whitespace-nowrap rounded bg-threat px-3 py-1 text-xs font-bold text-white transition-all hover:bg-threat-dim"
+                activeActionId === a.id
+                  ? "shrink-0 whitespace-nowrap rounded bg-white px-3 py-1 text-xs font-bold text-obsidian-950 transition-all"
                   : a.variant === "primary"
                     ? "shrink-0 whitespace-nowrap rounded bg-tactical px-3 py-1 text-xs font-bold text-obsidian-950 transition-all hover:bg-tactical-dim"
                     : "shrink-0 whitespace-nowrap rounded border border-tactical/60 px-3 py-1 text-xs font-semibold text-tactical transition-all hover:bg-tactical/15"
@@ -161,8 +169,8 @@ export default function AiPanel({ summary: initialSummary }: { summary: AiSummar
       </div>
 
       {/* Chat */}
-      <div className="mt-auto space-y-2.5">
-        <div ref={scrollRef} className="flex max-h-56 min-h-24 flex-col gap-2 overflow-y-auto rounded-lg border border-dashed border-obsidian-700 bg-obsidian-950 p-3">
+      <div className="mt-auto flex min-h-0 flex-1 flex-col gap-2.5">
+        <div ref={scrollRef} className="flex max-h-56 min-h-24 flex-1 flex-col lg:max-h-none gap-2 overflow-y-auto rounded-lg border border-dashed border-obsidian-700 bg-obsidian-950 p-3">
           {messages.length === 0 && (
             <p className="m-auto text-center text-[11px] text-gray-500">
               AI Sentinel {configured === false ? "not configured" : "ready"} — ask about traffic.

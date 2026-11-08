@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1536" height="1024" viewBox="0 0 1536 1024">
+<defs><radialGradient id="bgl" cx="0.5" cy="0.5" r="0.6"><stop offset="0" stop-color="#0b2a1c"/><stop offset="1" stop-color="#050a08"/></radialGradient>
+<radialGradient id="r" cx="0.5" cy="0.5" r="0.5"><stop offset="0" stop-color="#00ff88" stop-opacity="0.4"/><stop offset="1" stop-color="#00ff88" stop-opacity="0"/></radialGradient></defs>
+<rect width="1536" height="1024" fill="url(#bgl)"/>
+<g transform="translate(496 198) scale(1.0)">
+<rect width="512" height="512" rx="116" fill="#050a08"/>
+<circle cx="256" cy="256" r="200" fill="url(#r)"/>
+<path d="M56 256 C120 160 190 124 256 124 C322 124 392 160 456 256 C392 352 322 388 256 388 C190 388 120 352 56 256 Z" fill="none" stroke="#00ff88" stroke-width="14" stroke-linejoin="round"/>
+<path d="M214 214 L256 300 L298 214" fill="none" stroke="#00ff88" stroke-width="30" stroke-linecap="round" stroke-linejoin="round"/>
+</g>
+<text x="768" y="820" text-anchor="middle" font-family="Segoe UI, Arial, sans-serif" font-size="120" font-weight="700" fill="#00ff88" letter-spacing="10">vivian</text>
+</svg>

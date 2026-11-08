@@ -1,6 +1,6 @@
 /**
- * Cost guard around provider.triage: one cached analysis shared by every dashboard tab
- * and the watcher, a throttle on forced refreshes, and a heuristic fallback so the
+ * Cost guard around provider.triage: one cached analysis shared by every dashboard tab,
+ * a throttle on forced refreshes, and a heuristic fallback so the
  * summary card always shows something true.
  */
 import type { AiSummary, ConnectionEvent } from "@/lib/types";
@@ -27,8 +27,6 @@ export interface TriageDeps {
 export interface TriageOptions {
   /** User-requested re-analysis: bypasses the cache, throttled to one per minRefreshMs */
   refresh?: boolean;
-  /** Always analyze these events now (watcher on escalation; it is rate-limited by its own cooldown) */
-  force?: boolean;
 }
 
 export interface TriageService {
@@ -65,18 +63,12 @@ export function createTriageService({ provider, now, ttlMs, minRefreshMs }: Tria
 
   return {
     async get(events, opts = {}) {
-      if (opts.force) {
-        // An in-flight analysis may predate the events we were handed: let it finish, then run ours
-        if (inflight) await inflight.catch(() => undefined);
-      } else {
-        if (inflight) return inflight;
-        const t = now();
-        const fresh = cached && t - cached.at < ttlMs;
-        const refreshAllowed = opts.refresh && (!cached || t - cached.at >= minRefreshMs);
-        if (cached && fresh && !refreshAllowed) return cached.value;
-      }
-
+      if (inflight) return inflight;
       const t = now();
+      const fresh = cached && t - cached.at < ttlMs;
+      const refreshAllowed = opts.refresh && (!cached || t - cached.at >= minRefreshMs);
+      if (cached && fresh && !refreshAllowed) return cached.value;
+
       inflight = analyze(events)
         .then((value) => {
           cached = { at: t, value };

@@ -8,7 +8,7 @@ A reverse proxy that scores every HTTP request with an ML classifier, **blocks t
 | Classifier | `classifier/` | Serializes the request, embeds it (EmbeddingGemma via Ollama), runs a 14-label sigmoid head (`weights.json`). Risk = `1 - normal` |
 | Telemetry | `telemetry/` | MongoDB logging (secrets in headers redacted, bodies not stored) |
 | Traffic Lab | `simulation/` | Synthetic traffic generator and control panel on `:8081` |
-| Dashboard | `web/` | Next.js 15 SOC dashboard: map, connection log, Grok triage, chat, alerts |
+| Dashboard | `web/` | Next.js 15 SOC dashboard: map, connection log, Grok triage, chat |
 
 ## Quick start (Docker)
 
@@ -68,6 +68,21 @@ With `MONGODB_URI` empty the dashboard shows mock data, so it runs without the p
 
 ## Demo: Traffic Lab → Admin dashboard
 
+**One click (Windows):** double-click `demo.cmd` in the repo root. It:
+- starts Ollama if needed and pulls the model;
+- opens one terminal tab each for the backend, the proxy with the Traffic Lab, the dashboard, and a traffic generator;
+- opens http://localhost:3000 and http://localhost:8081 in the browser.
+
+Services that are already running are skipped. It needs `MONGODB_URI` in `web/.env.local`.
+
+```powershell
+demo.cmd -Rate 5 -Malicious 40   # busier attack mix
+demo.cmd -NoTraffic              # drive the Traffic Lab by hand
+demo.cmd -Stop                   # stop the demo services
+```
+
+The manual steps:
+
 The Traffic Lab and the dashboard never talk to each other. The Lab writes to MongoDB and the dashboard reads the same collection. Both must point at **the same MongoDB**.
 
 1. **Start the dependencies.** Make sure MongoDB is running, then pull the model with `ollama pull embeddinggemma:300m` and keep Ollama running.
@@ -76,7 +91,7 @@ The Traffic Lab and the dashboard never talk to each other. The Lab writes to Mo
 4. **Start the proxy and Traffic Lab** (one process, ports 8080 and 8081). Use `scripts/run-proxy.ps1` on Windows, which reuses the Mongo settings from `web/.env.local`, or export the variables and run `go run .` as in step 3 of the local setup.
 5. **Start the dashboard:** `cd web && npm run dev`
 6. **Generate traffic.** Open http://localhost:8081, set a rate (for example 5/sec) and a malicious mix (for example 30%), pick attack categories, and press start.
-7. **Watch it land.** Open http://localhost:3000. The dashboard polls every few seconds, so new requests show up in the connection log and on the map. Blocked ones are red. Set `AI_PROVIDER=grok` and `XAI_API_KEY` to get AI triage and alerts.
+7. **Watch it land.** Open http://localhost:3000. The dashboard polls every few seconds, so new requests show up in the connection log and on the map. Blocked ones are red. Set `AI_PROVIDER=grok` and `XAI_API_KEY` to get AI triage and chat.
 
 Signs that something is misconfigured:
 
@@ -107,8 +122,6 @@ The block threshold is `proxy.THRESHOLD` (0.5) in `proxy/handler.go`.
 |---|---|
 | `MONGODB_URI`, `MONGODB_DB`, `MONGODB_COLLECTION` | Log source (empty URI = mock data; defaults `telemetry` / `requests`) |
 | `AI_PROVIDER=grok`, `XAI_API_KEY`, `XAI_MODEL` | Enable the Grok SOC analyst (empty = rule-based fallback) |
-| `AI_WATCH_INTERVAL_SEC` | Escalation watcher interval (`0` disables) |
-| `ALERT_WEBHOOK_URL` | Optional Slack or Discord webhook for alerts |
 | `GEOIP_DB_PATH`, `TRUST_PROXY_HEADERS` | Geo-IP database path; trust `X-Forwarded-For` only behind your own CDN |
 
 Never commit `.env.local`. It is gitignored.
@@ -121,7 +134,7 @@ Never commit `.env.local`. It is gitignored.
     -d '{"method":"GET","url":"/products?id=1%27%20OR%201%3D1","remote_addr":"45.79.23.14:51000","intended_classification":"sql_injection"}'
   ```
   Simulations are saved with `simulated: true` and never reach the backend. `timestamp` is when the Lab received the request, so it shows up live on the dashboard. The submitted (often 2020, training-era) date is kept in `request_timestamp`.
-- **Dashboard (`:3000`)**: live world map, filterable connection log, AI triage summary, chat, and SOC alerts when severity rises.
+- **Dashboard (`:3000`)**: live world map, filterable connection log, AI triage summary and chat.
 - **Inspect logs**: `mongosh mongodb://127.0.0.1:27017/telemetry --eval 'db.requests.find().sort({_id:-1}).limit(5)'`
 
 ## Tests
