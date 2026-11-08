@@ -1,6 +1,5 @@
 import {
   ATTACK_LABELS,
-  type AiSummary,
   type AttackLabel,
   type AttackProbabilities,
   type DashboardData,
@@ -10,6 +9,7 @@ import {
 } from "@/lib/types";
 import "server-only";
 import { getGeoResolver } from "@/lib/geo";
+import { heuristicSummary } from "@/lib/ai/analyst";
 import { toConnectionEvent } from "./toEvent";
 
 /**
@@ -110,25 +110,14 @@ function seedToLog([secondsAgo, remote_addr, method, url, risk, label, headers]:
   };
 }
 
-const MOCK_SUMMARY: AiSummary = {
-  trafficPerMin: 2400,
-  trafficStatus: "NORMAL",
-  activeAnomaly: "SQLi",
-  summary:
-    "Unusual request volume on /admin from subnet 198.51.100.0/24. All payloads intercepted and quarantined.",
-  suggestedActions: [
-    { id: "block-subnet", label: "Block subnet 198.51.100.0/24", actionLabel: "Apply", variant: "primary" },
-    { id: "inspect-admin", label: "Inspect /admin queries", actionLabel: "View", variant: "secondary" },
-  ],
-};
-
 export async function getMockDashboard(now = Date.now()): Promise<DashboardData> {
   const geo = await getGeoResolver(MOCK_SERVER.location);
+  const connections = SEEDS.map((s, i) => toConnectionEvent(seedToLog(s, i, now), `mock-${i}`, geo));
   return {
     server: MOCK_SERVER,
     status: { active: true, dbLatencyMs: null },
-    connections: SEEDS.map((s, i) => toConnectionEvent(seedToLog(s, i, now), `mock-${i}`, geo)),
-    summary: MOCK_SUMMARY,
+    connections,
+    summary: heuristicSummary(connections, now),
     generatedAt: new Date(now).toISOString(),
     source: "mock",
   };

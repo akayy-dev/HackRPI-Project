@@ -3,8 +3,8 @@
  * guards that keep a model's answer honest against the computed traffic context.
  * Pure: no server-only imports.
  */
-import type { AiSummary, AttackLabel, SuggestedAction } from "@/lib/types";
-import type { SocContext } from "./socContext";
+import type { AiSummary, AttackLabel, ConnectionEvent, SuggestedAction } from "@/lib/types";
+import { buildSocContext, type SocContext } from "./socContext";
 
 export type TriageResult = Omit<AiSummary, "trafficPerMin">;
 type Level = AiSummary["trafficStatus"];
@@ -120,4 +120,10 @@ export function heuristicTriage(ctx: SocContext): TriageResult {
     summary: summary.slice(0, SUMMARY_MAX),
     suggestedActions: actions,
   };
+}
+
+/** Summary card computed from real connections (no AI, no canned text). Used as the dashboard's initial value. */
+export function heuristicSummary(events: ConnectionEvent[], now: number): AiSummary {
+  const ctx = buildSocContext(events, now);
+  return { ...heuristicTriage(ctx), trafficPerMin: ctx.perMin };
 }

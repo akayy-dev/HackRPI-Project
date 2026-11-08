@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NOW, ev, times } from "../../../test/events";
-import { SOC_SYSTEM_PROMPT, TRIAGE_INSTRUCTION, heuristicTriage, parseTriage, severityFloor } from "./analyst";
+import { SOC_SYSTEM_PROMPT, TRIAGE_INSTRUCTION, heuristicSummary, heuristicTriage, parseTriage, severityFloor } from "./analyst";
 import { buildSocContext } from "./socContext";
 
 const ATTACKER = "203.0.113.50";
@@ -109,6 +109,26 @@ describe("heuristicTriage", () => {
     expect(r.activeAnomaly).toBe("SQLi");
     expect(r.summary).toBe(`7 requests, 6 blocked. Top source ${ATTACKER} (US) with 6 blocked.`);
     expect(r.suggestedActions.map((a) => a.id)).toEqual([`block_ip-${ATTACKER}`, "inspect_path-/login"]);
+  });
+});
+
+describe("heuristicSummary", () => {
+  it("summarises real connections with traffic/min from the data, no canned text", () => {
+    const events = [...times(6, () => ev({ ip: ATTACKER, risk: 0.95, label: "sql_injection" })), ...times(4, () => ev({ risk: 0.1 }))];
+    expect(heuristicSummary(events, NOW)).toEqual({
+      trafficPerMin: 2,
+      trafficStatus: "ELEVATED",
+      activeAnomaly: "SQLi",
+      summary: `10 requests, 6 blocked. Top source ${ATTACKER} (US) with 6 blocked.`,
+      suggestedActions: [
+        { id: `block_ip-${ATTACKER}`, label: `Block ${ATTACKER}`, actionLabel: "Block", variant: "primary" },
+        { id: "inspect_path-/", label: "Inspect / requests", actionLabel: "View", variant: "secondary" },
+      ],
+    });
+  });
+
+  it("empty connections → no-traffic summary", () => {
+    expect(heuristicSummary([], NOW)).toMatchObject({ trafficPerMin: 0, summary: "No traffic in the current window." });
   });
 });
 
