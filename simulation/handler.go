@@ -22,7 +22,7 @@ import (
 	"hackrpi-project/telemetry"
 )
 
-//go:embed web/index.html web/style.css web/app.js web/generator.js web/training-examples.js
+//go:embed web/index.html web/style.css web/app.js web/generator.js web/training-examples.js web/holdout.json
 var assets embed.FS
 
 // Logger persists simulated request metadata, predictions, and classification failures.

@@ -91,6 +91,13 @@ mix, attack categories, reference replay, pause/resume, stop, and session reset.
 model · dates set to 2020** for simulations only. Changing it does not change
 the live proxy's `CLASSIFIER_MODE`. Each activity row identifies the chosen model.
 
+For presentations, **Model accuracy comparison** shows the saved comparison of
+both models on the same 263 labeled holdout requests (66 normal, 197 attacks).
+Its decision-rule selector shows the 0.5 blocking rule or highest-label rule,
+including false positives and missed attacks. This saved snapshot is separate
+from live session counts, which are not an accuracy estimate. The saved trained
+head fingerprint and evaluation details are shown beside the results.
+
 New synthetic samples use dates in the current year. Reference replay preserves
 the captured 2020 inputs. In original-2020 mode the classifier client normalizes
 only the serialized timestamp year; actual submitted timestamps remain unchanged

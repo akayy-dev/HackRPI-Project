@@ -169,7 +169,7 @@ func TestControlPanelAssets(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	for _, path := range []string{"/", "/app.js", "/generator.js", "/style.css", "/training-examples.js"} {
+	for _, path := range []string{"/", "/app.js", "/generator.js", "/style.css", "/training-examples.js", "/holdout.json"} {
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, httptest.NewRequest("GET", path, nil))
 		if w.Code != 200 || w.Body.Len() == 0 {

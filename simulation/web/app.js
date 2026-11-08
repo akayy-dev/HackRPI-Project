@@ -171,3 +171,55 @@ async function loadConfiguration() {
   }
 }
 void loadConfiguration();
+
+// This snapshot comes from the fixed labeled holdout, never the generator's
+// intended labels or the session's acceptance/rejection percentages.
+let holdout = null;
+const holdoutPercent = (count, total) => `${(100 * count / total).toFixed(2)}% (${count}/${total})`;
+function renderHoldout() {
+  if (!holdout) return;
+  const policy = $('holdoutPolicy').value;
+  const models = ['original_2020', 'trained'].map(key => holdout.models[key]);
+  const counts = models.map(model => model.policies[policy]);
+  const definitions = [
+    ['Attack / normal accuracy', c => holdoutPercent(c.true_positive + c.true_negative, holdout.rows)],
+    ['Attacks detected', c => holdoutPercent(c.true_positive, holdout.attack_rows)],
+    ['Normal requests falsely flagged', c => holdoutPercent(c.false_positive, holdout.normal_rows)],
+    ['Attacks missed', c => holdoutPercent(c.false_negative, holdout.attack_rows)],
+  ];
+  const rows = definitions.map(([label, value]) => {
+    const row = document.createElement('tr');
+    for (const text of [label, ...counts.map(value)]) {
+      const cell = document.createElement('td'); cell.textContent = text; row.append(cell);
+    }
+    return row;
+  });
+  if (policy === 'argmax') {
+    const row = document.createElement('tr');
+    for (const text of ['Exact CAPEC / Normal class accuracy', ...models.map(model => holdoutPercent(model.correct_label, holdout.rows))]) {
+      const cell = document.createElement('td'); cell.textContent = text; row.append(cell);
+    }
+    rows.push(row);
+  }
+  $('holdoutRows').replaceChildren(...rows);
+  const extraCaught = counts[1].true_positive - counts[0].true_positive;
+  const extraFlagged = counts[1].false_positive - counts[0].false_positive;
+  $('holdoutTakeaway').textContent = `On these same ${holdout.rows} requests, trained mode caught ${extraCaught} more attacks and falsely flagged ${extraFlagged} more normal requests.`;
+}
+$('holdoutPolicy').addEventListener('change', renderHoldout);
+async function loadHoldout() {
+  try {
+    const response = await fetch('/holdout.json');
+    if (!response.ok) throw new Error('Saved evaluation unavailable');
+    holdout = await response.json();
+    $('holdoutScope').textContent = `${holdout.rows} labeled requests · ${holdout.normal_rows} normal · ${holdout.attack_rows} attacks · no matching method/path/body groups in the retraining pool. No thresholds were tuned on this test.`;
+    $('holdoutIdentity').textContent = `Saved head ${holdout.trained_head_sha256.slice(0, 12)} · evaluated ${holdout.evaluated_at.slice(0, 10)}`;
+    $('holdoutPolicy').disabled = false;
+    renderHoldout();
+  } catch (error) {
+    holdout = null;
+    $('holdoutScope').textContent = 'Saved holdout results are unavailable. Live session rates are not an accuracy estimate.';
+    $('holdoutRows').replaceChildren();
+  }
+}
+void loadHoldout();

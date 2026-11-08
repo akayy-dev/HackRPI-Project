@@ -1,0 +1,60 @@
+{
+  "evaluated_at": "2026-11-08T16:12:11.652709+00:00",
+  "rows": 263,
+  "normal_rows": 66,
+  "attack_rows": 197,
+  "trained_head_sha256": "a46fc3f26af331bb59edc443f5d1cc19ae438ed8fc89f13a4273513c5b53eeb9",
+  "backbone": "google/embeddinggemma-300m",
+  "backbone_revision": "57c266a740f537b4dc058e1b0cda161fd15afa75",
+  "original_head": "valendra/threat-classifier-13082026",
+  "original_head_revision": "1308bba1f05b13e5f5e71b08f55e1486e0019bde",
+  "selection": "Strict external holdout; exclude method/path/body groups in the retraining pool and exclude multilabel rows.",
+  "limitations": [
+    "Small, previously inspected holdout, not a fresh independent benchmark.",
+    "Published-head historical training membership is unknown; pretrained initialization may have seen these source requests.",
+    "Rare and unsupported labels cannot establish general attack-family accuracy.",
+    "Row bootstrap does not account for remaining similarity across request templates."
+  ],
+  "source_inputs_sha256": {
+    "original_2020": "d0178cf17d440df2e153c1af524ed805ff6a2babdad98d0e792a6a21b712a014",
+    "trained": "f100ef8f42df8388c17146eb14ff2d3ef4e5e8dd0625d3e4b7cb81dd217c3d14"
+  },
+  "models": {
+    "original_2020": {
+      "name": "Original + 2020 dates",
+      "correct_label": 173,
+      "policies": {
+        "argmax": {
+          "true_positive": 117,
+          "false_negative": 80,
+          "false_positive": 1,
+          "true_negative": 65
+        },
+        "threshold_0_5": {
+          "true_positive": 121,
+          "false_negative": 76,
+          "false_positive": 3,
+          "true_negative": 63
+        }
+      }
+    },
+    "trained": {
+      "name": "Trained + 2026 dates",
+      "correct_label": 212,
+      "policies": {
+        "argmax": {
+          "true_positive": 178,
+          "false_negative": 19,
+          "false_positive": 17,
+          "true_negative": 49
+        },
+        "threshold_0_5": {
+          "true_positive": 180,
+          "false_negative": 17,
+          "false_positive": 18,
+          "true_negative": 48
+        }
+      }
+    }
+  }
+}

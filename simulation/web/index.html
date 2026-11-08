@@ -25,6 +25,24 @@
       <div class="run-state" id="runState" role="status"><span class="dot"></span><span id="stateText">Ready to
           simulate</span></div>
     </section>
+    <section class="panel holdout" aria-labelledby="holdoutTitle">
+      <div class="panel-heading">
+        <div><div class="eyebrow">SAVED HOLDOUT TEST · BOTH MODELS, SAME REQUESTS</div><h2 id="holdoutTitle">Model accuracy comparison</h2></div>
+        <div class="holdout-policy"><label for="holdoutPolicy">Decision rule</label><select id="holdoutPolicy" disabled>
+          <option value="threshold_0_5">Highest attack score ≥ 0.5</option>
+          <option value="argmax">Highest label, including Normal</option>
+        </select></div>
+      </div>
+      <p class="holdout-note" id="holdoutScope">Loading saved evaluation…</p>
+      <div class="holdout-table"><table><thead><tr><th>Metric</th><th>Original + 2020 dates</th><th>Trained + 2026 dates</th></tr></thead>
+        <tbody id="holdoutRows"><tr><td colspan="3">Loading results…</td></tr></tbody>
+      </table></div>
+      <p class="holdout-takeaway" id="holdoutTakeaway" aria-live="polite"></p>
+      <p class="holdout-note">This is a fixed labeled test, separate from the live simulation below. Generated traffic's acceptance rate is not accuracy.</p>
+      <p class="holdout-note">Small, previously inspected holdout; source pretraining membership is unknown. These results are not a production accuracy estimate.</p>
+      <p class="holdout-note"><span id="holdoutIdentity"></span> · <a href="/holdout.json" target="_blank" rel="noopener">View evaluation details ↗</a></p>
+    </section>
+    <div class="eyebrow live-session-label">LIVE SIMULATION SESSION · COUNTS AND DECISIONS</div>
     <section class="metrics" aria-label="Session statistics">
       <article class="metric">
         <div class="metric-label">Packets sent <span>↗</span></div>
