@@ -195,6 +195,23 @@ AI_TRIAGE_TTL_SEC=60       # optional: how long one triage result is reused
 
 Note: the context sent to xAI includes client IPs, request URLs and user agents (no other headers, no bodies).
 
+### Alerts (escalation watcher)
+
+The Next.js server checks the last 5 minutes of traffic every `AI_WATCH_INTERVAL_SEC` (default 30; `0` disables).
+The check itself uses no AI.
+- **Fires** when severity rises (NORMAL → ELEVATED → CRITICAL): one Grok write-up (heuristic if Grok is down), one alert.
+- **Stays quiet** while an attack continues at the same level, and for 10 min after an alert at a level (no flapping spam).
+- **Re-arms** once traffic is back to NORMAL.
+- **Ignores mock data**, so it only watches MongoDB or the local feed.
+
+Each alert goes to:
+- the server console (`[SOC ALERT] …`);
+- MongoDB collection `alerts`, when `MONGODB_URI` is set (documents contain attacker IPs);
+- `ALERT_WEBHOOK_URL`, if set: a Slack or Discord incoming webhook. The JSON has both `text` and `content`.
+
+The watcher shares the triage cache, so an alert also refreshes the dashboard's summary card.
+Code: [`watcher.ts`](../web/src/lib/ai/watcher.ts) (logic) · [`watchLoop.ts`](../web/src/lib/ai/watchLoop.ts) (timer, delivery) · [`instrumentation.ts`](../web/src/instrumentation.ts) (startup).
+
 ---
 
 ## Quick start (fresh machine)
