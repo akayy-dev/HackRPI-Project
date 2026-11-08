@@ -1,0 +1,70 @@
+name: vivian-demo
+
+services:
+  proxy:
+    build: .
+    stop_grace_period: 20s
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    environment:
+      REVERSE_PROXY_URL: http://target-web-app:80
+      MONGODB_URI: mongodb://mongodb:27017
+      MONGODB_DATABASE: telemetry
+      MONGODB_COLLECTION: requests
+      OLLAMA_HOST: http://ollama:11434
+      OLLAMA_MODEL: ${OLLAMA_MODEL:-embeddinggemma:300m}
+    depends_on:
+      target-web-app:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
+      ollama-pull:
+        condition: service_completed_successfully
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "127.0.0.1:${OLLAMA_PORT:-11435}:11434"
+    volumes:
+      - ollama-data:/root/.ollama
+    healthcheck:
+      test: ["CMD", "ollama", "list"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  ollama-pull:
+    image: ollama/ollama:latest
+    environment:
+      OLLAMA_HOST: http://ollama:11434
+    entrypoint: ["ollama"]
+    command: ["pull", "${OLLAMA_MODEL:-embeddinggemma:300m}"]
+    depends_on:
+      ollama:
+        condition: service_healthy
+
+  mongodb:
+    image: mongo:8.0
+    volumes:
+      - mongodb-data:/data/db
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "quit(db.adminCommand('ping').ok ? 0 : 1)"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+  target-web-app:
+    image: nginx:stable-alpine
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  mongodb-data:
+  ollama-data:
+
