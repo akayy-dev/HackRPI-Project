@@ -248,12 +248,12 @@ func (s *Server) score(ctx context.Context, text string, trained bool, expected 
 
 func (s *Server) proxyLane(r *http.Request, text string, trained bool, expected []string) Lane {
 	var result Lane
-	classify := security.ClassifierFunc(func(ctx context.Context, _ *http.Request) (float64, error) {
+	classify := security.ClassifierFunc(func(ctx context.Context, _ *http.Request) (*security.Prediction, error) {
 		result = s.score(ctx, text, trained, expected)
 		if result.Prediction == nil {
-			return 0, fmt.Errorf("%s", result.Error)
+			return nil, fmt.Errorf("%s", result.Error)
 		}
-		return result.Prediction.Risk, nil
+		return result.Prediction, nil
 	})
 	handler, _ := proxy.NewHandler(s.backend, classify, noTelemetry{}, s.threshold)
 	// Clone the captured incoming request and restore an independent body for each
@@ -277,7 +277,9 @@ func (s *Server) proxyLane(r *http.Request, text string, trained bool, expected 
 
 type noTelemetry struct{}
 
-func (noTelemetry) LogRequest(context.Context, *http.Request, float64) error { return nil }
+func (noTelemetry) LogRequest(context.Context, *http.Request, *security.Prediction, error) error {
+	return nil
+}
 
 type captureWriter struct {
 	header http.Header

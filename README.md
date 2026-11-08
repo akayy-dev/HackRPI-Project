@@ -1,6 +1,9 @@
 # HackRPI-Project
 
 Start the Go reverse proxy, the threat classifier, and a simple Nginx HTTP backend.
+Place your trained `model.safetensors` and `meta.json` in
+`artifacts/proxy-head/head/` first. Use `HEAD_DIR=` to explicitly run the published
+head instead.
 The classifier backbone is gated: accept the license for
 [google/embeddinggemma-300m](https://huggingface.co/google/embeddinggemma-300m),
 create a read token, and export it before the first start.
@@ -22,7 +25,8 @@ at `http://classifier:8000` on the Compose network.
 
 Each request is serialized into the 20 request fields the model was trained on,
 prefixed inside the classifier with `task: classification | query: `, and scored
-by [valendra/threat-classifier-13082026](https://huggingface.co/valendra/threat-classifier-13082026).
+by your trained head in `artifacts/proxy-head/head`. The comparison service
+separately retains the pinned [published head](https://huggingface.co/valendra/threat-classifier-13082026).
 That head returns an independent sigmoid for each of 14 CAPEC classes. The proxy
 uses the highest attack-class score as `Riskiness`. When `000 - Normal` is the
 strongest class, it is reported as the top label and `Riskiness` remains the
@@ -35,7 +39,8 @@ Scores at or above `RISK_THRESHOLD` (default `0.5`) return HTTP 403. These score
 are the model's sigmoid outputs. Set the threshold from traffic you have reviewed
 before relying on it for blocking. Both blocked and allowed requests are logged.
 Model errors and invalid scores return HTTP 503, are reported to stdout, and do
-not create a MongoDB record with a fabricated score.
+create a MongoDB record with `classification_error`, omitting scores and a
+blocking decision. They never create a fabricated score.
 `REVERSE_PROXY_URL` configures the backend URL; the proxy listens on port 8080.
 `CLASSIFIER_URL` configures the classifier service, and `CLASSIFIER_TIMEOUT`
 (default `15s`) bounds each scoring call. The classifier handles one request at
@@ -52,17 +57,19 @@ flowchart TD
 
     subgraph Handler[proxy.Handler.ServeHTTP]
         Classify[Call security.Classifier.Classify] --> Validate{Valid probability?}
-        Classify -->|Classifier error| Unavailable[Return HTTP 503]
-        Validate -->|No| Unavailable
-        Validate -->|Yes| Log[Call telemetry.Logger.LogRequest with Riskiness]
+        Classify -->|Classifier error| Failure[Log classification_error without scores]
+        Validate -->|No| Failure
+        Failure --> Unavailable[Return HTTP 503]
+        Validate -->|Yes| Log[Record risk and all 14 class probabilities]
         Log -->|Write succeeds or fails| Decision{Riskiness at or above threshold?}
         Decision -->|Yes| Block[Return HTTP 403]
     end
 
     Classify -.-> Classifier[Classifier service :8000]
-    Classifier -.-> Head[valendra/threat-classifier-13082026]
+    Classifier -.-> Head[Locally trained classifier head]
     Head -.-> Backbone[google/embeddinggemma-300m]
     Log -.-> Mongo[(MongoDB: telemetry.requests)]
+    Failure -.-> Mongo
     Decision -->|No| Proxy[httputil.ReverseProxy]
     Proxy --> Backend[Nginx backend]
     Backend -->|Response| Proxy
@@ -85,7 +92,12 @@ with a write timeout of two seconds. A failed write is logged to stdout and the
 classification decision still applies;
 failed writes are not retried by the application or queued for later delivery.
 
-Records include `Riskiness` (stored under the BSON field `risk`), a UTC timestamp,
+Successful records include `Riskiness` (stored under the BSON field `risk`),
+all 14 sigmoid scores under `attack_probabilities` using stable names such as
+`normal` and `sql_injection`, the applied `threshold`, `blocked` decision, and
+model identity. Failures instead include `classification_error` and omit score
+and decision fields. Writes have their own timeout even after client disconnect.
+All records include `simulated: false`, the real arrival timestamp in UTC,
 method, URL (including query parameters), host,
 remote address, protocol, and headers. Authorization, proxy authorization, cookies,
 and `X-Api-Key` values are redacted. Bodies are not recorded. Other headers and

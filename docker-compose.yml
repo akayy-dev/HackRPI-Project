@@ -72,11 +72,13 @@ services:
     build: ./classifier
     stop_grace_period: 30s
     environment:
+      HF_HUB_OFFLINE: ${COMPARISON_OFFLINE:-0}
+      HF_HUB_DISABLE_IMPLICIT_TOKEN: "1"
       HF_TOKEN: ${HF_TOKEN:-}
       HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
       HEAD_REPO: ${HEAD_REPO:-valendra/threat-classifier-13082026}
-      # Set HEAD_DIR=/models/head after placing a validated trained head below.
-      HEAD_DIR: ${HEAD_DIR:-}
+      # Production uses the trained head; comparison retains its pinned baseline.
+      HEAD_DIR: ${HEAD_DIR-/models/head}
       HEAD_REVISION: ${HEAD_REVISION:-1308bba1f05b13e5f5e71b08f55e1486e0019bde}
       BACKBONE: ${BACKBONE:-google/embeddinggemma-300m}
       BACKBONE_REVISION: ${BACKBONE_REVISION:-57c266a740f537b4dc058e1b0cda161fd15afa75}

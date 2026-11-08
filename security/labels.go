@@ -24,3 +24,6 @@ var classLabels = []string{
 	"34 - HTTP Response Splitting",
 	"33 - HTTP Request Smuggling",
 }
+
+// Labels returns the checkpoint's class order without exposing mutable state.
+func Labels() []string { return append([]string(nil), classLabels...) }

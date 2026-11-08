@@ -63,7 +63,7 @@ func TestRemoteClassifierUsesHighestAttackScore(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if risk != 0.75 {
+	if risk == nil || risk.Risk != 0.75 {
 		t.Fatalf("risk = %v", risk)
 	}
 	if !strings.Contains(gotText, "path: /search?q=<script>") {

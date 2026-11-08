@@ -4,9 +4,12 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"net"
 	"net/http"
 	"strings"
 	"time"
+
+	"hackrpi-project/security"
 
 	"go.mongodb.org/mongo-driver/v2/mongo"
 	"go.mongodb.org/mongo-driver/v2/mongo/options"
@@ -15,14 +18,25 @@ import (
 
 // RequestTelemetry describes an incoming request before the proxy rewrites it.
 type RequestTelemetry struct {
-	Timestamp  time.Time   `bson:"timestamp"`
-	Riskiness  float64     `bson:"risk"` // Predicted probability that the request is malicious, in [0, 1].
-	Method     string      `bson:"method"`
-	URL        string      `bson:"url"`
-	Host       string      `bson:"host"`
-	RemoteAddr string      `bson:"remote_addr"`
-	Protocol   string      `bson:"protocol"`
-	Headers    http.Header `bson:"headers"`
+	Model                  string             `bson:"model,omitempty"`
+	HeadSHA256             string             `bson:"head_sha256,omitempty"`
+	TopLabel               string             `bson:"top_label,omitempty"`
+	Timestamp              time.Time          `bson:"timestamp"`
+	Riskiness              *float64           `bson:"risk,omitempty"` // Absent when classification fails.
+	AttackProbabilities    map[string]float64 `bson:"attack_probabilities,omitempty"`
+	ClassificationError    string             `bson:"classification_error,omitempty"`
+	Simulated              bool               `bson:"simulated"`
+	Threshold              *float64           `bson:"threshold,omitempty"`
+	Blocked                *bool              `bson:"blocked,omitempty"`
+	IntendedClassification string             `bson:"intended_classification,omitempty"`
+	GenerationMode         string             `bson:"generation_mode,omitempty"`
+	Method                 string             `bson:"method"`
+	URL                    string             `bson:"url"`
+	Host                   string             `bson:"host"`
+	RemoteAddr             string             `bson:"remote_addr"`
+	DestinationAddr        string             `bson:"destination_addr,omitempty"`
+	Protocol               string             `bson:"protocol"`
+	Headers                http.Header        `bson:"headers"`
 }
 
 type requestCollection interface {
@@ -33,6 +47,14 @@ type requestCollection interface {
 type Logger struct {
 	client     *mongo.Client
 	collection requestCollection
+}
+
+// SimulationMetadata annotates synthetic traffic independently of model inputs.
+type SimulationMetadata struct {
+	Threshold              float64
+	Timestamp              time.Time
+	IntendedClassification string
+	GenerationMode         string
 }
 
 // NewLogger connects to MongoDB and verifies that it is available.
@@ -60,12 +82,29 @@ func (l *Logger) Close(ctx context.Context) error {
 	return l.client.Disconnect(ctx)
 }
 
-// LogRequest stores request metadata and the classifier's probability of the
-// request being malicious. Riskiness must be finite and in [0, 1]. It does not
-// read or modify the request body, and database writes time out after two seconds.
-func (l *Logger) LogRequest(ctx context.Context, r *http.Request, riskiness float64) error {
-	if math.IsNaN(riskiness) || math.IsInf(riskiness, 0) || riskiness < 0 || riskiness > 1 {
-		return fmt.Errorf("riskiness must be a finite probability between 0 and 1")
+// LogRequest stores metadata and the complete classification result. Failed
+// classifications store classification_error and omit probability fields. It
+// preserves the request body and applies a two-second database write timeout.
+func (l *Logger) LogRequest(ctx context.Context, r *http.Request, result *security.Prediction, classificationErr error) error {
+	return l.logRequest(ctx, r, result, classificationErr, nil)
+}
+
+// LogSimulation stores reconstructed request metadata and model-computed scores
+// in the same collection as real requests, marked simulated=true. Failures omit
+// scores and decisions. A nil error confirms the MongoDB write completed. The
+// intended class is an annotation; the request body is not persisted.
+func (l *Logger) LogSimulation(ctx context.Context, r *http.Request, result *security.Prediction, classificationErr error, metadata SimulationMetadata) error {
+	if math.IsNaN(metadata.Threshold) || metadata.Threshold < 0 || metadata.Threshold > 1 {
+		return fmt.Errorf("simulation threshold must be between 0 and 1")
+	}
+	return l.logRequest(ctx, r, result, classificationErr, &metadata)
+}
+
+func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *security.Prediction, classificationErr error, simulation *SimulationMetadata) error {
+	if classificationErr == nil {
+		if err := result.Validate(); err != nil {
+			return err
+		}
 	}
 	headers := r.Header.Clone()
 	if headers == nil {
@@ -84,9 +123,40 @@ func (l *Logger) LogRequest(ctx context.Context, r *http.Request, riskiness floa
 	}
 	headers.Set("Host", r.Host)
 	record := RequestTelemetry{
-		Riskiness: riskiness,
-		Timestamp: time.Now().UTC(), Method: r.Method, URL: r.URL.String(),
+		Timestamp: security.RequestTimestamp(r).UTC(), Method: r.Method, URL: r.URL.String(),
 		Host: r.Host, RemoteAddr: r.RemoteAddr, Protocol: r.Proto, Headers: headers,
+	}
+	if destination, ok := r.Context().Value(http.LocalAddrContextKey).(*net.TCPAddr); ok && destination != nil {
+		record.DestinationAddr = destination.String()
+	}
+	if classificationErr != nil {
+		record.ClassificationError = classificationErr.Error()
+	} else {
+		record.Riskiness = &result.Risk
+		record.AttackProbabilities = result.NamedScores()
+		record.Model = result.Model
+		record.HeadSHA256 = result.SHA256
+		record.TopLabel = result.TopLabel
+	}
+	if threshold, ok := security.RequestThreshold(r); ok {
+		record.Threshold = &threshold
+		if classificationErr == nil {
+			blocked := result.Risk >= threshold
+			record.Blocked = &blocked
+		}
+	}
+	if simulation != nil {
+		record.Simulated = true
+		record.Threshold = &simulation.Threshold
+		record.IntendedClassification = simulation.IntendedClassification
+		record.GenerationMode = simulation.GenerationMode
+		if !simulation.Timestamp.IsZero() {
+			record.Timestamp = simulation.Timestamp.UTC()
+		}
+		if classificationErr == nil && result != nil {
+			blocked := result.Risk >= simulation.Threshold
+			record.Blocked = &blocked
+		}
 	}
 	writeCtx, cancel := context.WithTimeout(ctx, 2*time.Second)
 	defer cancel()

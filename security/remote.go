@@ -1,7 +1,6 @@
 package security
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
@@ -71,36 +70,17 @@ func (c *RemoteClassifier) CheckReady(ctx context.Context) (ReadyStatus, error) 
 
 // Classify serializes the request, scores it, and returns the highest
 // attack-class probability. The request body is left intact for forwarding.
-func (c *RemoteClassifier) Classify(ctx context.Context, r *http.Request) (float64, error) {
-	text, err := SerializeRequest(r, c.maxBody, time.Now().UTC())
+func (c *RemoteClassifier) Classify(ctx context.Context, r *http.Request) (*Prediction, error) {
+	text, err := SerializeRequest(r, c.maxBody, RequestTimestamp(r))
 	if err != nil {
-		return 0, fmt.Errorf("%w: %s", ErrClassifierUnavailable, err.Error())
+		return nil, fmt.Errorf("%w: %s", ErrClassifierUnavailable, err)
 	}
-	payload := map[string]string{"text": text}
-	var buf bytes.Buffer
-	enc := json.NewEncoder(&buf)
-	enc.SetEscapeHTML(false)
-	if err := enc.Encode(payload); err != nil {
-		return 0, fmt.Errorf("%w: encode classifier request: %s", ErrClassifierUnavailable, err.Error())
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+"/classify", &buf)
+	result, err := c.ScoreText(ctx, text, false)
 	if err != nil {
-		return 0, fmt.Errorf("%w: create classifier request: %s", ErrClassifierUnavailable, err.Error())
+		return nil, fmt.Errorf("%w: %s", ErrClassifierUnavailable, err)
 	}
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("Accept", "application/json")
-	var response struct {
-		Labels map[string]float64 `json:"labels"`
-	}
-	if err := c.do(req, &response); err != nil {
-		return 0, fmt.Errorf("%w: %s", ErrClassifierUnavailable, err.Error())
-	}
-	risk, topLabel, err := riskFromLabels(response.Labels)
-	if err != nil {
-		return 0, fmt.Errorf("%w: %s", ErrClassifierUnavailable, err.Error())
-	}
-	slog.Debug("Classified request", "risk", risk, "top_label", topLabel, "method", r.Method, "url", r.URL.String())
-	return risk, nil
+	slog.Debug("Classified request", "risk", result.Risk, "top_label", result.TopLabel, "method", r.Method, "url", r.URL.String())
+	return &result, nil
 }
 
 func (c *RemoteClassifier) do(req *http.Request, dest any) error {

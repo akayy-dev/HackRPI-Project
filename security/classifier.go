@@ -11,18 +11,18 @@ import (
 var ErrClassifierUnavailable = errors.New("request classifier is unavailable")
 
 // Classifier estimates the probability that an incoming request is malicious.
-// Classify must return a finite value between zero and one, or an error if no
+// Classify must return all 14 scores and their highest attack score, or an error if no
 // reliable prediction is available. Implementations must support concurrent
 // calls, honor cancellation, and preserve the request (including its body) so
 // allowed requests can subsequently be forwarded intact.
 type Classifier interface {
-	Classify(context.Context, *http.Request) (float64, error)
+	Classify(context.Context, *http.Request) (*Prediction, error)
 }
 
 // ClassifierFunc adapts a classification function to the Classifier interface.
-type ClassifierFunc func(context.Context, *http.Request) (float64, error)
+type ClassifierFunc func(context.Context, *http.Request) (*Prediction, error)
 
 // Classify returns the probability or error produced by f.
-func (f ClassifierFunc) Classify(ctx context.Context, r *http.Request) (float64, error) {
+func (f ClassifierFunc) Classify(ctx context.Context, r *http.Request) (*Prediction, error) {
 	return f(ctx, r)
 }
