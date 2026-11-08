@@ -32,7 +32,7 @@ Paths relative to `web/`.
 
 ## Data: mock → MongoDB
 
-- Set `MONGODB_URI` → reads `MONGODB_COLLECTION` (default `connections`; last 24h, newest 500).
+- Set `MONGODB_URI` → reads `MONGODB_COLLECTION` in `MONGODB_DB` (defaults `requests` / `telemetry`, same as the proxy; last 24h, newest 500).
   Mongo errors fall back to mock (logged).
 - No `MONGODB_URI` but `data/live-feed.ndjson` exists → local JSON feed (written by `npm run test:live`).
 - Otherwise → mock data (timestamps relative to now, so filters work).
@@ -46,7 +46,8 @@ to database `telemetry`, collection `requests` by default (`MONGODB_DATABASE` /
 ```js
 {
   _id: ObjectId,
-  timestamp: ISODate,            // indexed: { timestamp: -1 }
+  timestamp: ISODate,            // indexed: { timestamp: -1 }. Arrival time (simulations too)
+  request_timestamp: ISODate,    // simulations only: the timestamp the Traffic Lab submitted
   risk: 0.0812,                  // Double 0..1 = 1 - attack_probabilities.normal. ABSENT if classification failed
   attack_probabilities: {        // 14 independent sigmoid scores (do not sum to 1). ABSENT if classification failed
     normal: 0.9188, protocol_manipulation: 0.004, code_injection: 0.011, os_command_injection: 0.002,
@@ -73,8 +74,8 @@ to database `telemetry`, collection `requests` by default (`MONGODB_DATABASE` /
 ```
 
 Real traffic stores no decision: the proxy blocks (403) when `risk >= proxy.THRESHOLD` (0.5).
-Traffic Lab documents keep the timestamp the generator chose (2020 dates by default), so they
-fall outside the dashboard's 24 h window unless replayed with a current time.
+Traffic Lab documents use the arrival time as `timestamp`, so they appear in the dashboard's 24 h
+window. The date the generator submitted (2020 by default) is kept in `request_timestamp`.
 
 The dashboard derives the rest (`src/lib/requestLog.ts`):
 - `ip` ← parsed from `remote_addr`

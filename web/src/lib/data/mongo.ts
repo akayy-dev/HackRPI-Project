@@ -24,7 +24,7 @@ interface RequestLogDoc extends Omit<RequestLog, "timestamp"> {
   timestamp: Date;
 }
 
-const COLLECTION = process.env.MONGODB_COLLECTION ?? "connections";
+const COLLECTION = process.env.MONGODB_COLLECTION || "requests";
 const LOOKBACK_MS = 24 * 60 * 60_000;
 const LIMIT = 500;
 const FULL_REFRESH_MS = 10 * 60_000;

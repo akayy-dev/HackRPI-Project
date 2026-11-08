@@ -34,5 +34,5 @@ export async function getDb(): Promise<Db> {
     });
   }
   const client = await globalForMongo._mongoClient;
-  return client.db(process.env.MONGODB_DB ?? "proxy");
+  return client.db(process.env.MONGODB_DB || "telemetry");
 }

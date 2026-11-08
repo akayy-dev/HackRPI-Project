@@ -26,10 +26,10 @@ request; the dashboard reads them. The dashboard never talks to the proxy direct
 2. In `web/.env.local`:
    ```bash
    MONGODB_URI=mongodb://localhost:27017      # or your Atlas connection string
-   MONGODB_DB=proxy                            # database name
-   MONGODB_COLLECTION=connections              # collection the proxy writes to
+   MONGODB_DB=telemetry                        # database the proxy writes to
+   MONGODB_COLLECTION=requests                 # collection the proxy writes to
    ```
-3. Recommended index: `db.connections.createIndex({ timestamp: -1 })`.
+3. Recommended index: `db.requests.createIndex({ timestamp: -1 })`.
 
 With `MONGODB_URI` empty the dashboard serves mock data. If a Mongo read fails, it logs the error
 and also serves mock data.

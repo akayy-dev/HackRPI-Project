@@ -8,7 +8,7 @@
 
 **Tech Stack:** Next.js 15 route handlers, TypeScript, xAI Chat Completions API (`https://api.x.ai/v1/chat/completions`), Vitest (new, unit tests only).
 
-**Spec:** No separate spec. The plan is derived from [`docs/GOAL.md`](../../GOAL.md) (monitor → investigate → act), the existing stub in [`web/src/lib/ai/provider.ts`](../../../web/src/lib/ai/provider.ts), and the AI section of [`docs/SERVICES.md`](../../SERVICES.md). The decisions are under "Design decisions" below.
+**Spec:** No separate spec. The plan is derived from the project goal (monitor → investigate → act), the existing stub in [`web/src/lib/ai/provider.ts`](../../../web/src/lib/ai/provider.ts), and the AI section of [`docs/SERVICES.md`](../../SERVICES.md). The decisions are under "Design decisions" below.
 
 ## Design decisions
 
@@ -336,7 +336,7 @@ every 30 s:  last-5-min events → severityFloor()           (free: no AI)
 
 - An alerts list in the dashboard UI, and acknowledging or snoozing alerts. Task 7 only stores and sends them.
 
-- **Making suggested actions real.** That needs a `blocklist` collection written by `POST /api/actions`, and the Go proxy checking it on every request (per `docs/GOAL.md`). It is a separate plan because it touches the Go proxy and needs auth on the dashboard first.
+- **Making suggested actions real.** That needs a `blocklist` collection written by `POST /api/actions`, and the Go proxy checking it on every request. It is a separate plan because it touches the Go proxy and needs auth on the dashboard first.
 - Gemini provider parity (same `chat`/`triage` interface).
 - Streaming chat responses. Multi-step tool use, i.e. letting Grok query Mongo for a single IP's full history.
 - IP pseudonymization before sending to xAI.

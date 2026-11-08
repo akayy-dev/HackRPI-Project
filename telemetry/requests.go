@@ -19,7 +19,12 @@ import (
 
 // RequestTelemetry describes an incoming request before the proxy rewrites it.
 type RequestTelemetry struct {
-	Timestamp              time.Time                       `bson:"timestamp"`
+	// Timestamp is when the request was logged. For simulations it is the arrival
+	// time, so Traffic Lab rows land in the dashboard's live window.
+	Timestamp time.Time `bson:"timestamp"`
+	// RequestTimestamp is the timestamp a simulation submitted (often a 2020
+	// training-era date). Proxy records omit it.
+	RequestTimestamp       *time.Time                      `bson:"request_timestamp,omitempty"`
 	Riskiness              *float64                        `bson:"risk,omitempty"` // Absent when classification fails.
 	AttackProbabilities    *classifier.AttackProbabilities `bson:"attack_probabilities,omitempty"`
 	ClassificationError    string                          `bson:"classification_error,omitempty"`
@@ -36,6 +41,9 @@ type RequestTelemetry struct {
 	Protocol               string                          `bson:"protocol"`
 	Headers                http.Header                     `bson:"headers"`
 }
+
+// now is replaceable in tests.
+var now = time.Now
 
 type requestCollection interface {
 	InsertOne(context.Context, any, ...options.Lister[options.InsertOneOptions]) (*mongo.InsertOneResult, error)
@@ -137,8 +145,10 @@ func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *classi
 		record.Threshold = &simulation.Threshold
 		record.IntendedClassification = simulation.IntendedClassification
 		record.GenerationMode = simulation.GenerationMode
+		record.Timestamp = now().UTC()
 		if !simulation.Timestamp.IsZero() {
-			record.Timestamp = simulation.Timestamp.UTC()
+			submitted := simulation.Timestamp.UTC()
+			record.RequestTimestamp = &submitted
 		}
 		if classificationErr == nil && result != nil {
 			blocked := result.Riskiness >= simulation.Threshold
