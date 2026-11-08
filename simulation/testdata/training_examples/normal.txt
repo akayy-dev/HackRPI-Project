@@ -1,0 +1,13 @@
+timestamp: 29/Jul/2020:08:32:42 +0100
+src-ip: 172.26.0.1
+src-port: 49518
+dst-ip: 172.26.0.4
+dst-port: 80
+method: GET
+path: /
+protocol: HTTP/1.1
+user-agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_9_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.155 Safari/537.36
+host: test-site.com
+accept: */*
+accept-encoding: gzip, deflate
+connection: keep-alive

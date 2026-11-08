@@ -8,3 +8,7 @@
 classifier
 data
 artifacts
+**/node_modules
+**/.next
+**/.env
+**/.env.*

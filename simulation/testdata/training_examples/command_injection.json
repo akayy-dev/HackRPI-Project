@@ -1,0 +1,14 @@
+{
+  "timestamp": "18/Jul/2020:05:53:48 +0200",
+  "src_ip": "172.26.0.1",
+  "src_port": "57802",
+  "dst_ip": "172.26.0.4",
+  "dst_port": "80",
+  "request_http_method": "POST",
+  "request_http_request": "test.php",
+  "request_http_protocol": "HTTP/1.1",
+  "request_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+  "request_host": "test-site.com",
+  "request_content_type": "application/x-www-form-urlencoded",
+  "request_body": "user_login=amazedMeerkat9%60sleep+15%60&redirect_to=&wp-submit=Get+New+Password"
+}

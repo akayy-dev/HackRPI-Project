@@ -1,0 +1,12 @@
+{
+  "timestamp": "18/Jul/2020:05:26:36 +0200",
+  "src_ip": "172.26.0.1",
+  "src_port": "57628",
+  "dst_ip": "172.26.0.4",
+  "dst_port": "80",
+  "request_http_method": "GET",
+  "request_http_request": "/blog/wp-content/uploads/2020/04/b476e717-efec-3b0d-80e9-13c6400a7702-300x240.png%27%3Bsleep+15%3B%27",
+  "request_http_protocol": "HTTP/1.1",
+  "request_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+  "request_host": "test-site.com"
+}

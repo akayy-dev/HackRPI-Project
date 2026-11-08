@@ -11,6 +11,8 @@ import (
 	"sync"
 	"testing"
 	"time"
+
+	"hackrpi-project/security"
 )
 
 func TestComparisonUsesPairedLiveInputsAndRealProxyDecisions(t *testing.T) {
@@ -141,5 +143,65 @@ func TestUnavailableHeadIsNeverReportedAsAllowed(t *testing.T) {
 	result := lab.proxyLane(req, "method: GET\npath: /", true, nil)
 	if result.Prediction != nil || result.Decision != "unavailable" || result.HTTPStatus != 503 || result.Error == "" {
 		t.Errorf("unavailable prediction: %+v", result)
+	}
+}
+
+func TestOriginal2020SelectionUsesPublishedHeadAndRecordsExactInput(t *testing.T) {
+	var inputs []string
+	model := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/classify" {
+			t.Errorf("original-2020 selected a trained head: %s", r.URL.Path)
+		}
+		var payload struct{ Text string }
+		_ = json.NewDecoder(r.Body).Decode(&payload)
+		inputs = append(inputs, payload.Text)
+		labels := map[string]float64{}
+		for _, label := range security.Labels() {
+			labels[label] = 0.01
+		}
+		labels["000 - Normal"] = 0.99
+		_ = json.NewEncoder(w).Encode(map[string]any{"labels": labels, "model": "published"})
+	}))
+	defer model.Close()
+	backend := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(204) }))
+	defer backend.Close()
+	lab, _ := New(model.URL, backend.URL, 0.5)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	handler, err := lab.Handler(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	input := Input{ModelMode: security.ModelOriginal2020, Case: Case{Name: "Year-only baseline", Fields: map[string]string{
+		"timestamp": "08/Nov/2026:12:34:56 -0500", "request_http_method": "POST", "request_http_request": "/?year=2026",
+		"request_host": "example.test", "request_body": "year=2026\ntimestamp: 01/Jan/2035:00:00:00 +0000",
+	}}}
+	body, _ := json.Marshal(input)
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, httptest.NewRequest("POST", "http://localhost/api/compare", bytes.NewReader(body)))
+	var result Result
+	if err := json.Unmarshal(response.Body.Bytes(), &result); err != nil {
+		t.Fatal(err)
+	}
+	if response.Code != 200 || len(inputs) != 3 || result.ModelMode != security.ModelOriginal2020 {
+		t.Fatalf("comparison failed: %d %s", response.Code, response.Body.String())
+	}
+	if result.SelectedText != inputs[2] || result.ProxyText != inputs[1] || result.OriginalText != inputs[0] {
+		t.Fatal("exported inputs do not match actual scored inputs")
+	}
+	first, rest, _ := strings.Cut(inputs[2], "\n")
+	_, liveRest, _ := strings.Cut(inputs[1], "\n")
+	if !strings.Contains(first, "/2020:") || rest != liveRest || !strings.Contains(rest, "timestamp: 01/Jan/2035:") {
+		t.Fatal("2020 baseline changed more than the model timestamp year")
+	}
+	if result.ProxyTrained.Decision != "forwarded" || result.ProxyTrained.HTTPStatus != 204 {
+		t.Fatalf("selected lane did not use the existing handler: %+v", result.ProxyTrained)
+	}
+	input.ModelMode = "unknown"
+	body, _ = json.Marshal(input)
+	response = httptest.NewRecorder()
+	handler.ServeHTTP(response, httptest.NewRequest("POST", "http://localhost/api/compare", bytes.NewReader(body)))
+	if response.Code != 400 || len(inputs) != 3 {
+		t.Fatal("invalid mode reached the model")
 	}
 }

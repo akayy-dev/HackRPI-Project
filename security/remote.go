@@ -17,6 +17,8 @@ import (
 type ReadyStatus struct {
 	Model    string
 	Backbone string
+	Mode     ModelMode
+	SHA256   string
 }
 
 // RemoteClassifier scores requests by asking the threat-classifier service
@@ -25,6 +27,7 @@ type RemoteClassifier struct {
 	baseURL string
 	client  *http.Client
 	maxBody int64
+	mode    ModelMode
 }
 
 // NewRemoteClassifier creates a client for a classifier service base URL such
@@ -45,7 +48,23 @@ func NewRemoteClassifier(baseURL string, timeout time.Duration, maxBody int64) (
 		baseURL: baseURL,
 		maxBody: maxBody,
 		client:  &http.Client{Timeout: timeout},
+		mode:    ModelOriginal,
 	}, nil
+}
+
+// NewRemoteClassifierForMode uses the existing classifier connection with an
+// explicit head selection. The default constructor retains the original head
+// for existing comparison and evaluation callers.
+func NewRemoteClassifierForMode(baseURL string, timeout time.Duration, maxBody int64, mode ModelMode) (*RemoteClassifier, error) {
+	if err := mode.Validate(); err != nil {
+		return nil, err
+	}
+	c, err := NewRemoteClassifier(baseURL, timeout, maxBody)
+	if err != nil {
+		return nil, err
+	}
+	c.mode = mode
+	return c, nil
 }
 
 // CheckReady confirms that the model is loaded and reports which checkpoint it is serving.
@@ -58,6 +77,11 @@ func (c *RemoteClassifier) CheckReady(ctx context.Context) (ReadyStatus, error) 
 		Status   string `json:"status"`
 		Model    string `json:"model"`
 		Backbone string `json:"backbone"`
+		Trained  struct {
+			Ready  bool   `json:"ready"`
+			Model  string `json:"model"`
+			SHA256 string `json:"sha256"`
+		} `json:"trained"`
 	}
 	if err := c.do(req, &health); err != nil {
 		return ReadyStatus{}, fmt.Errorf("classifier health check: %w", err)
@@ -65,7 +89,14 @@ func (c *RemoteClassifier) CheckReady(ctx context.Context) (ReadyStatus, error) 
 	if health.Status != "ok" || health.Model == "" || health.Backbone == "" {
 		return ReadyStatus{}, fmt.Errorf("classifier health response was incomplete")
 	}
-	return ReadyStatus{Model: health.Model, Backbone: health.Backbone}, nil
+	ready := ReadyStatus{Model: health.Model, Backbone: health.Backbone, Mode: c.mode}
+	if c.mode == ModelTrained {
+		if !health.Trained.Ready || health.Trained.Model == "" || health.Trained.SHA256 == "" {
+			return ReadyStatus{}, fmt.Errorf("trained head is unavailable; provide model.safetensors and meta.json or select original_2020")
+		}
+		ready.Model, ready.SHA256 = health.Trained.Model, health.Trained.SHA256
+	}
+	return ready, nil
 }
 
 // Classify serializes the request, scores it, and returns the highest
@@ -75,7 +106,7 @@ func (c *RemoteClassifier) Classify(ctx context.Context, r *http.Request) (*Pred
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrClassifierUnavailable, err)
 	}
-	result, err := c.ScoreText(ctx, text, false)
+	result, err := c.ScoreTextForMode(ctx, text, c.mode)
 	if err != nil {
 		return nil, fmt.Errorf("%w: %s", ErrClassifierUnavailable, err)
 	}

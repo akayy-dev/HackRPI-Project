@@ -3,3 +3,7 @@ db/
 data/
 artifacts/
 __pycache__/
+.DS_Store
+.cursor/
+.env.*
+!.env.example

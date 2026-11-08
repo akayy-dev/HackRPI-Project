@@ -35,7 +35,8 @@ type Case struct {
 }
 
 type Input struct {
-	Case Case `json:"case"`
+	Case      Case               `json:"case"`
+	ModelMode security.ModelMode `json:"model_mode,omitempty"`
 }
 
 type Lane struct {
@@ -48,14 +49,16 @@ type Lane struct {
 }
 
 type Result struct {
-	Case          Case      `json:"case"`
-	TestedAt      time.Time `json:"tested_at"`
-	Threshold     float64   `json:"threshold"`
-	OriginalText  string    `json:"original_text"`
-	ProxyText     string    `json:"proxy_text"`
-	Original      Lane      `json:"original"`
-	ProxyOriginal Lane      `json:"proxy_original"`
-	ProxyTrained  Lane      `json:"proxy_trained"`
+	Case          Case               `json:"case"`
+	TestedAt      time.Time          `json:"tested_at"`
+	Threshold     float64            `json:"threshold"`
+	OriginalText  string             `json:"original_text"`
+	ProxyText     string             `json:"proxy_text"`
+	SelectedText  string             `json:"selected_text"`
+	ModelMode     security.ModelMode `json:"model_mode"`
+	Original      Lane               `json:"original"`
+	ProxyOriginal Lane               `json:"proxy_original"`
+	ProxyTrained  Lane               `json:"proxy_trained"`
 }
 
 type Server struct {
@@ -102,14 +105,14 @@ func (s *Server) Handler(ctx context.Context) (http.Handler, error) {
 			http.NotFound(w, r)
 			return
 		}
-		input := item.(Case)
+		input := item.(Input)
 		r.Header.Del("X-Comparison-Token")
 		text, err := security.SerializeRequest(r, maxBody, time.Now().UTC())
 		if err != nil {
 			send(w, 400, map[string]string{"error": err.Error()})
 			return
 		}
-		result := s.compare(r, input, text)
+		result := s.compare(r, input.Case, text, input.ModelMode)
 		send(w, 200, result)
 	})}
 	go replay.Serve(listener)
@@ -164,6 +167,13 @@ func (s *Server) Handler(ctx context.Context) (http.Handler, error) {
 			send(w, 400, map[string]string{"error": err.Error()})
 			return
 		}
+		if input.ModelMode == "" {
+			input.ModelMode = security.ModelTrained
+		}
+		if input.ModelMode != security.ModelTrained && input.ModelMode != security.ModelOriginal2020 {
+			send(w, 400, map[string]string{"error": "model_mode must be trained or original_2020"})
+			return
+		}
 		f := input.Case.Fields
 		req, err := http.NewRequestWithContext(r.Context(), f["request_http_method"], "http://"+listener.Addr().String()+f["request_http_request"], strings.NewReader(f["request_body"]))
 		if err != nil {
@@ -181,7 +191,7 @@ func (s *Server) Handler(ctx context.Context) (http.Handler, error) {
 			req.Header["User-Agent"] = []string{""}
 		}
 		token := fmt.Sprintf("%d", time.Now().UnixNano())
-		pending.Store(token, input.Case)
+		pending.Store(token, input)
 		defer pending.Delete(token)
 		req.Header.Set("X-Comparison-Token", token)
 		resp, err := s.client.Do(req)
@@ -210,8 +220,9 @@ func (s *Server) Handler(ctx context.Context) (http.Handler, error) {
 	}), nil
 }
 
-func (s *Server) compare(r *http.Request, c Case, live string) Result {
-	result := Result{Case: c, TestedAt: time.Now().UTC(), Threshold: s.threshold, OriginalText: serializeFields(c.Fields), ProxyText: live}
+func (s *Server) compare(r *http.Request, c Case, live string, mode security.ModelMode) Result {
+	selected, _ := security.ModelInputForMode(live, mode) // live comes from the production serializer
+	result := Result{Case: c, TestedAt: time.Now().UTC(), Threshold: s.threshold, OriginalText: serializeFields(c.Fields), ProxyText: live, SelectedText: selected, ModelMode: mode}
 	result.Original = s.score(r.Context(), result.OriginalText, false, c.Expected)
 	if result.Original.Prediction != nil {
 		if result.Original.Prediction.Risk >= s.threshold {
@@ -221,13 +232,21 @@ func (s *Server) compare(r *http.Request, c Case, live string) Result {
 		}
 	}
 	result.ProxyOriginal = s.proxyLane(r, live, false, c.Expected)
-	result.ProxyTrained = s.proxyLane(r, live, true, c.Expected)
+	result.ProxyTrained = s.proxyLaneForMode(r, live, mode, c.Expected)
 	return result
 }
 
 func (s *Server) score(ctx context.Context, text string, trained bool, expected []string) Lane {
+	mode := security.ModelOriginal
+	if trained {
+		mode = security.ModelTrained
+	}
+	return s.scoreForMode(ctx, text, mode, expected)
+}
+
+func (s *Server) scoreForMode(ctx context.Context, text string, mode security.ModelMode, expected []string) Lane {
 	start := time.Now()
-	pred, err := s.classifier.ScoreText(ctx, text, trained)
+	pred, err := s.classifier.ScoreTextForMode(ctx, text, mode)
 	result := Lane{LatencyMS: time.Since(start).Milliseconds(), Decision: "unavailable"}
 	if err != nil {
 		result.Error = err.Error()
@@ -247,9 +266,17 @@ func (s *Server) score(ctx context.Context, text string, trained bool, expected 
 }
 
 func (s *Server) proxyLane(r *http.Request, text string, trained bool, expected []string) Lane {
+	mode := security.ModelOriginal
+	if trained {
+		mode = security.ModelTrained
+	}
+	return s.proxyLaneForMode(r, text, mode, expected)
+}
+
+func (s *Server) proxyLaneForMode(r *http.Request, text string, mode security.ModelMode, expected []string) Lane {
 	var result Lane
 	classify := security.ClassifierFunc(func(ctx context.Context, _ *http.Request) (*security.Prediction, error) {
-		result = s.score(ctx, text, trained, expected)
+		result = s.scoreForMode(ctx, text, mode, expected)
 		if result.Prediction == nil {
 			return nil, fmt.Errorf("%s", result.Error)
 		}

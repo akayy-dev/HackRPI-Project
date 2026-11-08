@@ -175,3 +175,39 @@ func TestStoredPolicyUsesMaximumAttackDespiteHigherNormalScore(t *testing.T) {
 		t.Fatalf("policy or identity lost: %+v", got)
 	}
 }
+
+func TestRestoredSimulationPreservesPartnerBSONContract(t *testing.T) {
+	collection := &fakeCollection{}
+	logger := &Logger{collection: collection}
+	stamp := time.Date(2026, 11, 8, 12, 34, 56, 0, time.UTC)
+	r := security.WithRequestTimestamp(httptest.NewRequest("POST", "/login", nil), stamp)
+	metadata := SimulationMetadata{Threshold: 0.7, Timestamp: stamp, IntendedClassification: "sql_injection", GenerationMode: "generated"}
+	if err := logger.LogSimulation(r.Context(), r, testPrediction(0.6), nil, metadata); err != nil {
+		t.Fatal(err)
+	}
+	encoded, err := bson.Marshal(collection.record)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var stored bson.M
+	if err := bson.Unmarshal(encoded, &stored); err != nil {
+		t.Fatal(err)
+	}
+	if stored["risk"] != 0.6 || stored["threshold"] != 0.7 || stored["blocked"] != false || stored["simulated"] != true || stored["intended_classification"] != "sql_injection" || stored["generation_mode"] != "generated" {
+		t.Fatalf("partner simulation fields changed: %+v", stored)
+	}
+	encodedScores, err := bson.Marshal(stored["attack_probabilities"])
+	if err != nil {
+		t.Fatal(err)
+	}
+	var scores map[string]float64
+	if err := bson.Unmarshal(encodedScores, &scores); err != nil {
+		t.Fatal(err)
+	}
+	if len(scores) != 14 || scores["normal"] != 0.9 || scores["sql_injection"] != 0.6 {
+		t.Fatalf("partner named score shape changed: %+v", stored["attack_probabilities"])
+	}
+	if !collection.record.Timestamp.Equal(stamp) {
+		t.Fatal("stored timestamp was normalized to the model year")
+	}
+}

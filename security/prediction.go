@@ -22,6 +22,20 @@ type Prediction struct {
 
 // ScoreText scores a serialized input using the original or replacement head.
 func (c *RemoteClassifier) ScoreText(ctx context.Context, text string, trained bool) (Prediction, error) {
+	mode := ModelOriginal
+	if trained {
+		mode = ModelTrained
+	}
+	return c.ScoreTextForMode(ctx, text, mode)
+}
+
+// ScoreTextForMode uses the same frozen embedding service for either head. Year
+// normalization is confined to model input and never changes the HTTP request.
+func (c *RemoteClassifier) ScoreTextForMode(ctx context.Context, text string, mode ModelMode) (Prediction, error) {
+	text, err := ModelInputForMode(text, mode)
+	if err != nil {
+		return Prediction{}, err
+	}
 	var buf bytes.Buffer
 	enc := json.NewEncoder(&buf)
 	enc.SetEscapeHTML(false)
@@ -29,7 +43,7 @@ func (c *RemoteClassifier) ScoreText(ctx context.Context, text string, trained b
 		return Prediction{}, err
 	}
 	route := "/classify"
-	if trained {
+	if mode == ModelTrained {
 		route = "/classify-trained"
 	}
 	req, err := http.NewRequestWithContext(ctx, http.MethodPost, c.baseURL+route, &buf)

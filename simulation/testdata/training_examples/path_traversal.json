@@ -1,0 +1,12 @@
+{
+  "timestamp": "17/Jul/2020:21:54:21 +0200",
+  "src_ip": "172.26.0.1",
+  "src_port": "64808",
+  "dst_ip": "172.26.0.4",
+  "dst_port": "80",
+  "request_http_method": "GET",
+  "request_http_request": "/blog/index.php/my-account/user-logout/?_wpnonce=%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C",
+  "request_http_protocol": "HTTP/1.1",
+  "request_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+  "request_host": "test-site.com"
+}
