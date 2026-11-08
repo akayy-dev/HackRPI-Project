@@ -80,6 +80,15 @@ describe("buildSocContext", () => {
     expect(rendered).not.toContain("knownIps");
   });
 
+  it("caps and cleans paths in topBlockedPaths and knownPaths", () => {
+    const huge = "/" + "a".repeat(5000) + "\nX";
+    const ctx = buildSocContext([ev({ risk: 0.9, url: huge + "?q=1" })], NOW);
+    const p = ctx.topBlockedPaths[0].path;
+    expect(p.length).toBe(200);
+    expect(p).not.toMatch(/\n/);
+    expect(ctx.knownPaths.has(p)).toBe(true);
+  });
+
   it("empty input", () => {
     const ctx = buildSocContext([], NOW);
     expect(ctx).toMatchObject({ total: 0, blocked: 0, perMin: 0, topIps: [], samples: [] });

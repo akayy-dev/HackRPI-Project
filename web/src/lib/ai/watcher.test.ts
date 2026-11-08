@@ -2,7 +2,7 @@ import { describe, expect, it, vi } from "vitest";
 import type { ConnectionEvent } from "@/lib/types";
 import { NOW, ev, times } from "../../../test/events";
 import type { TriageResponse } from "./triageService";
-import { createWatcher, type Alert } from "./watcher";
+import { alertPayload, createWatcher, type Alert } from "./watcher";
 
 const MIN = 60_000;
 const ATTACKER = "203.0.113.50";
@@ -103,6 +103,22 @@ describe("watcher", () => {
     expect(s.emit).toHaveBeenCalledTimes(1);
   });
 
+  it("attack resuming inside the cooldown alerts once the cooldown expires", async () => {
+    const s = setup();
+    s.set(blockedAt(6, 0)); // short probe → alert
+    await s.w.tick();
+    s.at(1);
+    s.set(allowedAt(5, 1)); // calm
+    await s.w.tick();
+    s.at(5);
+    s.set(blockedAt(6, 5)); // real attack starts inside cooldown → suppressed
+    expect(await s.w.tick()).toBeNull();
+    s.at(11);
+    s.set(blockedAt(6, 11)); // still going after cooldown → must alert
+    expect((await s.w.tick())?.level).toBe("ELEVATED");
+    expect(s.emit).toHaveBeenCalledTimes(2);
+  });
+
   it("old attacks ignored", async () => {
     const s = setup();
     s.set(times(60, () => ev({ ip: ATTACKER, risk: 0.95, minsAgo: 10 })));
@@ -139,5 +155,26 @@ describe("watcher", () => {
     release(grokReply());
     expect(await first).toMatchObject({ level: "ELEVATED" });
     expect(s.analyze).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe("alertPayload", () => {
+  it("neutralises mentions and links from attacker-controlled text", () => {
+    const alert: Alert = {
+      at: new Date(NOW).toISOString(),
+      level: "CRITICAL",
+      source: "grok",
+      summary: "UA was @everyone <https://evil.example|Acknowledge alert> & <!channel> [click](https://evil.example)",
+      actions: [{ id: "x", label: "Inspect <!here>", actionLabel: "View", variant: "secondary" }],
+      blocked5m: 60,
+      topIp: ATTACKER,
+    };
+    const p = alertPayload(alert);
+    expect(p.allowed_mentions).toEqual({ parse: [] });
+    expect(p.text).not.toMatch(/[<>]/);
+    expect(p.text).toContain("&lt;https://evil.example|Acknowledge alert&gt;");
+    expect(p.text).toContain("&amp;");
+    expect(p.content).not.toContain("](");
+    expect(p.text).toContain(`Top: ${ATTACKER} · 60 blocked/5m`);
   });
 });

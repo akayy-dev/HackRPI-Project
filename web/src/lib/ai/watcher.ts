@@ -24,12 +24,30 @@ export interface Alert {
 
 export interface WatcherDeps {
   getEvents: () => Promise<ConnectionEvent[]>;
-  /** Normally triage.get(events, { refresh: true }) */
+  /** Normally triage.get(events, { force: true }) */
   analyze: (events: ConnectionEvent[]) => Promise<TriageResponse>;
   emit: (alert: Alert) => Promise<void>;
   now: () => number;
   /** Minimum gap between two alerts at the same level (default 10 min) */
   cooldownMs?: number;
+}
+
+/**
+ * Webhook body for Slack (`text`) and Discord (`content`). Summaries can echo attacker-controlled
+ * URLs and user agents, so mentions and links are neutralised for both.
+ */
+export function alertPayload(a: Alert) {
+  const lines = [`🚨 ${a.level}: ${a.summary}`];
+  if (a.topIp) lines.push(`Top: ${a.topIp} · ${a.blocked5m} blocked/5m`);
+  if (a.actions.length) lines.push(`Suggested: ${a.actions.map((x) => x.label).join("; ")}`);
+  const raw = lines.join("\n");
+  return {
+    // Slack: escaping & < > disables <!channel>, <@U…> and <url|label> links
+    text: raw.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"),
+    // Discord: no masked links; mentions are disabled by allowed_mentions
+    content: raw.replace(/\]\(/g, "] ("),
+    allowed_mentions: { parse: [] as string[] },
+  };
 }
 
 export function createWatcher({ getEvents, analyze, emit, now, cooldownMs = 600_000 }: WatcherDeps) {
@@ -52,9 +70,10 @@ export function createWatcher({ getEvents, analyze, emit, now, cooldownMs = 600_
       }
       if (RANK[level] <= RANK[armed]) return null; // same wound, already reported
 
+      // Flapping: suppress, but stay un-armed so a wound still open after the cooldown gets reported
       const last = lastAlertAt[level];
+      if (last !== undefined && t - last < cooldownMs) return null;
       armed = level;
-      if (last !== undefined && t - last < cooldownMs) return null; // flapping
       lastAlertAt[level] = t;
 
       let source: Alert["source"] = "heuristic";

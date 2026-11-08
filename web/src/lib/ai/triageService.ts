@@ -24,8 +24,15 @@ export interface TriageDeps {
   minRefreshMs: number;
 }
 
+export interface TriageOptions {
+  /** User-requested re-analysis: bypasses the cache, throttled to one per minRefreshMs */
+  refresh?: boolean;
+  /** Always analyze these events now (watcher on escalation; it is rate-limited by its own cooldown) */
+  force?: boolean;
+}
+
 export interface TriageService {
-  get(events: ConnectionEvent[], opts?: { refresh?: boolean }): Promise<TriageResponse>;
+  get(events: ConnectionEvent[], opts?: TriageOptions): Promise<TriageResponse>;
 }
 
 export function createTriageService({ provider, now, ttlMs, minRefreshMs }: TriageDeps): TriageService {
@@ -58,12 +65,18 @@ export function createTriageService({ provider, now, ttlMs, minRefreshMs }: Tria
 
   return {
     async get(events, opts = {}) {
-      if (inflight) return inflight;
-      const t = now();
-      const fresh = cached && t - cached.at < ttlMs;
-      const refreshAllowed = opts.refresh && (!cached || t - cached.at >= minRefreshMs);
-      if (cached && fresh && !refreshAllowed) return cached.value;
+      if (opts.force) {
+        // An in-flight analysis may predate the events we were handed: let it finish, then run ours
+        if (inflight) await inflight.catch(() => undefined);
+      } else {
+        if (inflight) return inflight;
+        const t = now();
+        const fresh = cached && t - cached.at < ttlMs;
+        const refreshAllowed = opts.refresh && (!cached || t - cached.at >= minRefreshMs);
+        if (cached && fresh && !refreshAllowed) return cached.value;
+      }
 
+      const t = now();
       inflight = analyze(events)
         .then((value) => {
           cached = { at: t, value };

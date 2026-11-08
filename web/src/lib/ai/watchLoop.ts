@@ -2,7 +2,7 @@ import "server-only";
 import { getDashboardData } from "@/lib/data";
 import { getDb, isMongoConfigured } from "@/lib/db/mongodb";
 import { getTriageService } from "./triageInstance";
-import { createWatcher, type Alert } from "./watcher";
+import { alertPayload, createWatcher, type Alert } from "./watcher";
 
 /**
  * Runs the escalation watcher inside the Next.js server process (started from instrumentation.ts).
@@ -10,13 +10,6 @@ import { createWatcher, type Alert } from "./watcher";
  */
 
 const g = globalThis as typeof globalThis & { __socWatcher?: NodeJS.Timeout };
-
-function alertText(a: Alert): string {
-  const lines = [`🚨 ${a.level}: ${a.summary}`];
-  if (a.topIp) lines.push(`Top: ${a.topIp} · ${a.blocked5m} blocked/5m`);
-  if (a.actions.length) lines.push(`Suggested: ${a.actions.map((x) => x.label).join("; ")}`);
-  return lines.join("\n");
-}
 
 async function emit(alert: Alert): Promise<void> {
   console.warn("[SOC ALERT]", alert.level, alert.summary);
@@ -28,13 +21,11 @@ async function emit(alert: Alert): Promise<void> {
 
   const hook = process.env.ALERT_WEBHOOK_URL?.trim();
   if (hook) {
-    const text = alertText(alert);
     jobs.push(
       fetch(hook, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        // Slack reads `text`, Discord reads `content`
-        body: JSON.stringify({ text, content: text }),
+        body: JSON.stringify(alertPayload(alert)),
         signal: AbortSignal.timeout(5_000),
       }).then((res) => {
         if (!res.ok) throw new Error(`webhook HTTP ${res.status}`);
@@ -60,7 +51,7 @@ export function startWatchLoop(): void {
       const data = await getDashboardData();
       return data.source === "mock" ? [] : data.connections; // never alert on demo data
     },
-    analyze: (events) => getTriageService().get(events, { refresh: true }),
+    analyze: (events) => getTriageService().get(events, { force: true }),
     emit,
     now: Date.now,
   });

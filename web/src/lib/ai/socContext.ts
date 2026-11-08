@@ -91,7 +91,7 @@ export function buildSocContext(events: ConnectionEvent[], now: number): SocCont
     const isRecent = t >= recentFrom;
     const isBlocked = e.verdict === "blocked";
     const labels = labelsOf(e);
-    const path = pathOf(e.url);
+    const path = clean(pathOf(e.url), URL_MAX); // attacker-controlled: bound prompt size
     if (t < minT) minT = t;
     if (t > maxT) maxT = t;
     knownPaths.add(path);
