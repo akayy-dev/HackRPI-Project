@@ -55,7 +55,7 @@ describe("parseTriage", () => {
     );
     expect(r?.suggestedActions).toEqual([
       { id: `block_ip-${ATTACKER}`, label: `Block ${ATTACKER}`, actionLabel: "Block", variant: "primary" },
-      { id: "inspect_path-/login", label: "Inspect /login", actionLabel: "View", variant: "secondary" },
+      { id: "inspect_path-/login", label: "Inspect /login requests", actionLabel: "View", variant: "secondary" },
     ]);
   });
 
@@ -73,6 +73,18 @@ describe("parseTriage", () => {
   it("dedupes identical actions (ids are React keys)", () => {
     const acts = times(3, () => ({ kind: "watch_ip", target: ATTACKER, label: "Watch" }));
     expect(parseTriage(reply({ suggestedActions: acts }), attack(6))?.suggestedActions).toHaveLength(1);
+  });
+
+  it("action labels come from kind and target, never from the model", () => {
+    const r = parseTriage(
+      reply({ suggestedActions: [{ kind: "block_ip", target: ATTACKER, label: "sql_injection" }, { kind: "watch_ip", target: ATTACKER }] }),
+      attack(6),
+    );
+    expect(r?.suggestedActions.map((a) => a.label)).toEqual([`Block ${ATTACKER}`, `Watch ${ATTACKER}`]);
+  });
+
+  it("triage instruction scopes status to the last 5 minutes", () => {
+    expect(TRIAGE_INSTRUCTION).toMatch(/last 5 minutes/);
   });
 
   it("returns null on garbage", () => {
@@ -137,5 +149,6 @@ describe("prompts", () => {
     expect(SOC_SYSTEM_PROMPT).toMatch(/untrusted/i);
     expect(SOC_SYSTEM_PROMPT).toContain("<traffic_data>");
     expect(TRIAGE_INSTRUCTION).toMatch(/JSON/);
+    expect(TRIAGE_INSTRUCTION).toMatch(/never use the data field names/);
   });
 });

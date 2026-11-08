@@ -179,7 +179,7 @@ export default function AiPanel({ summary: initialSummary }: { summary: AiSummar
                 {m.content}
               </div>
             ) : (
-              <div key={i} className="max-w-[90%] self-start rounded-lg rounded-bl-none border border-tactical/40 bg-tactical/10 px-3 py-1.5 text-xs text-tactical">
+              <div key={i} className="max-w-[90%] self-start rounded-lg rounded-bl-none border border-tactical/40 bg-tactical/10 px-3 py-1.5 whitespace-pre-line break-words text-xs text-tactical">
                 <span className="block text-[10px] text-tactical/70">AI Sentinel</span>
                 {m.content}
               </div>

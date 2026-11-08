@@ -19,18 +19,20 @@ You cannot take actions; you only recommend them. Be concise and use plain text,
 export const TRIAGE_INSTRUCTION = `Triage the traffic above. Reply with ONLY a JSON object, no prose:
 {"trafficStatus":"NORMAL"|"ELEVATED"|"CRITICAL","activeAnomaly":string|null,"summary":string,"suggestedActions":[{"kind":"block_ip"|"inspect_path"|"watch_ip","target":string,"label":string}]}
 activeAnomaly: a short label such as "SQLi", "Traversal", "Brute force", or null when nothing stands out.
-summary: at most 400 characters, plain text, cite the main IPs and paths.
-suggestedActions: at most 3; target must be an exact IP or path (no query string) present in the data.`;
+summary: at most 400 characters, plain English for a security admin (never use the data field names like perMin or blocked5m), cite the main IPs and paths.
+trafficStatus describes the last 5 minutes (perMin, blocked5m); older activity is history, mention it but do not escalate for it.
+suggestedActions: at most 3; target must be an exact IP or path (no query string) present in the data. label is ignored.`;
 
 const LEVELS: Level[] = ["NORMAL", "ELEVATED", "CRITICAL"];
 const rank = (l: Level) => LEVELS.indexOf(l);
 const SUMMARY_MAX = 400;
 const MAX_ACTIONS = 3;
 
+// Button text is generated here from kind + target: model (and attacker) text never reaches a button
 const KIND = {
-  block_ip: { actionLabel: "Block", variant: "primary" },
-  inspect_path: { actionLabel: "View", variant: "secondary" },
-  watch_ip: { actionLabel: "Watch", variant: "secondary" },
+  block_ip: { actionLabel: "Block", variant: "primary", label: (t: string) => `Block ${t}` },
+  inspect_path: { actionLabel: "View", variant: "secondary", label: (t: string) => `Inspect ${t} requests` },
+  watch_ip: { actionLabel: "Watch", variant: "secondary", label: (t: string) => `Watch ${t}` },
 } as const;
 type Kind = keyof typeof KIND;
 
@@ -53,8 +55,9 @@ export function severityFloor(ctx: SocContext): Level {
 
 const plain = (s: string, max: number) => s.replace(/[*`#]/g, "").replace(/\s+/g, " ").trim().slice(0, max);
 
-function toAction(kind: Kind, target: string, label: string): SuggestedAction {
-  return { id: `${kind}-${target}`, label, ...KIND[kind] };
+function toAction(kind: Kind, target: string): SuggestedAction {
+  const { actionLabel, variant, label } = KIND[kind];
+  return { id: `${kind}-${target}`, label: label(target), actionLabel, variant };
 }
 
 /** Validates a model reply against the context. Returns null when it can't be used at all. */
@@ -77,13 +80,12 @@ export function parseTriage(raw: string, ctx: SocContext): TriageResult | null {
   const actions: SuggestedAction[] = [];
   for (const a of Array.isArray(data.suggestedActions) ? data.suggestedActions : []) {
     if (actions.length >= MAX_ACTIONS) break;
-    const { kind, target, label } = (a ?? {}) as Record<string, unknown>;
+    const { kind, target } = (a ?? {}) as Record<string, unknown>;
     if (typeof kind !== "string" || !(kind in KIND) || typeof target !== "string") continue;
     const known = kind === "inspect_path" ? ctx.knownPaths.has(target) : ctx.knownIps.has(target);
     if (!known) continue; // hallucination guard: only targets present in the traffic
     if (actions.some((x) => x.id === `${kind}-${target}`)) continue;
-    const text = typeof label === "string" && label.trim() ? plain(label, 80) : `${kind} ${target}`;
-    actions.push(toAction(kind as Kind, target, text));
+    actions.push(toAction(kind as Kind, target));
   }
 
   return {
@@ -109,9 +111,9 @@ export function heuristicTriage(ctx: SocContext): TriageResult {
   }
 
   const actions: SuggestedAction[] = [];
-  if (top && top.blocked >= 5) actions.push(toAction("block_ip", top.ip, `Block ${top.ip}`));
+  if (top && top.blocked >= 5) actions.push(toAction("block_ip", top.ip));
   const path = ctx.topBlockedPaths[0];
-  if (path) actions.push(toAction("inspect_path", path.path, `Inspect ${path.path} requests`));
+  if (path) actions.push(toAction("inspect_path", path.path));
 
   return {
     trafficStatus,
