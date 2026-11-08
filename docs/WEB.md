@@ -39,19 +39,42 @@ Paths relative to `web/`.
 
 ### MongoDB schema — one document per proxied request (written by the proxy)
 
+Mirrors `telemetry.RequestTelemetry` in the Go proxy (networking branch). The proxy writes
+to database `telemetry`, collection `requests` by default (`MONGODB_DATABASE` /
+`MONGODB_COLLECTION` there; `MONGODB_DB` / `MONGODB_COLLECTION` here).
+
 ```js
 {
   _id: ObjectId,
   timestamp: ISODate,            // indexed: { timestamp: -1 }
-  risk: 0.199,                   // Double 0..1 from the ML classifier
+  risk: 0.0812,                  // Double 0..1 = 1 - attack_probabilities.normal. ABSENT if classification failed
+  attack_probabilities: {        // 14 independent sigmoid scores (do not sum to 1). ABSENT if classification failed
+    normal: 0.9188, protocol_manipulation: 0.004, code_injection: 0.011, os_command_injection: 0.002,
+    path_traversal: 0.003, sql_injection: 0.021, dictionary_password_attack: 0.001,
+    vulnerability_scanning: 0.006, input_data_manipulation: 0.009, command_injection: 0.002,
+    http_verb_tampering: 0.001, source_spoofing: 0.001, http_response_splitting: 0.001,
+    http_request_smuggling: 0.002
+  },
+  classification_error: "embed request: ...", // only when classification failed (proxy answered 503)
+  simulated: false,              // always written; true for Traffic Lab (:8081) submissions
+  threshold: 0.5,                // simulations only
+  blocked: false,                // simulations only: risk >= threshold
+  intended_classification: "sql_injection", // simulations only: the generator's label, not a model input
+  generation_mode: "generated",  // simulations only: "generated" | "examples"
   method: "GET",
   url: "/login?next=/",          // request URI incl. query
   host: "localhost:8080",
   remote_addr: "127.0.0.1:54344",// "ip:port" ("[::1]:port" for IPv6)
+  destination_addr: "172.18.0.5:8080", // listener that accepted it, when known
   protocol: "HTTP/1.1",
-  headers: { "User-Agent": ["Mozilla/5.0 ..."], Accept: ["text/html"], ... } // name → [values]
+  headers: { Host: ["localhost:8080"], "User-Agent": ["Mozilla/5.0 ..."], Cookie: ["[REDACTED]"], ... }
+  // name → [values]; Authorization, Proxy-Authorization, Cookie, X-Api-Key are redacted. Body is never stored.
 }
 ```
+
+Real traffic stores no decision: the proxy blocks (403) when `risk >= proxy.THRESHOLD` (0.5).
+Traffic Lab documents keep the timestamp the generator chose (2020 dates by default), so they
+fall outside the dashboard's 24 h window unless replayed with a current time.
 
 The dashboard derives the rest (`src/lib/requestLog.ts`):
 - `ip` ← parsed from `remote_addr`
