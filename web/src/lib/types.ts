@@ -10,18 +10,60 @@ export type Verdict = "allowed" | "blocked";
 /** HTTP headers as Go's net/http serializes them: name → list of values. */
 export type RequestHeaders = Record<string, string[]>;
 
-/** One request document as stored by the reverse proxy. */
+/** The 14 independent sigmoid labels of the proxy's classifier (Go: classifier.AttackProbabilities). */
+export const ATTACK_LABELS = [
+  "normal",
+  "protocol_manipulation",
+  "code_injection",
+  "os_command_injection",
+  "path_traversal",
+  "sql_injection",
+  "dictionary_password_attack",
+  "vulnerability_scanning",
+  "input_data_manipulation",
+  "command_injection",
+  "http_verb_tampering",
+  "source_spoofing",
+  "http_response_splitting",
+  "http_request_smuggling",
+] as const;
+export type AttackLabel = (typeof ATTACK_LABELS)[number];
+/** Each score is 0..1; they are independent, so they do not sum to 1. */
+export type AttackProbabilities = Record<AttackLabel, number>;
+
+/**
+ * One request document as stored by the reverse proxy (Go: telemetry.RequestTelemetry).
+ * Real traffic (port 8080) and Traffic Lab simulations (port 8081) share the collection;
+ * simulations have `simulated: true` plus `threshold`, `blocked`, `intended_classification`
+ * and `generation_mode`. When classification fails, `risk` and `attack_probabilities` are
+ * absent and `classification_error` is set (the proxy answered 503).
+ */
 export interface RequestLog {
   timestamp: string; // ISO 8601 (ISODate in Mongo)
-  /** ML classifier risk 0..1 */
-  risk: number;
+  /** Riskiness 0..1 = 1 - attack_probabilities.normal. Absent when classification failed. */
+  risk?: number;
+  attack_probabilities?: AttackProbabilities;
+  classification_error?: string;
+  /** true for Traffic Lab submissions; always written by the proxy */
+  simulated?: boolean;
+  /** Simulations only: blocking threshold in effect (proxy.THRESHOLD) */
+  threshold?: number;
+  /** Simulations only: risk >= threshold. Real traffic stores no decision. */
+  blocked?: boolean;
+  /** Simulations only: the label the generator intended (never shown to the model) */
+  intended_classification?: AttackLabel | string;
+  /** Simulations only: "generated" (new payloads) or "examples" (reference replay) */
+  generation_mode?: "generated" | "examples" | string;
   method: string;
   /** Request URI incl. query string, e.g. "/login?next=/" */
   url: string;
   host: string;
   /** "ip:port", e.g. "127.0.0.1:54344" or "[::1]:54344" */
   remote_addr: string;
+  /** Proxy listener "ip:port" that accepted the request, when known */
+  destination_addr?: string;
   protocol: string;
+  /** Authorization, Proxy-Authorization, Cookie and X-Api-Key values are "[REDACTED]" */
   headers: RequestHeaders;
 }
 
@@ -38,6 +80,8 @@ export interface GeoLocation {
 
 /** A RequestLog plus fields derived for the UI. */
 export interface ConnectionEvent extends RequestLog {
+  /** Always set: a missing/invalid stored risk becomes 0 */
+  risk: number;
   /** Mongo `_id` as a string */
   id: string;
   /** Client IP: remote_addr, or a forwarding header when TRUST_PROXY_HEADERS=true */
@@ -56,7 +100,12 @@ export interface ServerNode {
 
 export interface ProxyStatus {
   active: boolean;
-  latencyMs: number;
+  /**
+   * Round trip of the dashboard's latest MongoDB query (dashboard server → database),
+   * in ms. null when no database is in use (mock data or the local feed).
+   * Not the proxy's own request latency: the proxy doesn't record timings yet.
+   */
+  dbLatencyMs: number | null;
 }
 
 export interface SuggestedAction {

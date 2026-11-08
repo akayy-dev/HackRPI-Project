@@ -12,17 +12,22 @@ export function useDashboardData(initial: DashboardData, intervalMs = 2000) {
 
   useEffect(() => {
     let alive = true;
-    const id = setInterval(async () => {
+    let timer: ReturnType<typeof setTimeout>;
+    // Wait for each response before scheduling the next poll, so a slow or unreachable
+    // database never piles up overlapping requests.
+    const poll = async () => {
       try {
         const res = await fetch("/api/dashboard", { cache: "no-store" });
         if (res.ok && alive) setData(await res.json());
       } catch {
         /* keep last good data */
       }
-    }, intervalMs);
+      if (alive) timer = setTimeout(poll, intervalMs);
+    };
+    timer = setTimeout(poll, intervalMs);
     return () => {
       alive = false;
-      clearInterval(id);
+      clearTimeout(timer);
     };
   }, [intervalMs]);
 

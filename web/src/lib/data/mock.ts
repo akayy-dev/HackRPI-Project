@@ -1,4 +1,13 @@
-import type { AiSummary, DashboardData, RequestHeaders, RequestLog, ServerNode } from "@/lib/types";
+import {
+  ATTACK_LABELS,
+  type AiSummary,
+  type AttackLabel,
+  type AttackProbabilities,
+  type DashboardData,
+  type RequestHeaders,
+  type RequestLog,
+  type ServerNode,
+} from "@/lib/types";
 import "server-only";
 import { getGeoResolver } from "@/lib/geo";
 import { toConnectionEvent } from "./toEvent";
@@ -44,39 +53,60 @@ function toolHeaders(ua: string, extra: RequestHeaders = {}): RequestHeaders {
   return { Host: [HOST], "User-Agent": [ua], Accept: ["*/*"], ...extra };
 }
 
-type Seed = [secondsAgo: number, remoteAddr: string, method: string, url: string, risk: number, headers: RequestHeaders];
-
-const SEEDS: Seed[] = [
-  [3, "127.0.0.1:54344", "GET", "/", 0.19936596037236387, browserHeaders(UA.firefox)],
-  [7, "203.0.113.12:51022", "GET", "/index", 0.04, browserHeaders(UA.chrome)],
-  [9, "198.51.100.7:40112", "POST", "/login", 0.97, toolHeaders(UA.sqlmap, { "Content-Type": ["application/x-www-form-urlencoded"] })],
-  [16, "203.0.113.45:62310", "GET", "/products", 0.11, browserHeaders(UA.firefox)],
-  [20, "192.0.2.88:33891", "GET", "/admin?id=1%20OR%201=1", 0.92, toolHeaders(UA.sqlmap)],
-  [28, "203.0.113.3:50544", "GET", "/about", 0.02, browserHeaders(UA.chrome)],
-  [36, "198.51.100.23:44120", "POST", "/api/upload", 0.88, toolHeaders(UA.python, { "Content-Type": ["multipart/form-data; boundary=x"] })],
-  [52, "203.0.113.77:58001", "GET", "/pricing", 0.06, browserHeaders(UA.chrome)],
-  [75, "198.51.100.9:39004", "GET", "/admin", 0.81, toolHeaders(UA.nikto)],
-  [110, "203.0.113.150:61002", "GET", "/docs", 0.03, browserHeaders(UA.firefox)],
-  [140, "192.0.2.14:41877", "POST", "/wp-login.php", 0.9, toolHeaders(UA.python)],
-  [200, "203.0.113.201:52219", "GET", "/", 0.05, browserHeaders(UA.chrome)],
-  [600, "203.0.113.90:60123", "GET", "/blog", 0.07, browserHeaders(UA.firefox)],
-  [1500, "192.0.2.201:37761", "GET", "/.env", 0.95, toolHeaders(UA.curl)],
-  [2400, "203.0.113.31:49152", "GET", "/status", 0.01, toolHeaders(UA.curl)],
-  [9000, "198.51.100.66:45678", "POST", "/graphql", 0.76, toolHeaders(UA.python, { "Content-Type": ["application/json"] })],
-  [30000, "203.0.113.8:53311", "GET", "/products/42", 0.08, browserHeaders(UA.chrome)],
-  [60000, "192.0.2.50:34567", "GET", "/../../etc/passwd", 0.99, toolHeaders(UA.curl)],
+type Seed = [
+  secondsAgo: number,
+  remoteAddr: string,
+  method: string,
+  url: string,
+  risk: number,
+  label: AttackLabel,
+  headers: RequestHeaders,
 ];
 
-function seedToLog([secondsAgo, remote_addr, method, url, risk, headers]: Seed, now: number): RequestLog {
+const SEEDS: Seed[] = [
+  [3, "127.0.0.1:54344", "GET", "/", 0.1994, "normal", browserHeaders(UA.firefox)],
+  [7, "203.0.113.12:51022", "GET", "/index", 0.04, "normal", browserHeaders(UA.chrome)],
+  [9, "198.51.100.7:40112", "POST", "/login", 0.97, "sql_injection", toolHeaders(UA.sqlmap, { "Content-Type": ["application/x-www-form-urlencoded"] })],
+  [16, "203.0.113.45:62310", "GET", "/products", 0.11, "normal", { ...browserHeaders(UA.firefox), Cookie: ["[REDACTED]"] }],
+  [20, "192.0.2.88:33891", "GET", "/admin?id=1%20OR%201=1", 0.92, "sql_injection", toolHeaders(UA.sqlmap)],
+  [28, "203.0.113.3:50544", "GET", "/about", 0.02, "normal", browserHeaders(UA.chrome)],
+  [36, "198.51.100.23:44120", "POST", "/api/upload", 0.88, "code_injection", toolHeaders(UA.python, { "Content-Type": ["multipart/form-data; boundary=x"] })],
+  [52, "203.0.113.77:58001", "GET", "/pricing", 0.06, "normal", browserHeaders(UA.chrome)],
+  [75, "198.51.100.9:39004", "GET", "/admin", 0.81, "vulnerability_scanning", toolHeaders(UA.nikto)],
+  [110, "203.0.113.150:61002", "GET", "/docs", 0.03, "normal", browserHeaders(UA.firefox)],
+  [140, "192.0.2.14:41877", "POST", "/wp-login.php", 0.9, "dictionary_password_attack", toolHeaders(UA.python)],
+  [200, "203.0.113.201:52219", "GET", "/", 0.05, "normal", browserHeaders(UA.chrome)],
+  [600, "203.0.113.90:60123", "GET", "/blog", 0.07, "normal", browserHeaders(UA.firefox)],
+  [1500, "192.0.2.201:37761", "GET", "/.env", 0.95, "vulnerability_scanning", toolHeaders(UA.curl)],
+  [2400, "203.0.113.31:49152", "GET", "/status", 0.01, "normal", toolHeaders(UA.curl)],
+  [9000, "198.51.100.66:45678", "POST", "/graphql", 0.76, "input_data_manipulation", toolHeaders(UA.python, { "Content-Type": ["application/json"] })],
+  [30000, "203.0.113.8:53311", "GET", "/products/42", 0.08, "normal", browserHeaders(UA.chrome)],
+  [60000, "192.0.2.50:34567", "GET", "/../../etc/passwd", 0.99, "path_traversal", toolHeaders(UA.curl)],
+];
+
+/** Sigmoid-head-shaped scores: normal = 1 - risk, the seed's label scores high, the rest near zero. */
+function probabilities(risk: number, label: AttackLabel, i: number): AttackProbabilities {
+  const p = Object.fromEntries(
+    ATTACK_LABELS.map((l, j) => [l, Number((0.002 + ((i * 7 + j * 13) % 17) / 1000).toFixed(4))]),
+  ) as AttackProbabilities;
+  p.normal = Number((1 - risk).toFixed(4));
+  if (label !== "normal") p[label] = Number(Math.min(0.995, risk + 0.01).toFixed(4));
+  return p;
+}
+
+function seedToLog([secondsAgo, remote_addr, method, url, risk, label, headers]: Seed, i: number, now: number): RequestLog {
   return {
     timestamp: new Date(now - secondsAgo * 1000).toISOString(),
     risk,
+    attack_probabilities: probabilities(risk, label, i),
+    simulated: false,
     method,
     url,
     host: HOST,
     remote_addr,
+    destination_addr: "172.18.0.5:8080",
     protocol: "HTTP/1.1",
-    headers,
+    headers: { ...headers, Host: [HOST] },
   };
 }
 
@@ -96,8 +126,8 @@ export async function getMockDashboard(now = Date.now()): Promise<DashboardData>
   const geo = await getGeoResolver(MOCK_SERVER.location);
   return {
     server: MOCK_SERVER,
-    status: { active: true, latencyMs: 1.4 },
-    connections: SEEDS.map((s, i) => toConnectionEvent(seedToLog(s, now), `mock-${i}`, geo)),
+    status: { active: true, dbLatencyMs: null },
+    connections: SEEDS.map((s, i) => toConnectionEvent(seedToLog(s, i, now), `mock-${i}`, geo)),
     summary: MOCK_SUMMARY,
     generatedAt: new Date(now).toISOString(),
     source: "mock",

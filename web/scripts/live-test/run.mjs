@@ -142,8 +142,11 @@ async function main() {
       inserted++;
       const label = `${doc.method} ${doc.url} ${doc.remote_addr}`;
       if (VERIFY) pending.set(_id, { insertedAt: Date.now(), label });
-      const tag = doc.risk >= 0.5 ? c.red("THREAT") : c.green("ok    ");
-      console.log(`${c.dim(doc.timestamp.slice(11, 23))} ${tag} ${doc.risk.toFixed(2)} ${label}`);
+      const failed = typeof doc.risk !== "number";
+      const tag = failed ? c.yellow("ERROR ") : doc.risk >= 0.5 ? c.red("THREAT") : c.green("ok    ");
+      const risk = failed ? "----" : doc.risk.toFixed(2);
+      const sim = doc.simulated ? c.dim(` [lab:${doc.intended_classification}]`) : "";
+      console.log(`${c.dim(doc.timestamp.slice(11, 23))} ${tag} ${risk} ${label}${sim}`);
     }
   } while (LOOP && !interrupted);
 
