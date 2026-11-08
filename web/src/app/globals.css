@@ -1,0 +1,77 @@
+@import "tailwindcss";
+
+/* Fonts come from next/font CSS vars set on <body>, so resolve them inline */
+@theme inline {
+  --font-sans: var(--font-space-grotesk), "Space Grotesk", sans-serif;
+  --font-mono: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+}
+
+/* Design tokens — mirrors docs/DESIGN.md (Obsidian + Terminal Tactical Green) */
+@theme {
+  --color-obsidian-950: #07080a;
+  --color-obsidian-900: #0d0e12;
+  --color-obsidian-850: #121317;
+  --color-obsidian-800: #181a21;
+  --color-obsidian-750: #1d2028;
+  --color-obsidian-700: #22252e;
+  --color-obsidian-600: #2d323e;
+
+  --color-tactical: #00ff88;
+  --color-tactical-dim: #00cc6a;
+  --color-tactical-muted: #008746;
+  --color-tactical-dark: #00381c;
+
+  /* Threat / blocked / proxy-down / high latency */
+  --color-threat: #ff3b4f;
+  --color-threat-dim: #d92a3d;
+
+  --animate-cursor: blink 1s step-end infinite;
+
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+}
+
+body {
+  background-color: var(--color-obsidian-950);
+  color: #e2e8f0;
+  font-family: var(--font-jetbrains-mono), "JetBrains Mono", ui-monospace, monospace;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* Grid backdrop for the map canvas */
+.soc-grid-bg {
+  background-size: 24px 24px;
+  background-image:
+    linear-gradient(to right, rgba(0, 255, 136, 0.03) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(0, 255, 136, 0.03) 1px, transparent 1px);
+}
+
+/* Node ping waves */
+@keyframes pingWave {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(5); opacity: 0; }
+}
+.pulse-ring {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pingWave 2.8s cubic-bezier(0, 0.2, 0.8, 1) infinite;
+}
+.pulse-ring-delayed {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: pingWave 2.8s cubic-bezier(0, 0.2, 0.8, 1) infinite 1.4s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pulse-ring, .pulse-ring-delayed, .animate-cursor {
+    animation: none !important;
+  }
+}
+
+/* Thin scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: #07080a; }
+::-webkit-scrollbar-thumb { background: #181a21; border-radius: 2px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0, 255, 136, 0.4); }
