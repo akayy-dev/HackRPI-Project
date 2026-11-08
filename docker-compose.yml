@@ -1,6 +1,51 @@
 name: vivian-demo
 
 services:
+  comparison-lab:
+    profiles: [comparison]
+    build:
+      context: .
+      args:
+        APP_PATH: ./cmd/comparison
+    ports:
+      - "127.0.0.1:8090:8090"
+    environment:
+      CLASSIFIER_URL: http://classifier-comparison:8000
+      REVERSE_PROXY_URL: http://target-web-app:80
+      RISK_THRESHOLD: ${RISK_THRESHOLD:-0.5}
+    depends_on:
+      target-web-app:
+        condition: service_healthy
+      classifier-comparison:
+        condition: service_started
+
+  classifier-comparison:
+    profiles: [comparison]
+    build: ./classifier
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
+      HF_HUB_OFFLINE: ${COMPARISON_OFFLINE:-0}
+      HF_HUB_DISABLE_IMPLICIT_TOKEN: "1"
+      # Always preserve the published baseline, even if production uses HEAD_DIR.
+      HEAD_DIR: ""
+      HEAD_REPO: valendra/threat-classifier-13082026
+      HEAD_REVISION: 1308bba1f05b13e5f5e71b08f55e1486e0019bde
+      BACKBONE: google/embeddinggemma-300m
+      BACKBONE_REVISION: 57c266a740f537b4dc058e1b0cda161fd15afa75
+      TRAINED_HEAD_DIR: /models/proxy-head/head
+      CLASSIFIER_DEVICE: cpu
+    volumes:
+      # Mount the parent so head/ can be created after training finishes.
+      - ./artifacts/proxy-head:/models/proxy-head:ro
+      - huggingface-cache:/cache/huggingface
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 15s
+      timeout: 5s
+      retries: 40
+      start_period: 300s
+
   proxy:
     build: .
     stop_grace_period: 20s
@@ -12,11 +57,39 @@ services:
       MONGODB_DATABASE: telemetry
       MONGODB_COLLECTION: requests
       RISK_THRESHOLD: ${RISK_THRESHOLD:-0.5}
+      CLASSIFIER_URL: http://classifier:8000
+      CLASSIFIER_TIMEOUT: 15s
+      CLASSIFIER_MAX_BODY: "262144"
     depends_on:
       target-web-app:
         condition: service_healthy
       mongodb:
         condition: service_healthy
+      classifier:
+        condition: service_healthy
+
+  classifier:
+    build: ./classifier
+    stop_grace_period: 30s
+    environment:
+      HF_TOKEN: ${HF_TOKEN:-}
+      HUGGING_FACE_HUB_TOKEN: ${HF_TOKEN:-}
+      HEAD_REPO: ${HEAD_REPO:-valendra/threat-classifier-13082026}
+      # Set HEAD_DIR=/models/head after placing a validated trained head below.
+      HEAD_DIR: ${HEAD_DIR:-}
+      HEAD_REVISION: ${HEAD_REVISION:-1308bba1f05b13e5f5e71b08f55e1486e0019bde}
+      BACKBONE: ${BACKBONE:-google/embeddinggemma-300m}
+      BACKBONE_REVISION: ${BACKBONE_REVISION:-57c266a740f537b4dc058e1b0cda161fd15afa75}
+      CLASSIFIER_DEVICE: cpu
+    volumes:
+      - ./artifacts/proxy-head/head:/models/head:ro
+      - huggingface-cache:/cache/huggingface
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=5)"]
+      interval: 15s
+      timeout: 5s
+      retries: 40
+      start_period: 300s
 
   mongodb:
     image: mongo:8.0
@@ -39,4 +112,5 @@ services:
 
 volumes:
   mongodb-data:
+  huggingface-cache:
 

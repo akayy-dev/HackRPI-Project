@@ -1,0 +1,176 @@
+[
+  {
+    "id": "normal",
+    "name": "Normal home",
+    "expected": [
+      "000 - Normal"
+    ],
+    "fields": {
+      "timestamp": "17/Jul/2020:12:23:34 +0100",
+      "src_ip": "172.26.0.1",
+      "src_port": "55894",
+      "dst_ip": "172.26.0.4",
+      "dst_port": "80",
+      "request_http_method": "GET",
+      "request_http_request": "/",
+      "request_http_protocol": "HTTP/1.1",
+      "request_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/44.0.2403.130 Safari/537.36",
+      "request_referer": "",
+      "request_host": "test-site.com",
+      "request_origin": "",
+      "request_cookie": "",
+      "request_content_type": "",
+      "request_accept": "*/*",
+      "request_accept_language": "",
+      "request_accept_encoding": "gzip, deflate",
+      "request_do_not_track": "",
+      "request_connection": "keep-alive",
+      "request_body": ""
+    }
+  },
+  {
+    "id": "normal_path",
+    "name": "Normal path",
+    "expected": [
+      "000 - Normal"
+    ],
+    "fields": {
+      "timestamp": "17/Jul/2020:12:23:41 +0100",
+      "src_ip": "172.26.0.1",
+      "src_port": "55897",
+      "dst_ip": "172.26.0.4",
+      "dst_port": "80",
+      "request_http_method": "GET",
+      "request_http_request": "/blog/index.php/2020/04/04/voluptatum-reprehenderit-maiores-ab-sequi-quaerat/",
+      "request_http_protocol": "HTTP/1.1",
+      "request_user_agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.6; rv:36.0) Gecko/20100101 Firefox/36.0",
+      "request_referer": "",
+      "request_host": "test-site.com",
+      "request_origin": "",
+      "request_cookie": "",
+      "request_content_type": "",
+      "request_accept": "*/*",
+      "request_accept_language": "",
+      "request_accept_encoding": "gzip, deflate",
+      "request_do_not_track": "",
+      "request_connection": "keep-alive",
+      "request_body": ""
+    }
+  },
+  {
+    "id": "sql",
+    "name": "SQL injection",
+    "expected": [
+      "66 - SQL Injection"
+    ],
+    "fields": {
+      "timestamp": "18/Jul/2020:02:05:27 +0200",
+      "src_ip": "172.26.0.1",
+      "src_port": "53324",
+      "dst_ip": "172.26.0.4",
+      "dst_port": "80",
+      "request_http_method": "GET",
+      "request_http_request": "/%27/wp-content/uploads/2020/04/b476e717-efec-3b0d-80e9-13c6400a7702-300x240.png",
+      "request_http_protocol": "HTTP/1.1",
+      "request_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+      "request_referer": "http://test-site.com/blog/index.php/2020/04/04/consequatur-ad-error-quidem/embed/",
+      "request_host": "test-site.com",
+      "request_origin": "",
+      "request_cookie": "",
+      "request_content_type": "",
+      "request_accept": "",
+      "request_accept_language": "",
+      "request_accept_encoding": "",
+      "request_do_not_track": "",
+      "request_connection": "",
+      "request_body": ""
+    }
+  },
+  {
+    "id": "sql_search",
+    "name": "SQL injection \u00b7 alternate",
+    "expected": [
+      "66 - SQL Injection"
+    ],
+    "fields": {
+      "timestamp": "17/Jul/2020:19:25:48 +0200",
+      "src_ip": "172.26.0.1",
+      "src_port": "59867",
+      "dst_ip": "172.26.0.4",
+      "dst_port": "80",
+      "request_http_method": "GET",
+      "request_http_request": "/blog/wp-admin/load-styles.php?c=0&dir=ltr&load%5B%5D=dashicons,buttons,forms,l10n,login&ver=4.9.5",
+      "request_http_protocol": "HTTP/1.1",
+      "request_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+      "request_referer": "http://test-site.com/blog/wp-login.php",
+      "request_host": "test-site.com",
+      "request_origin": "",
+      "request_cookie": "wordpress_test_cookie=WP+Cookie+check",
+      "request_content_type": "",
+      "request_accept": "",
+      "request_accept_language": "",
+      "request_accept_encoding": "",
+      "request_do_not_track": "",
+      "request_connection": "",
+      "request_body": ""
+    }
+  },
+  {
+    "id": "path",
+    "name": "Path traversal",
+    "expected": [
+      "126 - Path Traversal"
+    ],
+    "fields": {
+      "timestamp": "17/Jul/2020:21:54:21 +0200",
+      "src_ip": "172.26.0.1",
+      "src_port": "64808",
+      "dst_ip": "172.26.0.4",
+      "dst_port": "80",
+      "request_http_method": "GET",
+      "request_http_request": "/blog/index.php/my-account/user-logout/?_wpnonce=%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C..%5C",
+      "request_http_protocol": "HTTP/1.1",
+      "request_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+      "request_referer": "",
+      "request_host": "test-site.com",
+      "request_origin": "",
+      "request_cookie": "wordpress_test_cookie=WP+Cookie+check",
+      "request_content_type": "",
+      "request_accept": "",
+      "request_accept_language": "",
+      "request_accept_encoding": "",
+      "request_do_not_track": "",
+      "request_connection": "",
+      "request_body": ""
+    }
+  },
+  {
+    "id": "command",
+    "name": "OS command injection",
+    "expected": [
+      "88 - OS Command Injection"
+    ],
+    "fields": {
+      "timestamp": "18/Jul/2020:05:53:48 +0200",
+      "src_ip": "172.26.0.1",
+      "src_port": "57802",
+      "dst_ip": "172.26.0.4",
+      "dst_port": "80",
+      "request_http_method": "POST",
+      "request_http_request": "/blog/wp-login.php?action=lostpassword",
+      "request_http_protocol": "HTTP/1.1",
+      "request_user_agent": "Mozilla/5.0 (X11; Linux x86_64; rv:70.0) Gecko/20100101 Firefox/70.0",
+      "request_referer": "http://test-site.com/blog/wp-login.php?action=lostpassword",
+      "request_host": "test-site.com",
+      "request_origin": "",
+      "request_cookie": "comment_author_url_1aefbe2f76edd740f8e362f39da3353b=http%3A%2F%2Fwww.example.com; comment_author_email_1aefbe2f76edd740f8e362f39da3353b=foo-bar%40example.com; comment_author_1aefbe2f76edd740f8e362f39da3353b=delivery; wordpress_logged_in_1aefbe2f76edd740f8e362f39da3353b=rafael%7C1595212059%7CGWgAWVHapC2bzAMywZ77DCFlV58k9y04hBeDt9B2wpg%7C59006f949e57d0c4fd439f571f0a913f28f8cabfb99520b35997b552dc918655; wordpress_test_cookie=WP+Cookie+check",
+      "request_content_type": "application/x-www-form-urlencoded",
+      "request_accept": "",
+      "request_accept_language": "",
+      "request_accept_encoding": "",
+      "request_do_not_track": "",
+      "request_connection": "",
+      "request_body": "user_login=amazedMeerkat9%60sleep+15%60&redirect_to=&wp-submit=Get+New+Password"
+    }
+  }
+]

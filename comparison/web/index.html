@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Compare HTTP threat classification before and after proxy-shaped retraining.">
+  <title>Vivian · Model workbench</title><link rel="stylesheet" href="/style.css"><script defer src="/app.js"></script>
+</head>
+<body>
+<header class="topbar"><a class="brand" href="/" aria-label="Vivian workbench home"><span class="brand-icon">V</span> vivian<span class="brand-divider"></span><span class="brand-sub">MODEL WORKBENCH</span></a><span class="local-badge"><span class="dot"></span> LOCAL LAB</span></header>
+<main>
+  <section class="intro"><div><div class="eyebrow">THREAT CLASSIFICATION / EXPERIMENTS</div><h1>One request. Three perspectives.</h1><p>See what changes when traffic meets the proxy — and when the head learns its format.</p></div><button id="export" class="button secondary" disabled>↓ Export results</button></section>
+  <section class="status-strip" aria-label="Model availability"><div><span class="dot" id="original-dot"></span><span>Published head</span><strong id="original-status">Checking…</strong></div><div><span class="dot" id="trained-dot"></span><span>Trained head</span><strong id="trained-status">Checking…</strong></div><div><span class="muted">Block threshold</span><strong id="threshold">—</strong></div><button id="reload" class="text-button">↻ Load trained head</button></section>
+  <p id="notice" class="notice" role="status" aria-live="polite" hidden></p>
+  <div class="workspace">
+    <aside class="editor panel">
+      <div class="panel-heading"><div><span class="eyebrow">01 / REQUEST BUILDER</span><h2>Choose your test</h2></div><label class="import-button" for="import">Import JSON<input id="import" type="file" accept=".json,application/json" hidden></label></div>
+      <label for="preset">Dataset preset</label><select id="preset" disabled><option>Loading cases…</option></select>
+      <p class="hint">Presets use actual rows from the original CAPEC dataset.</p>
+      <div class="request-line"><div><label for="method">Method</label><select id="method"><option>GET</option><option>POST</option><option>PUT</option><option>PATCH</option><option>DELETE</option><option>HEAD</option><option>OPTIONS</option><option>TRACE</option><option>CONNECT</option></select></div><div><label for="host">Host</label><input id="host" autocomplete="off" spellcheck="false"></div></div>
+      <label for="path">Path & query</label><textarea id="path" rows="3" spellcheck="false" autocomplete="off"></textarea>
+      <label for="body">Request body</label><textarea id="body" rows="3" spellcheck="false" placeholder="No body"></textarea>
+      <label for="expected">Expected top class</label><select id="expected"></select>
+      <details><summary>Headers <span>10 fields</span></summary><div id="headers" class="detail-fields"></div></details>
+      <details><summary>Original connection fields <span>baseline only</span></summary><p class="hint">These values feed the direct baseline. Proxy lanes use the replay connection’s current timestamp, addresses, port, and HTTP protocol.</p><div id="connection" class="detail-fields"></div></details>
+      <div class="actions"><button id="run" class="button primary" disabled>Compare request <span>→</span></button><button id="suite" class="button secondary" disabled>Run preset suite</button></div>
+      <p class="hint footnote">Encoded paths and bodies are preserved. Requests allowed by the proxy go to the isolated Nginx demo backend.</p>
+    </aside>
+    <section class="output" aria-label="Comparison results">
+      <div class="output-heading"><div><span class="eyebrow">02 / SIDE-BY-SIDE RESULTS</span><h2 id="result-title">Ready for your first request</h2></div><span id="run-state" class="run-state">AWAITING INPUT</span></div>
+      <div class="lanes">
+        <article class="lane panel" id="lane-original"><div class="lane-number">A <span>ORIGINAL FORMAT</span></div><h3>Original model</h3><p class="lane-description">Original fields → published head</p><div class="lane-content"><div class="empty-mark">↗</div><p class="empty-title">Your baseline</p><p class="muted">Run a request to see its original-format prediction.</p></div></article>
+        <article class="lane panel" id="lane-proxy_original"><div class="lane-number">B <span>PROXY FORMAT</span></div><h3>Original + proxy</h3><p class="lane-description">Live fields → published head</p><div class="lane-content"><div class="empty-mark">⇄</div><p class="empty-title">Measure the shift</p><p class="muted">Compare how live connection fields change the same head’s scores.</p></div></article>
+        <article class="lane panel trained" id="lane-proxy_trained"><div class="lane-number">C <span>PROXY FORMAT</span></div><h3>Trained + proxy</h3><p class="lane-description">Same live fields → new head</p><div class="lane-content"><div class="empty-mark">✳</div><p class="empty-title">Test the adaptation</p><p class="muted">Load your exported head when training finishes.</p></div></article>
+      </div>
+      <div id="suite-summary" class="suite-summary panel" hidden></div>
+      <section class="panel score-panel"><div class="panel-heading"><div><span class="eyebrow">ALL 14 CLASSES</span><h3>Look beyond the top label</h3></div><span class="hint">Independent sigmoid scores</span></div><div class="table-scroll"><table><thead><tr><th scope="col">CAPEC class</th><th scope="col">A · Original</th><th scope="col">B · Proxy</th><th scope="col">C · Trained</th></tr></thead><tbody id="scores"><tr><td colspan="4" class="table-empty">Class probabilities will appear after a comparison.</td></tr></tbody></table></div><p class="hint table-note">Attack risk is the highest attack-class score. Normal can be the top class while attack risk still exceeds the blocking threshold.</p></section>
+      <details class="panel input-inspector"><summary>Inspect exact model inputs <span>Original vs. live proxy</span></summary><p class="hint">B and C receive identical serialized text, captured once before the production proxy handler runs. Live fields come from the isolated lab replay connection, and may differ from traffic entering the production proxy. The shared classification prompt is added by the classifier.</p><div class="input-pair"><div><h4>A · Original request fields</h4><pre id="original-input">No request yet.</pre></div><div><h4>B + C · Actual live proxy fields</h4><pre id="proxy-input">No request yet.</pre></div></div></details>
+      <section class="panel history-panel"><div class="panel-heading"><div><span class="eyebrow">THIS SESSION</span><h3>Experiment history</h3></div><span id="history-count" class="hint">0 requests</span></div><p id="history-empty" class="hint">Comparisons stay in this tab until you refresh. Export to keep the inputs and results.</p><div id="history"></div></section>
+    </section>
+  </div>
+  <footer><span>VIVIAN / REQUEST INTELLIGENCE</span><span>Frozen EmbeddingGemma backbone · Published vs. retrained linear head</span></footer>
+</main>
+</body></html>

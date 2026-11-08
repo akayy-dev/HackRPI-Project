@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
-	"math/rand/v2"
 	"net/http"
 	"os"
 	"os/signal"
@@ -62,10 +61,24 @@ func run() error {
 	if err != nil {
 		return fmt.Errorf("parse RISK_THRESHOLD: %w", err)
 	}
-	classifier := security.ClassifierFunc(func(context.Context, *http.Request) (float64, error) {
-		// TODO: Replace this random riskiness with the probability returned by our classifier model.
-		return rand.Float64(), nil
-	})
+	classifierURL := envOrDefault("CLASSIFIER_URL", "http://classifier:8000")
+	timeout, err := time.ParseDuration(envOrDefault("CLASSIFIER_TIMEOUT", "15s"))
+	if err != nil {
+		return fmt.Errorf("parse CLASSIFIER_TIMEOUT: %w", err)
+	}
+	maxBody, err := strconv.ParseInt(envOrDefault("CLASSIFIER_MAX_BODY", "262144"), 10, 64)
+	if err != nil {
+		return fmt.Errorf("parse CLASSIFIER_MAX_BODY: %w", err)
+	}
+	classifier, err := security.NewRemoteClassifier(classifierURL, timeout, maxBody)
+	if err != nil {
+		return fmt.Errorf("create threat classifier: %w", err)
+	}
+	ready, err := classifier.CheckReady(ctx)
+	if err != nil {
+		return fmt.Errorf("connect threat classifier: %w", err)
+	}
+	slog.Info("Threat classifier ready", "url", classifierURL, "model", ready.Model, "backbone", ready.Backbone)
 	handler, err := proxy.NewHandler(reverseProxy, classifier, requestLogger, threshold)
 	if err != nil {
 		return fmt.Errorf("create request handler: %w", err)
@@ -76,7 +89,7 @@ func run() error {
 		ReadHeaderTimeout: 5 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
-	slog.Info("Starting reverse proxy", "address", server.Addr, "target", backendURL)
+	slog.Info("Starting reverse proxy", "address", server.Addr, "target", backendURL, "classifier", classifierURL)
 	serverErrors := make(chan error, 1)
 	go func() { serverErrors <- server.ListenAndServe() }()
 	select {

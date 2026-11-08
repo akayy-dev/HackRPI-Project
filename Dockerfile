@@ -3,7 +3,8 @@ WORKDIR /app
 COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
-RUN CGO_ENABLED=0 go build -trimpath -o /proxy .
+ARG APP_PATH=.
+RUN CGO_ENABLED=0 go build -trimpath -o /proxy ${APP_PATH}
 
 FROM scratch
 COPY --from=build /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/ca-certificates.crt

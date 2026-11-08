@@ -74,9 +74,10 @@ func (l *Logger) LogRequest(ctx context.Context, r *http.Request, riskiness floa
 	for name := range headers {
 		switch strings.ToLower(name) {
 
-		// Hide sensitive authroization headers from the telemetry database.
-		// NOTE: These headers are still sent to our classifier, and are included in the
-		// request forwarded to the backend. They are only redacted in the telemetry database.
+		// Hide sensitive authorization headers from the telemetry database.
+		// Cookie is still included in the classifier input because the model was
+		// trained on it. Authorization, proxy authorization, and X-Api-Key are
+		// not trained fields. All of these headers are still forwarded to the backend.
 		case "authorization", "proxy-authorization", "cookie", "x-api-key":
 			headers[name] = []string{"[REDACTED]"}
 		}

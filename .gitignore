@@ -1,2 +1,5 @@
 .env
 db/
+data/
+artifacts/
+__pycache__/

@@ -2,5 +2,9 @@
 .codex
 .agents
 .aws
+.cursor
 .env
 .env.*
+classifier
+data
+artifacts
