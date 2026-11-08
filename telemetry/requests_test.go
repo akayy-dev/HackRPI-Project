@@ -135,6 +135,29 @@ func TestTelemetryRetainsOriginalTimestamp(t *testing.T) {
 	}
 }
 
+// A training-era (2020) simulation timestamp must not become the record time,
+// or the dashboard's last-24h window hides Traffic Lab traffic.
+func TestSimulationLogsArrivalTimeAndKeepsSubmittedTimestamp(t *testing.T) {
+	arrival := time.Date(2026, 11, 8, 10, 0, 0, 0, time.UTC)
+	now = func() time.Time { return arrival }
+	t.Cleanup(func() { now = time.Now })
+	collection := &fakeCollection{}
+	logger := &Logger{collection: collection}
+	submitted := time.Date(2020, time.July, 18, 5, 26, 36, 0, time.FixedZone("", 2*60*60))
+	r := httptest.NewRequest(http.MethodGet, "/", nil)
+	metadata := SimulationMetadata{Threshold: 0.5, Timestamp: submitted}
+	if err := logger.LogSimulation(r.Context(), r, testPrediction(0.1), nil, metadata); err != nil {
+		t.Fatal(err)
+	}
+	record := collection.record
+	if !record.Timestamp.Equal(arrival) {
+		t.Fatalf("record time = %s, want arrival %s", record.Timestamp, arrival)
+	}
+	if record.RequestTimestamp == nil || !record.RequestTimestamp.Equal(submitted) {
+		t.Fatalf("submitted timestamp lost: %v", record.RequestTimestamp)
+	}
+}
+
 func TestSimulationFailureRetainsMetadataWithoutDecision(t *testing.T) {
 	collection := &fakeCollection{}
 	logger := &Logger{collection: collection}
@@ -145,7 +168,7 @@ func TestSimulationFailureRetainsMetadataWithoutDecision(t *testing.T) {
 		t.Fatal(err)
 	}
 	record := collection.record
-	if !record.Simulated || record.Timestamp != metadata.Timestamp || record.IntendedClassification != metadata.IntendedClassification || record.RemoteAddr != r.RemoteAddr {
+	if !record.Simulated || record.RequestTimestamp == nil || !record.RequestTimestamp.Equal(metadata.Timestamp) || record.IntendedClassification != metadata.IntendedClassification || record.RemoteAddr != r.RemoteAddr {
 		t.Fatalf("simulation metadata was lost: %+v", record)
 	}
 	if record.Riskiness != nil || record.AttackProbabilities != nil || record.Blocked != nil || record.ClassificationError == "" {
@@ -207,7 +230,7 @@ func TestRestoredSimulationPreservesPartnerBSONContract(t *testing.T) {
 	if len(scores) != 14 || scores["normal"] != 0.9 || scores["sql_injection"] != 0.6 {
 		t.Fatalf("partner named score shape changed: %+v", stored["attack_probabilities"])
 	}
-	if !collection.record.Timestamp.Equal(stamp) {
-		t.Fatal("stored timestamp was normalized to the model year")
+	if collection.record.RequestTimestamp == nil || !collection.record.RequestTimestamp.Equal(stamp) {
+		t.Fatal("submitted timestamp was normalized to the model year")
 	}
 }

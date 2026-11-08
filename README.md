@@ -94,7 +94,8 @@ the live proxy's `CLASSIFIER_MODE`. Each activity row identifies the chosen mode
 New synthetic samples use dates in the current year. Reference replay preserves
 the captured 2020 inputs. In original-2020 mode the classifier client normalizes
 only the serialized timestamp year; actual submitted timestamps remain unchanged
-in telemetry. Both models use the proxy's configured `RISK_THRESHOLD`.
+in `request_timestamp`. The log `timestamp` is arrival time, preserving the
+partner dashboard’s live-window behavior even for reference replay. Both models use the proxy's configured `RISK_THRESHOLD`.
 
 `POST /submit` still accepts the partner's telemetry-shaped request or original
 training-shaped JSON. It also accepts an optional `model_mode` (`trained` or
@@ -405,3 +406,53 @@ establish a zero or 1% production false-positive rate. Several classes remain
 rare or absent; original published-head pretraining membership is unknown. The
 same benchmark has already been inspected during model development, so a fresh
 independent dataset is needed before a production decision.
+
+
+## Partner dashboard and integration
+
+The dashboard includes the partner integration branch’s live Grok triage, chat,
+heuristic fallback, and escalation watcher. Start it separately:
+
+```sh
+cd web
+npm ci
+cp .env.example .env.local
+npm run dev
+```
+
+With `MONGODB_URI` empty, http://localhost:3000 uses mock data without connecting
+ to the database. For real traffic, use the same MongoDB as the proxy; both now
+ default to database `telemetry`, collection `requests`. The Go proxy reads
+ `MONGODB_DATABASE`; the dashboard uses `MONGODB_DB`. The partner’s database
+ defaults and connection code are preserved.
+
+The Traffic Lab writes simulations through the existing logger, and the dashboard
+reads those records. For simulations, `timestamp` is the arrival/log time and
+`request_timestamp` preserves the submitted time, including reference dates in
+2020. No database migration or volume reset is required.
+
+Dashboard settings in `web/.env.local`:
+
+| Variable | Purpose |
+| --- | --- |
+| `MONGODB_URI`, `MONGODB_DB`, `MONGODB_COLLECTION` | Existing log source; empty URI uses sample data |
+| `AI_PROVIDER=grok`, `XAI_API_KEY`, `XAI_MODEL` | Grok analyst; empty provider uses the heuristic fallback |
+| `AI_TRIAGE_TTL_SEC` | Reuse interval for triage responses |
+| `AI_WATCH_INTERVAL_SEC` | Escalation watcher interval; `0` disables it |
+| `ALERT_WEBHOOK_URL` | Optional alert webhook |
+| `GEOIP_DB_PATH`, `TRUST_PROXY_HEADERS` | Country lookup and controlled forwarding-header trust |
+
+For local validation without database or external AI calls, leave `MONGODB_URI`,
+`AI_PROVIDER`, `XAI_API_KEY`, and `ALERT_WEBHOOK_URL` empty and set
+`AI_WATCH_INTERVAL_SEC=0`. Run `npm test` and `npm run lint` inside `web/`.
+
+The partner’s `scripts/demo-backend.mjs` and `scripts/run-proxy.ps1` are retained.
+For native Go execution, start the Python classifier separately with `HEAD_DIR`
+empty and `TRAINED_HEAD_DIR` pointing at your exported head. Set `CLASSIFIER_URL`
+to its reachable address (for example `http://127.0.0.1:8000`) and choose
+`CLASSIFIER_MODE=trained` or `original_2020` before running Go or the PowerShell
+script. The old `OLLAMA_HOST` setting is not used by this classifier client.
+The PowerShell script still reuses MongoDB settings from `web/.env.local`.
+
+More details: [Dashboard](docs/WEB.md), [External services](docs/SERVICES.md), and
+[Testing](docs/TESTING.md).

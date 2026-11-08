@@ -5,11 +5,12 @@ import { getDb } from "@/lib/db/mongodb";
 import { getGeoResolver } from "@/lib/geo";
 import { toConnectionEvent } from "./toEvent";
 import { getMockDashboard, MOCK_SERVER } from "./mock";
+import { heuristicSummary } from "@/lib/ai/analyst";
 
 /**
  * MongoDB-backed dashboard data.
  * One document per proxied request, written by the proxy (see docs/WEB.md → "MongoDB schema").
- * Anything not yet stored in Mongo (server info, AI summary) falls back to mock.
+ * Server info falls back to mock; the AI summary card is computed from these connections.
  *
  * Bandwidth: the dashboard polls every ~2 s, so re-reading the whole 24 h window each time
  * would pull hundreds of KB per poll from a cloud cluster. Instead the window is read once,
@@ -23,7 +24,7 @@ interface RequestLogDoc extends Omit<RequestLog, "timestamp"> {
   timestamp: Date;
 }
 
-const COLLECTION = process.env.MONGODB_COLLECTION ?? "connections";
+const COLLECTION = process.env.MONGODB_COLLECTION || "requests";
 const LOOKBACK_MS = 24 * 60 * 60_000;
 const LIMIT = 500;
 const FULL_REFRESH_MS = 10 * 60_000;
@@ -121,6 +122,7 @@ export async function getMongoDashboard(): Promise<DashboardData> {
     server,
     status: { ...fallback.status, dbLatencyMs: Number(latencyMs.toFixed(1)) },
     connections,
+    summary: heuristicSummary(connections, Date.now()),
     source: "mongodb",
   };
 }

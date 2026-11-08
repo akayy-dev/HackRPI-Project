@@ -32,7 +32,7 @@ Paths relative to `web/`.
 
 ## Data: mock → MongoDB
 
-- Set `MONGODB_URI` → reads `MONGODB_COLLECTION` (default `connections`; last 24h, newest 500).
+- Set `MONGODB_URI` → reads `MONGODB_COLLECTION` in `MONGODB_DB` (defaults `requests` / `telemetry`, same as the proxy; last 24h, newest 500).
   Mongo errors fall back to mock (logged).
 - No `MONGODB_URI` but `data/live-feed.ndjson` exists → local JSON feed (written by `npm run test:live`).
 - Otherwise → mock data (timestamps relative to now, so filters work).
@@ -46,7 +46,8 @@ to database `telemetry`, collection `requests` by default (`MONGODB_DATABASE` /
 ```js
 {
   _id: ObjectId,
-  timestamp: ISODate,            // indexed: { timestamp: -1 }
+  timestamp: ISODate,            // indexed: { timestamp: -1 }. Arrival time (simulations too)
+  request_timestamp: ISODate,    // simulations only: the timestamp the Traffic Lab submitted
   risk: 0.0812,                  // Double 0..1 = 1 - attack_probabilities.normal. ABSENT if classification failed
   attack_probabilities: {        // 14 independent sigmoid scores (do not sum to 1). ABSENT if classification failed
     normal: 0.9188, protocol_manipulation: 0.004, code_injection: 0.011, os_command_injection: 0.002,
@@ -73,8 +74,8 @@ to database `telemetry`, collection `requests` by default (`MONGODB_DATABASE` /
 ```
 
 Real traffic stores no decision: the proxy blocks (403) when `risk >= proxy.THRESHOLD` (0.5).
-Traffic Lab documents keep the timestamp the generator chose (2020 dates by default), so they
-fall outside the dashboard's 24 h window unless replayed with a current time.
+Traffic Lab documents use the arrival time as `timestamp`, so they appear in the dashboard's 24 h
+window. The date the generator submitted (2020 by default) is kept in `request_timestamp`.
 
 The dashboard derives the rest (`src/lib/requestLog.ts`):
 - `ip` ← parsed from `remote_addr`
@@ -104,13 +105,24 @@ country centers from [mledoze/countries](https://github.com/mledoze/countries) (
 
 ## AI assistant
 
-Not configured. To plug in:
-1. `AI_PROVIDER=grok` + `XAI_API_KEY` (or `gemini` + `GEMINI_API_KEY`)
-2. Implement `chat()` in `src/lib/ai/provider.ts`
-   - Grok: OpenAI-compatible `POST https://api.x.ai/v1/chat/completions`
-   - Gemini: `@google/genai` SDK
+"AI Sentinel" is a Tier-1 SOC analyst on Grok (`AI_PROVIDER=grok` + `XAI_API_KEY`; see
+[`SERVICES.md`](SERVICES.md)). It has two jobs:
 
-`/api/chat` already passes recent traffic as `context`.
+- **Triage** (`GET /api/triage`, polled every 60 s by the panel, cached server-side) fills the summary card
+  and suggested actions. Grok writes only the narrative, the anomaly and the actions. Counts and
+  traffic/min are computed in `socContext.ts`.
+- **Chat** (`POST /api/chat`) answers analyst questions over the same traffic context.
+
+Guards:
+- Traffic is sent fenced in `<traffic_data>` and marked untrusted. Fields are truncated and control characters stripped.
+- **Severity floor:** Grok may raise `trafficStatus` but never lower it below what the last 5 minutes justify.
+  - CRITICAL: ≥ 50 blocked, or ≥ 20 from one IP.
+  - ELEVATED: ≥ 5 blocked, or ≥ 5 classifier errors.
+- Suggested actions that name an IP or path not present in the traffic are dropped.
+- Client chat history is limited to user/assistant turns (last 10, 2000 chars each).
+- If Grok is missing, slow or returns an invalid reply, the panel shows the heuristic analyst (badge "Heuristic").
+
+Action buttons are advisory: no blocklist is enforced yet.
 
 ## Map
 

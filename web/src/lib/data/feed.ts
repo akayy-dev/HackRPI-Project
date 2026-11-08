@@ -6,6 +6,7 @@ import type { DashboardData, RequestLog } from "@/lib/types";
 import { getGeoResolver } from "@/lib/geo";
 import { toConnectionEvent } from "./toEvent";
 import { getMockDashboard, MOCK_SERVER } from "./mock";
+import { heuristicSummary } from "@/lib/ai/analyst";
 
 /**
  * Local JSON feed: a stand-in for the Mongo collection while testing the UI.
@@ -53,5 +54,5 @@ export async function getFeedDashboard(): Promise<DashboardData> {
   );
 
   const fallback = await getMockDashboard();
-  return { ...fallback, server, connections, source: "feed" };
+  return { ...fallback, server, connections, summary: heuristicSummary(connections, Date.now()), source: "feed" };
 }

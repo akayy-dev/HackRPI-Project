@@ -18,10 +18,13 @@ import (
 
 // RequestTelemetry describes an incoming request before the proxy rewrites it.
 type RequestTelemetry struct {
-	Model                  string             `bson:"model,omitempty"`
-	HeadSHA256             string             `bson:"head_sha256,omitempty"`
-	TopLabel               string             `bson:"top_label,omitempty"`
-	Timestamp              time.Time          `bson:"timestamp"`
+	Model      string `bson:"model,omitempty"`
+	HeadSHA256 string `bson:"head_sha256,omitempty"`
+	TopLabel   string `bson:"top_label,omitempty"`
+	// Timestamp is arrival/log time so replayed simulations remain visible live.
+	Timestamp time.Time `bson:"timestamp"`
+	// RequestTimestamp preserves the submitted date independently of model normalization.
+	RequestTimestamp       *time.Time         `bson:"request_timestamp,omitempty"`
 	Riskiness              *float64           `bson:"risk,omitempty"` // Absent when classification fails.
 	AttackProbabilities    map[string]float64 `bson:"attack_probabilities,omitempty"`
 	ClassificationError    string             `bson:"classification_error,omitempty"`
@@ -38,6 +41,9 @@ type RequestTelemetry struct {
 	Protocol               string             `bson:"protocol"`
 	Headers                http.Header        `bson:"headers"`
 }
+
+// now is replaceable in tests.
+var now = time.Now
 
 type requestCollection interface {
 	InsertOne(context.Context, any, ...options.Lister[options.InsertOneOptions]) (*mongo.InsertOneResult, error)
@@ -150,8 +156,10 @@ func (l *Logger) logRequest(ctx context.Context, r *http.Request, result *securi
 		record.Threshold = &simulation.Threshold
 		record.IntendedClassification = simulation.IntendedClassification
 		record.GenerationMode = simulation.GenerationMode
+		record.Timestamp = now().UTC()
 		if !simulation.Timestamp.IsZero() {
-			record.Timestamp = simulation.Timestamp.UTC()
+			submitted := simulation.Timestamp.UTC()
+			record.RequestTimestamp = &submitted
 		}
 		if classificationErr == nil && result != nil {
 			blocked := result.Risk >= simulation.Threshold

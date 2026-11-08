@@ -10,7 +10,7 @@ up, and where it's used. All of it is free; none of it needs a paid account.
 | [`maxmind` npm package](#maxmind-npm-package) | Reads the DB-IP `.mmdb` file | No | Wired |
 | [mledoze/countries](#mledozecountries-country-centers) | Country center lat/lon | No (data committed) | Wired |
 | [world-atlas + d3-geo + topojson-client](#world-atlas--d3-geo--topojson-client-map) | Drawing the world map | No | Wired |
-| [Grok / Gemini](#grok--gemini-ai-assistant) | AI chat | Yes (API key) | **Stub, not implemented** |
+| [Grok / Gemini](#grok--gemini-ai-assistant) | AI SOC analyst (triage, chat, alerts) | Yes (API key) | Grok wired · Gemini stub |
 
 All settings live in `web/.env.local` (copy from [`web/.env.example`](../web/.env.example)).
 
@@ -26,10 +26,10 @@ request; the dashboard reads them. The dashboard never talks to the proxy direct
 2. In `web/.env.local`:
    ```bash
    MONGODB_URI=mongodb://localhost:27017      # or your Atlas connection string
-   MONGODB_DB=proxy                            # database name
-   MONGODB_COLLECTION=connections              # collection the proxy writes to
+   MONGODB_DB=telemetry                        # database the proxy writes to
+   MONGODB_COLLECTION=requests                 # collection the proxy writes to
    ```
-3. Recommended index: `db.connections.createIndex({ timestamp: -1 })`.
+3. Recommended index: `db.requests.createIndex({ timestamp: -1 })`.
 
 With `MONGODB_URI` empty the dashboard serves mock data. If a Mongo read fails, it logs the error
 and also serves mock data.
@@ -168,23 +168,49 @@ handles pan/zoom. Nodes are grouped by `location.code` in `toMapNodes`
 
 ## Grok / Gemini (AI assistant)
 
-**Status: not implemented.** The chat UI and API route exist; the provider calls are TODO stubs.
+**Status:** Grok is wired as "AI Sentinel", a Tier-1 SOC analyst. Gemini is still a stub.
+Without a key, the dashboard uses a rule-based (heuristic) analyst, so the summary card always works.
 
-**Setup (once implemented)**
+**Setup**
 ```bash
-AI_PROVIDER=grok   + XAI_API_KEY=...      # xAI console
-AI_PROVIDER=gemini + GEMINI_API_KEY=...   # Google AI Studio
+AI_PROVIDER=grok
+XAI_API_KEY=...            # xAI console
+XAI_MODEL=grok-4           # optional
+AI_TRIAGE_TTL_SEC=60       # optional: how long one triage result is reused
 ```
 
 **In the code**
 | File | Role |
 |---|---|
-| [`web/src/lib/ai/provider.ts`](../web/src/lib/ai/provider.ts) | Provider interface + `chat()` stubs to fill in |
-| [`web/src/app/api/chat/route.ts`](../web/src/app/api/chat/route.ts) | `POST /api/chat`; sends the last 50 requests (no headers) as context |
-| [`web/src/components/AiPanel.tsx`](../web/src/components/AiPanel.tsx) | Summary + chat UI |
+| [`web/src/lib/ai/grok.ts`](../web/src/lib/ai/grok.ts) | xAI Chat Completions client (`fetch`, 30 s timeout) |
+| [`web/src/lib/ai/socContext.ts`](../web/src/lib/ai/socContext.ts) | Traffic → stats + samples; all numbers come from here, never from the model |
+| [`web/src/lib/ai/analyst.ts`](../web/src/lib/ai/analyst.ts) | Analyst prompt, triage JSON validator, severity floor, heuristic fallback |
+| [`web/src/lib/ai/provider.ts`](../web/src/lib/ai/provider.ts) | Provider interface (`chat`, `triage`) |
+| [`web/src/lib/ai/triageService.ts`](../web/src/lib/ai/triageService.ts) | Shared cache + refresh throttle + fallback |
+| [`web/src/app/api/triage/route.ts`](../web/src/app/api/triage/route.ts) | `GET /api/triage` (`?refresh=1` to re-analyze) |
+| [`web/src/app/api/chat/route.ts`](../web/src/app/api/chat/route.ts) | `POST /api/chat` |
+| [`web/src/components/AiPanel.tsx`](../web/src/components/AiPanel.tsx) | Summary card, Re-analyze, quick prompts, chat |
 
-Note: the request context includes client IPs and user agents, which are sent to the AI provider
-once one is connected.
+**Cost:** about one Grok call per minute while a dashboard is open (shared by all tabs), plus one per chat message.
+
+Note: the context sent to xAI includes client IPs, request URLs and user agents (no other headers, no bodies).
+
+### Alerts (escalation watcher)
+
+The Next.js server checks the last 5 minutes of traffic every `AI_WATCH_INTERVAL_SEC` (default 30; `0` disables).
+The check itself uses no AI.
+- **Fires** when severity rises (NORMAL → ELEVATED → CRITICAL): one Grok write-up (heuristic if Grok is down), one alert.
+- **Stays quiet** while an attack continues at the same level, and for 10 min after an alert at a level (no flapping spam).
+- **Re-arms** once traffic is back to NORMAL.
+- **Ignores mock data**, so it only watches MongoDB or the local feed.
+
+Each alert goes to:
+- the server console (`[SOC ALERT] …`);
+- MongoDB collection `alerts`, when `MONGODB_URI` is set (documents contain attacker IPs);
+- `ALERT_WEBHOOK_URL`, if set: a Slack or Discord incoming webhook. The JSON has both `text` and `content`.
+
+The watcher shares the triage cache, so an alert also refreshes the dashboard's summary card.
+Code: [`watcher.ts`](../web/src/lib/ai/watcher.ts) (logic) · [`watchLoop.ts`](../web/src/lib/ai/watchLoop.ts) (timer, delivery) · [`instrumentation.ts`](../web/src/instrumentation.ts) (startup).
 
 ---
 
