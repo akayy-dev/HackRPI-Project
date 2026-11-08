@@ -115,7 +115,8 @@ export function heuristicTriage(ctx: SocContext): TriageResult {
 
   return {
     trafficStatus,
-    activeAnomaly: topLabel ? (SHORT[topLabel] ?? topLabel) : null,
+    // "Active" means blocked traffic right now, not somewhere in the 24h window
+    activeAnomaly: topLabel && ctx.blocked5m > 0 ? (SHORT[topLabel] ?? topLabel) : null,
     summary: summary.slice(0, SUMMARY_MAX),
     suggestedActions: actions,
   };

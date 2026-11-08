@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { AiSummary } from "@/lib/types";
+import type { TriageResponse } from "@/lib/ai/triageService";
 import { SectionTitle } from "./ui";
 
 interface Msg {
@@ -9,13 +10,58 @@ interface Msg {
   content: string;
 }
 
+const TRIAGE_POLL_MS = 60_000;
 
-export default function AiPanel({ summary }: { summary: AiSummary }) {
+const QUICK_PROMPTS = [
+  "Explain the top threat",
+  "Which IPs should I block and why?",
+  "What happened in the last 5 minutes?",
+  "Map current attacks to MITRE ATT&CK",
+];
+
+const perMinLabel = (n: number) => (n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${Math.round(n)}`);
+
+function ago(iso: string, now: number): string {
+  const s = Math.max(0, Math.round((now - Date.parse(iso)) / 1000));
+  return s < 60 ? `${s}s ago` : `${Math.round(s / 60)}m ago`;
+}
+
+export default function AiPanel({ summary: initialSummary }: { summary: AiSummary }) {
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState("");
   const [pending, setPending] = useState(false);
   const [configured, setConfigured] = useState<boolean | null>(null);
+  const [triage, setTriage] = useState<TriageResponse | null>(null);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [now, setNow] = useState(() => Date.now());
   const scrollRef = useRef<HTMLDivElement>(null);
+  const summary = triage?.summary ?? initialSummary;
+
+  const loadTriage = useCallback(async (refresh = false) => {
+    setAnalyzing(true);
+    try {
+      const res = await fetch(`/api/triage${refresh ? "?refresh=1" : ""}`, { cache: "no-store" });
+      if (res.ok) {
+        const data = (await res.json()) as TriageResponse;
+        setTriage(data);
+        setConfigured((c) => c ?? data.configured);
+      }
+    } catch {
+      // keep the last good summary
+    } finally {
+      setAnalyzing(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadTriage();
+    const poll = setInterval(() => loadTriage(), TRIAGE_POLL_MS);
+    const clock = setInterval(() => setNow(Date.now()), 10_000);
+    return () => {
+      clearInterval(poll);
+      clearInterval(clock);
+    };
+  }, [loadTriage]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight });
@@ -46,8 +92,29 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
 
   return (
     <aside className="flex flex-col gap-4 rounded-xl border border-obsidian-700 bg-obsidian-900 p-4 shadow-2xl sm:p-5 lg:col-span-4" data-purpose="ai-summary-helper">
-      <div className="border-b border-obsidian-800 pb-3">
+      <div className="flex items-center justify-between gap-2 border-b border-obsidian-800 pb-3">
         <SectionTitle>AI summary &amp; helper</SectionTitle>
+        <div className="flex shrink-0 items-center gap-2">
+          {triage && (
+            <span
+              title={triage.error ?? `Analyzed ${new Date(triage.analyzedAt).toLocaleTimeString()}`}
+              className={`rounded border px-1.5 py-0.5 text-[10px] font-semibold ${
+                triage.source === "heuristic" ? "border-obsidian-700 text-gray-400" : "border-tactical/50 text-tactical"
+              }`}
+              data-testid="triage-source"
+            >
+              {triage.source === "heuristic" ? "Heuristic" : `Grok · ${ago(triage.analyzedAt, now)}`}
+            </span>
+          )}
+          <button
+            type="button"
+            onClick={() => loadTriage(true)}
+            disabled={analyzing}
+            className="rounded border border-tactical/60 px-2 py-0.5 text-[10px] font-semibold text-tactical transition-all hover:bg-tactical/15 disabled:opacity-50"
+          >
+            {analyzing ? "Analyzing…" : "Re-analyze"}
+          </button>
+        </div>
       </div>
 
       {/* Summary */}
@@ -56,7 +123,7 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
           <div className="rounded border border-obsidian-800 bg-obsidian-900 p-2">
             <div className="text-[10px] text-gray-400">TRAFFIC</div>
             <div className="font-bold text-white">
-              {(summary.trafficPerMin / 1000).toFixed(1)}k/min{" "}
+              {perMinLabel(summary.trafficPerMin)}/min{" "}
               <span className={`text-[10px] ${summary.trafficStatus === "NORMAL" ? "text-tactical" : "text-threat"}`}>{summary.trafficStatus}</span>
             </div>
           </div>
@@ -98,9 +165,11 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
         <div ref={scrollRef} className="flex max-h-56 min-h-24 flex-col gap-2 overflow-y-auto rounded-lg border border-dashed border-obsidian-700 bg-obsidian-950 p-3">
           {messages.length === 0 && (
             <p className="m-auto text-center text-[11px] text-gray-500">
-              AI assistant {configured === false ? "not configured" : "ready"} — ask about traffic.
+              AI Sentinel {configured === false ? "not configured" : "ready"} — ask about traffic.
               <br />
-              <span className="text-gray-600">(Grok / Gemini plugs in via AI_PROVIDER)</span>
+              <span className="text-gray-600">
+                {configured === false ? "(set AI_PROVIDER=grok + XAI_API_KEY)" : "(powered by Grok)"}
+              </span>
             </p>
           )}
           {messages.map((m, i) =>
@@ -121,6 +190,20 @@ export default function AiPanel({ summary }: { summary: AiSummary }) {
               <span className="inline-block h-3 w-1.5 animate-cursor bg-tactical align-middle" />
             </div>
           )}
+        </div>
+
+        <div className="flex flex-wrap gap-1.5">
+          {QUICK_PROMPTS.map((p) => (
+            <button
+              key={p}
+              type="button"
+              disabled={pending}
+              onClick={() => send(p)}
+              className="rounded-full border border-obsidian-700 bg-obsidian-950 px-2.5 py-1 text-[10px] text-gray-300 transition-colors hover:border-tactical/60 hover:text-tactical disabled:opacity-50"
+            >
+              {p}
+            </button>
+          ))}
         </div>
 
         <form

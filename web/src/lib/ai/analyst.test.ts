@@ -98,6 +98,11 @@ describe("heuristicTriage", () => {
     });
   });
 
+  it("heuristic reports no active anomaly when nothing was blocked in the last 5 minutes", () => {
+    const ctx = buildSocContext(times(6, () => ev({ risk: 0.9, label: "sql_injection", minsAgo: 60 })), NOW);
+    expect(heuristicTriage(ctx).activeAnomaly).toBeNull();
+  });
+
   it("heuristic proposes block for noisy IP", () => {
     const r = heuristicTriage(attack(6));
     expect(r.trafficStatus).toBe("ELEVATED");

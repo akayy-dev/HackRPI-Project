@@ -104,13 +104,24 @@ country centers from [mledoze/countries](https://github.com/mledoze/countries) (
 
 ## AI assistant
 
-Not configured. To plug in:
-1. `AI_PROVIDER=grok` + `XAI_API_KEY` (or `gemini` + `GEMINI_API_KEY`)
-2. Implement `chat()` in `src/lib/ai/provider.ts`
-   - Grok: OpenAI-compatible `POST https://api.x.ai/v1/chat/completions`
-   - Gemini: `@google/genai` SDK
+"AI Sentinel" is a Tier-1 SOC analyst on Grok (`AI_PROVIDER=grok` + `XAI_API_KEY`; see
+[`SERVICES.md`](SERVICES.md)). It has two jobs:
 
-`/api/chat` already passes recent traffic as `context`.
+- **Triage** (`GET /api/triage`, polled every 60 s by the panel, cached server-side) fills the summary card
+  and suggested actions. Grok writes only the narrative, the anomaly and the actions. Counts and
+  traffic/min are computed in `socContext.ts`.
+- **Chat** (`POST /api/chat`) answers analyst questions over the same traffic context.
+
+Guards:
+- Traffic is sent fenced in `<traffic_data>` and marked untrusted. Fields are truncated and control characters stripped.
+- **Severity floor:** Grok may raise `trafficStatus` but never lower it below what the last 5 minutes justify.
+  - CRITICAL: ≥ 50 blocked, or ≥ 20 from one IP.
+  - ELEVATED: ≥ 5 blocked, or ≥ 5 classifier errors.
+- Suggested actions that name an IP or path not present in the traffic are dropped.
+- Client chat history is limited to user/assistant turns (last 10, 2000 chars each).
+- If Grok is missing, slow or returns an invalid reply, the panel shows the heuristic analyst (badge "Heuristic").
+
+Action buttons are advisory: no blocklist is enforced yet.
 
 ## Map
 
