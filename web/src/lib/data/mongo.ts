@@ -8,7 +8,7 @@ import { getMockDashboard, MOCK_SERVER } from "./mock";
 
 /**
  * MongoDB-backed dashboard data.
- * One document per proxied request, written by the proxy (see README → "MongoDB schema").
+ * One document per proxied request, written by the proxy (see docs/WEB.md → "MongoDB schema").
  * Anything not yet stored in Mongo (server info, AI summary) falls back to mock.
  */
 

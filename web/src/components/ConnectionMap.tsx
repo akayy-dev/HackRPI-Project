@@ -7,7 +7,7 @@ import { feature } from "topojson-client";
 import type { Topology, GeometryCollection } from "topojson-specification";
 import type { FeatureCollection } from "geojson";
 import countriesTopo from "world-atlas/countries-110m.json";
-import type { MapNode, ServerNode } from "@/lib/types";
+import type { MapNode } from "@/lib/types";
 
 const W = 760;
 const H = 420;
@@ -36,14 +36,6 @@ const SPHERE = pathGen({ type: "Sphere" }) ?? "";
 
 function project(lon: number, lat: number): [number, number] {
   return projection([lon, lat]) ?? [0, 0];
-}
-
-/** Curved arc from origin → server, bowed "upward" like a flight path. */
-function arcPath([x1, y1]: [number, number], [x2, y2]: [number, number]): string {
-  const mx = (x1 + x2) / 2;
-  const my = (y1 + y2) / 2;
-  const dist = Math.hypot(x2 - x1, y2 - y1);
-  return `M${x1},${y1} Q${mx},${my - dist * 0.35} ${x2},${y2}`;
 }
 
 const ALLOWED_HEX = "#00ff88";
@@ -112,19 +104,16 @@ function NodeTooltip({ node, view }: { node: MapNode & { xy: [number, number]; r
 }
 
 interface Props {
-  server: ServerNode;
   nodes: MapNode[];
   selectedKey: string | null;
   onSelect: (key: string | null) => void;
 }
 
-export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: Props) {
+export default function ConnectionMap({ nodes, selectedKey, onSelect }: Props) {
   const [view, setView] = useState({ k: 1, x: 0, y: 0 });
   const [hoverKey, setHoverKey] = useState<string | null>(null);
   const drag = useRef<{ px: number; py: number; x: number; y: number; moved: boolean } | null>(null);
   const svgRef = useRef<SVGSVGElement>(null);
-
-  const serverXY = project(server.location.lon, server.location.lat);
 
   const placed = useMemo(
     () =>
@@ -219,25 +208,6 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
             ))}
           </g>
 
-          {/* Arcs: origin → our server — only for traffic that got through; blocked requests never reach it */}
-          <g fill="none" pointerEvents="none">
-            {placed
-              .filter((n) => n.allowed > 0)
-              .map((n) => {
-                const isSel = n.key === selectedKey;
-                return (
-                  <path
-                    key={`arc-${n.key}`}
-                    d={arcPath(n.xy, serverXY)}
-                    className="travel-line"
-                    stroke={ALLOWED_HEX}
-                    strokeOpacity={isSel ? 0.9 : 0.55}
-                    strokeWidth={(isSel ? 1.8 : 1.1) / view.k}
-                  />
-                );
-              })}
-          </g>
-
           {/* Origin nodes: split ring — green arc = allowed share, red arc = blocked share; centre dot = latest verdict */}
           {placed.map((n) => {
             const [x, y] = n.xy;
@@ -279,18 +249,6 @@ export default function ConnectionMap({ server, nodes, selectedKey, onSelect }: 
               </g>
             );
           })}
-
-          {/* Our server (diamond bastion) */}
-          <g transform={`translate(${serverXY[0]},${serverXY[1]}) scale(${1 / view.k})`} pointerEvents="none">
-            <rect x={-8} y={-8} width={16} height={16} transform="rotate(45)" fill="#07080a" stroke="#00ff88" strokeWidth={2} filter="url(#nodeGlow)" />
-            <rect x={-2.8} y={-2.8} width={5.6} height={5.6} transform="rotate(45)" fill="#00ff88" />
-            <g transform="translate(0,22)">
-              <rect x={-52} y={-8} width={104} height={16} rx={3} fill="#0d0e12" fillOpacity={0.95} stroke="#00ff88" strokeOpacity={0.5} />
-              <text textAnchor="middle" dy={3.5} fill="#fff" fontSize={9.5} fontWeight={700} fontFamily="var(--font-mono)">
-                Our server [{server.label}]
-              </text>
-            </g>
-          </g>
 
           {/* Hover card — last so it sits above everything */}
           {(() => {

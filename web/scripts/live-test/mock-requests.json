@@ -1,0 +1,3833 @@
+[
+  {
+    "timestamp": "2026-11-07T20:03:09.863Z",
+    "risk": 0.0936,
+    "method": "GET",
+    "url": "/login?next=/",
+    "host": "localhost:8080",
+    "remote_addr": "137.166.242.84:65424",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:11.363Z",
+    "risk": 0.1427,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "108.236.154.182:38290",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:12.863Z",
+    "risk": 0.2057,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "145.254.96.35:46525",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:14.363Z",
+    "risk": 0.0783,
+    "method": "GET",
+    "url": "/login?next=/",
+    "host": "localhost:8080",
+    "remote_addr": "163.31.166.113:58384",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:15.863Z",
+    "risk": 0.1536,
+    "method": "GET",
+    "url": "/about",
+    "host": "localhost:8080",
+    "remote_addr": "100.216.249.92:39232",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:17.363Z",
+    "risk": 0.0214,
+    "method": "GET",
+    "url": "/status",
+    "host": "localhost:8080",
+    "remote_addr": "115.117.46.33:39305",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:18.863Z",
+    "risk": 0.7803,
+    "method": "GET",
+    "url": "/admin",
+    "host": "localhost:8080",
+    "remote_addr": "205.74.207.161:62864",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000562)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:20.363Z",
+    "risk": 0.6021,
+    "method": "POST",
+    "url": "/xmlrpc.php",
+    "host": "localhost:8080",
+    "remote_addr": "105.30.189.75:53630",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "multipart/form-data; boundary=x"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:21.863Z",
+    "risk": 0.0718,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "175.25.86.80:41975",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:23.363Z",
+    "risk": 0.011,
+    "method": "GET",
+    "url": "/index",
+    "host": "localhost:8080",
+    "remote_addr": "137.166.242.84:34964",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:24.863Z",
+    "risk": 0.9757,
+    "method": "GET",
+    "url": "/download?file=../../../../windows/win.ini",
+    "host": "localhost:8080",
+    "remote_addr": "46.193.61.104:63355",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:26.363Z",
+    "risk": 0.0337,
+    "method": "GET",
+    "url": "/login?next=/",
+    "host": "localhost:8080",
+    "remote_addr": "52.126.24.41:41674",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:27.863Z",
+    "risk": 0.1562,
+    "method": "GET",
+    "url": "/products",
+    "host": "localhost:8080",
+    "remote_addr": "83.105.21.192:33275",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:29.363Z",
+    "risk": 0.0784,
+    "method": "GET",
+    "url": "/about",
+    "host": "localhost:8080",
+    "remote_addr": "4.90.163.22:43660",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:30.863Z",
+    "risk": 0.0254,
+    "method": "GET",
+    "url": "/products",
+    "host": "localhost:8080",
+    "remote_addr": "88.109.143.43:35649",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:32.363Z",
+    "risk": 0.0935,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "25.80.11.22:56408",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:33.863Z",
+    "risk": 0.9066,
+    "method": "GET",
+    "url": "/admin",
+    "host": "localhost:8080",
+    "remote_addr": "129.223.124.22:42424",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000562)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:35.363Z",
+    "risk": 0.7896,
+    "method": "GET",
+    "url": "/phpmyadmin",
+    "host": "localhost:8080",
+    "remote_addr": "163.31.166.113:34150",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "gobuster/3.6"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:36.863Z",
+    "risk": 0.8836,
+    "method": "POST",
+    "url": "/login?user=admin'--",
+    "host": "localhost:8080",
+    "remote_addr": "4.90.163.22:53669",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:38.363Z",
+    "risk": 0.0096,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "183.139.81.31:58598",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:39.863Z",
+    "risk": 0.6896,
+    "method": "GET",
+    "url": "/backup.zip",
+    "host": "localhost:8080",
+    "remote_addr": "81.236.214.88:47554",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000562)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:41.363Z",
+    "risk": 0.8037,
+    "method": "GET",
+    "url": "/server-status",
+    "host": "localhost:8080",
+    "remote_addr": "115.117.46.33:48068",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "gobuster/3.6"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:42.863Z",
+    "risk": 0.0508,
+    "method": "GET",
+    "url": "/about",
+    "host": "localhost:8080",
+    "remote_addr": "154.116.254.36:34767",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:44.363Z",
+    "risk": 0.1613,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "137.166.242.84:41062",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:45.863Z",
+    "risk": 0.1318,
+    "method": "GET",
+    "url": "/index",
+    "host": "localhost:8080",
+    "remote_addr": "105.30.189.75:59736",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:47.363Z",
+    "risk": 0.1046,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "137.166.242.84:49099",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:48.863Z",
+    "risk": 0.9031,
+    "method": "GET",
+    "url": "/server-status",
+    "host": "localhost:8080",
+    "remote_addr": "223.1.65.189:53244",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000562)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:50.363Z",
+    "risk": 0.1181,
+    "method": "GET",
+    "url": "/login?next=/",
+    "host": "localhost:8080",
+    "remote_addr": "108.172.156.160:53998",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:51.863Z",
+    "risk": 0.0008,
+    "method": "GET",
+    "url": "/healthz",
+    "host": "localhost:8080",
+    "remote_addr": "31.110.95.47:36345",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:53.363Z",
+    "risk": 0.2398,
+    "method": "GET",
+    "url": "/docs",
+    "host": "localhost:8080",
+    "remote_addr": "81.236.214.88:58859",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:54.863Z",
+    "risk": 0.0263,
+    "method": "GET",
+    "url": "/healthz",
+    "host": "localhost:8080",
+    "remote_addr": "205.74.207.161:53118",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:56.363Z",
+    "risk": 0.9433,
+    "method": "GET",
+    "url": "/backup.zip",
+    "host": "localhost:8080",
+    "remote_addr": "56.97.78.57:40730",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "gobuster/3.6"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:57.863Z",
+    "risk": 0.5002,
+    "method": "POST",
+    "url": "/wp-login.php",
+    "host": "localhost:8080",
+    "remote_addr": "31.110.95.47:55918",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "multipart/form-data; boundary=x"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:03:59.363Z",
+    "risk": 0.3458,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "52.126.24.41:43306",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:00.863Z",
+    "risk": 0.3024,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "222.52.64.237:56143",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:02.363Z",
+    "risk": 0.11,
+    "method": "GET",
+    "url": "/products/47",
+    "host": "localhost:8080",
+    "remote_addr": "52.126.24.41:54153",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:03.863Z",
+    "risk": 0.233,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "83.105.21.192:55680",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:05.363Z",
+    "risk": 0.0313,
+    "method": "GET",
+    "url": "/healthz",
+    "host": "localhost:8080",
+    "remote_addr": "31.110.95.47:35068",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:06.863Z",
+    "risk": 0.6758,
+    "method": "GET",
+    "url": "/backup.zip",
+    "host": "localhost:8080",
+    "remote_addr": "223.1.65.189:49873",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:08.363Z",
+    "risk": 0.1903,
+    "method": "GET",
+    "url": "/blog/post-16",
+    "host": "localhost:8080",
+    "remote_addr": "31.110.95.47:39916",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:09.863Z",
+    "risk": 0.2003,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "108.172.156.160:50043",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:11.363Z",
+    "risk": 0.2491,
+    "method": "GET",
+    "url": "/blog/post-4",
+    "host": "localhost:8080",
+    "remote_addr": "183.227.213.98:62157",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:12.863Z",
+    "risk": 0,
+    "method": "GET",
+    "url": "/healthz",
+    "host": "localhost:8080",
+    "remote_addr": "183.227.213.98:47671",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:14.363Z",
+    "risk": 0.9464,
+    "method": "GET",
+    "url": "/products?id=1;DROP%20TABLE%20users",
+    "host": "localhost:8080",
+    "remote_addr": "88.109.143.43:52014",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:15.863Z",
+    "risk": 0.9477,
+    "method": "GET",
+    "url": "/../../etc/passwd",
+    "host": "localhost:8080",
+    "remote_addr": "205.74.207.161:63281",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:17.363Z",
+    "risk": 0.037,
+    "method": "GET",
+    "url": "/login?next=/",
+    "host": "localhost:8080",
+    "remote_addr": "108.172.156.160:53766",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:18.863Z",
+    "risk": 0.0494,
+    "method": "GET",
+    "url": "/docs",
+    "host": "localhost:8080",
+    "remote_addr": "149.57.242.253:52591",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:20.363Z",
+    "risk": 0.2213,
+    "method": "GET",
+    "url": "/blog",
+    "host": "localhost:8080",
+    "remote_addr": "205.74.207.161:37207",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:21.863Z",
+    "risk": 0.719,
+    "method": "GET",
+    "url": "/server-status",
+    "host": "localhost:8080",
+    "remote_addr": "59.181.214.248:32955",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000562)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:23.363Z",
+    "risk": 0.1901,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "163.31.166.113:43625",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:24.863Z",
+    "risk": 0.0025,
+    "method": "GET",
+    "url": "/blog",
+    "host": "localhost:8080",
+    "remote_addr": "88.109.143.43:39993",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:26.363Z",
+    "risk": 0.1523,
+    "method": "GET",
+    "url": "/blog",
+    "host": "localhost:8080",
+    "remote_addr": "149.57.242.253:53185",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:27.863Z",
+    "risk": 0.1877,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "192.168.1.11:35336",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:29.363Z",
+    "risk": 0.1992,
+    "method": "GET",
+    "url": "/about",
+    "host": "localhost:8080",
+    "remote_addr": "129.223.124.22:32921",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:30.863Z",
+    "risk": 0.5237,
+    "method": "POST",
+    "url": "/xmlrpc.php",
+    "host": "localhost:8080",
+    "remote_addr": "43.138.191.18:47118",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "application/json"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:32.363Z",
+    "risk": 0.9862,
+    "method": "GET",
+    "url": "/products?id=1;DROP%20TABLE%20users",
+    "host": "localhost:8080",
+    "remote_addr": "31.30.47.16:53730",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:33.863Z",
+    "risk": 0.062,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "122.121.215.239:33623",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:35.363Z",
+    "risk": 0.1388,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "154.116.254.36:65114",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:36.863Z",
+    "risk": 0.962,
+    "method": "POST",
+    "url": "/admin?id=1%20OR%201=1",
+    "host": "localhost:8080",
+    "remote_addr": "25.80.11.22:62335",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:38.363Z",
+    "risk": 0.0488,
+    "method": "GET",
+    "url": "/about",
+    "host": "localhost:8080",
+    "remote_addr": "205.74.207.161:54846",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:39.863Z",
+    "risk": 0.9526,
+    "method": "POST",
+    "url": "/login?user=admin'--",
+    "host": "localhost:8080",
+    "remote_addr": "108.172.156.160:45415",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:41.363Z",
+    "risk": 0.3229,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "149.57.242.253:64155",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:42.863Z",
+    "risk": 0.9313,
+    "method": "POST",
+    "url": "/products?id=1;DROP%20TABLE%20users",
+    "host": "localhost:8080",
+    "remote_addr": "154.116.254.36:63540",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:44.363Z",
+    "risk": 0.6799,
+    "method": "POST",
+    "url": "/wp-login.php",
+    "host": "localhost:8080",
+    "remote_addr": "31.110.95.47:38774",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "application/json"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:45.863Z",
+    "risk": 0.0259,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "43.138.191.18:52292",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:47.363Z",
+    "risk": 0.8926,
+    "method": "POST",
+    "url": "/wp-login.php",
+    "host": "localhost:8080",
+    "remote_addr": "201.110.70.138:63802",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "application/json"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:48.863Z",
+    "risk": 0.1712,
+    "method": "GET",
+    "url": "/blog/post-22",
+    "host": "localhost:8080",
+    "remote_addr": "4.90.163.22:39454",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:50.363Z",
+    "risk": 0.0161,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "122.121.215.239:51550",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:51.863Z",
+    "risk": 0.0943,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "52.126.24.41:53237",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:53.363Z",
+    "risk": 0.2082,
+    "method": "GET",
+    "url": "/products/20",
+    "host": "localhost:8080",
+    "remote_addr": "145.254.96.35:39397",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:54.863Z",
+    "risk": 0.0414,
+    "method": "GET",
+    "url": "/docs",
+    "host": "localhost:8080",
+    "remote_addr": "43.138.191.18:35546",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:56.363Z",
+    "risk": 0.8696,
+    "method": "GET",
+    "url": "/phpmyadmin",
+    "host": "localhost:8080",
+    "remote_addr": "66.159.199.40:59137",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "gobuster/3.6"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:57.863Z",
+    "risk": 0.1369,
+    "method": "GET",
+    "url": "/products",
+    "host": "localhost:8080",
+    "remote_addr": "222.52.64.237:62329",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:04:59.363Z",
+    "risk": 0.1358,
+    "method": "GET",
+    "url": "/products",
+    "host": "localhost:8080",
+    "remote_addr": "145.254.96.35:42830",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:00.863Z",
+    "risk": 0.0829,
+    "method": "GET",
+    "url": "/docs",
+    "host": "localhost:8080",
+    "remote_addr": "88.109.143.43:63405",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:02.363Z",
+    "risk": 0.2281,
+    "method": "GET",
+    "url": "/docs",
+    "host": "localhost:8080",
+    "remote_addr": "46.193.61.104:41971",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:03.863Z",
+    "risk": 0.6957,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "178.217.74.24:48055",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:05.363Z",
+    "risk": 0.876,
+    "method": "POST",
+    "url": "/search?q=%27%20UNION%20SELECT%20*%20FROM%20users--",
+    "host": "localhost:8080",
+    "remote_addr": "31.30.47.16:42884",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:06.863Z",
+    "risk": 0.9534,
+    "method": "GET",
+    "url": "/static/..%2f..%2f..%2fetc%2fshadow",
+    "host": "localhost:8080",
+    "remote_addr": "59.181.214.248:63063",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:08.363Z",
+    "risk": 0.0792,
+    "method": "GET",
+    "url": "/blog",
+    "host": "localhost:8080",
+    "remote_addr": "183.139.81.31:35246",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:09.863Z",
+    "risk": 0.2342,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "201.110.70.138:52320",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:11.363Z",
+    "risk": 0.2089,
+    "method": "GET",
+    "url": "/products",
+    "host": "localhost:8080",
+    "remote_addr": "25.159.234.205:35627",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:12.863Z",
+    "risk": 0.0616,
+    "method": "GET",
+    "url": "/products",
+    "host": "localhost:8080",
+    "remote_addr": "105.30.189.75:52506",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:14.363Z",
+    "risk": 0.6716,
+    "method": "GET",
+    "url": "/phpmyadmin",
+    "host": "localhost:8080",
+    "remote_addr": "25.223.67.190:39252",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000562)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:15.863Z",
+    "risk": 0.2013,
+    "method": "GET",
+    "url": "/index",
+    "host": "localhost:8080",
+    "remote_addr": "178.217.74.24:62640",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:17.363Z",
+    "risk": 0.4481,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "183.227.213.98:59781",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:18.863Z",
+    "risk": 0.1164,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "192.168.1.58:59500",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:20.363Z",
+    "risk": 0.3397,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "105.30.189.75:41991",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:21.863Z",
+    "risk": 0.0664,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "183.227.213.98:37541",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:23.363Z",
+    "risk": 0.0008,
+    "method": "GET",
+    "url": "/healthz",
+    "host": "localhost:8080",
+    "remote_addr": "46.193.61.104:43314",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:24.863Z",
+    "risk": 0.481,
+    "method": "GET",
+    "url": "/comment?body=%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E",
+    "host": "localhost:8080",
+    "remote_addr": "83.105.21.192:59164",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:26.363Z",
+    "risk": 0.9761,
+    "method": "GET",
+    "url": "/static/..%2f..%2f..%2fetc%2fshadow",
+    "host": "localhost:8080",
+    "remote_addr": "122.121.215.239:50186",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:27.863Z",
+    "risk": 0.0177,
+    "method": "GET",
+    "url": "/status",
+    "host": "localhost:8080",
+    "remote_addr": "183.139.81.31:64708",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:29.363Z",
+    "risk": 0.0467,
+    "method": "GET",
+    "url": "/docs",
+    "host": "localhost:8080",
+    "remote_addr": "223.1.65.189:47716",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:30.863Z",
+    "risk": 0.1937,
+    "method": "GET",
+    "url": "/login?next=/",
+    "host": "localhost:8080",
+    "remote_addr": "66.159.199.40:57677",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:32.363Z",
+    "risk": 0.9533,
+    "method": "GET",
+    "url": "/download?file=../../../../windows/win.ini",
+    "host": "localhost:8080",
+    "remote_addr": "145.254.96.35:51084",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:33.863Z",
+    "risk": 0.0226,
+    "method": "GET",
+    "url": "/healthz",
+    "host": "localhost:8080",
+    "remote_addr": "105.30.189.75:41947",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "curl/8.9.1"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:35.363Z",
+    "risk": 0.0192,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "56.97.78.57:57198",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:36.863Z",
+    "risk": 0.7196,
+    "method": "POST",
+    "url": "/xmlrpc.php",
+    "host": "localhost:8080",
+    "remote_addr": "205.74.207.161:56748",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "multipart/form-data; boundary=x"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:38.363Z",
+    "risk": 0.164,
+    "method": "GET",
+    "url": "/blog",
+    "host": "localhost:8080",
+    "remote_addr": "115.117.46.33:56251",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:39.863Z",
+    "risk": 0.1045,
+    "method": "GET",
+    "url": "/blog/post-23",
+    "host": "localhost:8080",
+    "remote_addr": "25.223.67.190:47689",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:41.363Z",
+    "risk": 0.8193,
+    "method": "GET",
+    "url": "/phpmyadmin",
+    "host": "localhost:8080",
+    "remote_addr": "149.57.242.253:56445",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.00 (Nikto/2.5.0) (Evasions:None) (Test:000562)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:42.863Z",
+    "risk": 0.1546,
+    "method": "GET",
+    "url": "/pricing",
+    "host": "localhost:8080",
+    "remote_addr": "145.254.96.35:38478",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:44.363Z",
+    "risk": 0.7961,
+    "method": "POST",
+    "url": "/api/upload",
+    "host": "localhost:8080",
+    "remote_addr": "97.90.18.120:57667",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "application/json"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:45.863Z",
+    "risk": 0.5459,
+    "method": "POST",
+    "url": "/graphql",
+    "host": "localhost:8080",
+    "remote_addr": "145.254.96.35:43773",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "python-requests/2.32.3"
+      ],
+      "Accept": [
+        "*/*"
+      ],
+      "Content-Type": [
+        "multipart/form-data; boundary=x"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:47.363Z",
+    "risk": 0.9104,
+    "method": "POST",
+    "url": "/products?id=1;DROP%20TABLE%20users",
+    "host": "localhost:8080",
+    "remote_addr": "201.110.70.138:43106",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:48.863Z",
+    "risk": 0.6429,
+    "method": "GET",
+    "url": "/comment?body=%3Cimg%20src%3Dx%20onerror%3Dalert(1)%3E",
+    "host": "localhost:8080",
+    "remote_addr": "59.181.214.248:45832",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:50.363Z",
+    "risk": 0.5927,
+    "method": "GET",
+    "url": "/search?q=<script>alert(1)</script>",
+    "host": "localhost:8080",
+    "remote_addr": "50.107.16.89:64923",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:51.863Z",
+    "risk": 0.8732,
+    "method": "POST",
+    "url": "/search?q=%27%20UNION%20SELECT%20*%20FROM%20users--",
+    "host": "localhost:8080",
+    "remote_addr": "31.110.95.47:34375",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:53.363Z",
+    "risk": 0.0266,
+    "method": "GET",
+    "url": "/index",
+    "host": "localhost:8080",
+    "remote_addr": "115.117.46.33:58256",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:54.863Z",
+    "risk": 0.9518,
+    "method": "POST",
+    "url": "/search?q=%27%20UNION%20SELECT%20*%20FROM%20users--",
+    "host": "localhost:8080",
+    "remote_addr": "31.110.95.47:39253",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:56.363Z",
+    "risk": 0.9368,
+    "method": "GET",
+    "url": "/login?user=admin'--",
+    "host": "localhost:8080",
+    "remote_addr": "183.227.213.98:33170",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "sqlmap/1.8.6#stable (https://sqlmap.org)"
+      ],
+      "Accept": [
+        "*/*"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:57.863Z",
+    "risk": 0.17,
+    "method": "GET",
+    "url": "/index",
+    "host": "localhost:8080",
+    "remote_addr": "129.223.124.22:49970",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:05:59.363Z",
+    "risk": 0.1156,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "66.159.199.40:56892",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:06:00.863Z",
+    "risk": 0.2122,
+    "method": "POST",
+    "url": "/login",
+    "host": "localhost:8080",
+    "remote_addr": "27.222.135.231:63125",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ],
+      "Content-Type": [
+        "application/x-www-form-urlencoded"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:06:02.363Z",
+    "risk": 0.0711,
+    "method": "GET",
+    "url": "/index",
+    "host": "localhost:8080",
+    "remote_addr": "122.121.215.239:39546",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:06:03.863Z",
+    "risk": 0.0372,
+    "method": "GET",
+    "url": "/about",
+    "host": "localhost:8080",
+    "remote_addr": "183.139.81.31:53822",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (iPhone; CPU iPhone OS 18_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/18.5 Mobile/15E148 Safari/604.1"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "ja-JP,ja;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:06:05.363Z",
+    "risk": 0.2441,
+    "method": "GET",
+    "url": "/",
+    "host": "localhost:8080",
+    "remote_addr": "88.109.143.43:38044",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "fr-FR,fr;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:06:06.863Z",
+    "risk": 0.0725,
+    "method": "GET",
+    "url": "/blog/post-1",
+    "host": "localhost:8080",
+    "remote_addr": "97.90.18.120:33862",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/140.0.0.0 Safari/537.36"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "en-US,en;q=0.9"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  },
+  {
+    "timestamp": "2026-11-07T20:06:08.363Z",
+    "risk": 0.0623,
+    "method": "GET",
+    "url": "/login?next=/",
+    "host": "localhost:8080",
+    "remote_addr": "154.116.254.36:37083",
+    "protocol": "HTTP/1.1",
+    "headers": {
+      "Host": [
+        "localhost:8080"
+      ],
+      "User-Agent": [
+        "Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:159.0) Gecko/20100101 Firefox/159.0"
+      ],
+      "Accept": [
+        "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+      ],
+      "Accept-Language": [
+        "de-DE,de;q=0.8"
+      ],
+      "Accept-Encoding": [
+        "gzip, deflate, br, zstd"
+      ],
+      "Connection": [
+        "keep-alive"
+      ],
+      "Sec-Fetch-Dest": [
+        "document"
+      ],
+      "Sec-Fetch-Mode": [
+        "navigate"
+      ],
+      "Sec-Fetch-Site": [
+        "none"
+      ]
+    }
+  }
+]

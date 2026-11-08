@@ -1,7 +1,7 @@
 /**
  * Shared data contracts. Dates are ISO strings on the wire.
  * `RequestLog` mirrors exactly what the proxy writes to MongoDB
- * (see web/README.md → "MongoDB schema"); `ConnectionEvent` adds the
+ * (see docs/WEB.md → "MongoDB schema"); `ConnectionEvent` adds the
  * fields the UI derives from it.
  */
 
@@ -81,7 +81,7 @@ export interface DashboardData {
   connections: ConnectionEvent[];
   summary: AiSummary;
   generatedAt: string;
-  source: "mock" | "mongodb";
+  source: "mock" | "mongodb" | "feed";
 }
 
 /** Connections grouped by origin location — what the map draws as one node. */

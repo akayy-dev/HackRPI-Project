@@ -4,7 +4,7 @@ import { useMemo, useState } from "react";
 import type { DashboardData, TimeWindow, VerdictFilter } from "@/lib/types";
 import { filterConnections, toMapNodes } from "@/lib/aggregate";
 import { useDashboardData } from "@/hooks/useDashboardData";
-import Header from "./Header";
+import StatusChips from "./StatusChips";
 import ConnectionMap from "./ConnectionMap";
 import NodeInspector from "./NodeInspector";
 import AiPanel from "./AiPanel";
@@ -27,12 +27,13 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
 
   return (
     <div className="flex min-h-screen flex-col gap-5 p-3 md:p-5 lg:p-6">
-      <Header status={data.status} />
-
       <main className="mx-auto grid w-full max-w-7xl grid-cols-1 items-stretch gap-5 lg:grid-cols-12">
         <section className="relative flex flex-col overflow-hidden rounded-xl border border-obsidian-700 bg-obsidian-900 p-4 shadow-2xl sm:p-5 lg:col-span-8" data-purpose="live-connection-map">
           <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
-            <SectionTitle>Live connection map</SectionTitle>
+            <div className="flex flex-wrap items-center gap-3">
+              <SectionTitle>Live connection map</SectionTitle>
+              <StatusChips status={data.status} />
+            </div>
             <div className="flex items-center gap-3.5 text-xs">
               <span className="flex items-center gap-1.5 text-gray-300">
                 <span className="h-2.5 w-2.5 rounded-full border-2 border-tactical bg-obsidian-950" />Allowed
@@ -47,16 +48,13 @@ export default function Dashboard({ initial }: { initial: DashboardData }) {
                 </svg>
                 Mixed
               </span>
-              <span className="flex items-center gap-1.5 whitespace-nowrap text-gray-300">
-                <span className="inline-block h-2.5 w-2.5 rotate-45 border border-tactical bg-obsidian-950" />Our server
-              </span>
             </div>
           </div>
 
           {/* Inspector overlays the map on sm+, stacks below it on phones */}
           <div className="relative flex grow flex-col">
             <div className="soc-grid-bg relative min-h-[240px] w-full grow overflow-hidden rounded-lg border border-obsidian-800 bg-obsidian-950 sm:min-h-[410px] md:min-h-[440px]">
-              <ConnectionMap server={data.server} nodes={nodes} selectedKey={selectedKey} onSelect={setSelectedKey} />
+              <ConnectionMap nodes={nodes} selectedKey={selectedKey} onSelect={setSelectedKey} />
               <div className="pointer-events-none absolute bottom-2 left-3 text-[10px] text-gray-500">
                 {nodes.length} origins · {filtered.length} requests{unlocated > 0 && ` (${unlocated} unlocated)`} · source: {data.source}
               </div>

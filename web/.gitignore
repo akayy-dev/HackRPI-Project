@@ -43,3 +43,6 @@ next-env.d.ts
 
 # geo-IP database (downloaded by npm run geoip:download)
 /data/*.mmdb
+
+# live dashboard test feed (npm run test:live)
+/data/live-feed.ndjson

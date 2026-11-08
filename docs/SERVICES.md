@@ -140,7 +140,7 @@ license forbids committing the file and requires keeping it updated.
 but no coordinates.
 Source: <https://github.com/mledoze/countries> (npm `world-countries@5.1.0`).
 
-**License:** ODbL; credited in [`web/README.md`](../web/README.md).
+**License:** ODbL; credited in [`docs/WEB.md`](WEB.md).
 
 **Setup:** None. The data was extracted once into
 [`web/src/lib/countryCentroids.json`](../web/src/lib/countryCentroids.json) (250 countries, 8.7 KB):

@@ -7,7 +7,7 @@ import type { DashboardData } from "@/lib/types";
  * Starts from server-rendered data, then polls /api/dashboard.
  * Swap for SSE / WebSocket (or Mongo change streams) later without touching components.
  */
-export function useDashboardData(initial: DashboardData, intervalMs = 5000) {
+export function useDashboardData(initial: DashboardData, intervalMs = 2000) {
   const [data, setData] = useState(initial);
 
   useEffect(() => {
